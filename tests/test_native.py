@@ -40,6 +40,16 @@ class NativePlatformScoringTest(unittest.TestCase):
         self.assertEqual(calls[0].args, {"location": "Sion"})
         self.assertTrue(calls[0].ok)
 
+    def test_extracts_generic_native_name_arguments_call(self) -> None:
+        text = '{"name":"weather_check","arguments":{"location":"Berlin, Germany"}}'
+
+        calls = extract_native_tool_calls(text)
+
+        self.assertEqual(len(calls), 1)
+        self.assertEqual(calls[0].name, "get_weather")
+        self.assertEqual(calls[0].args, {"location": "Berlin, Germany"})
+        self.assertTrue(calls[0].ok)
+
     def test_scores_missing_native_tool_argument(self) -> None:
         task = Task(
             id="weather",

@@ -31,6 +31,14 @@ TOOL_ALIASES = {
     "weather": "get_weather",
     "getweather": "get_weather",
     "get_weather": "get_weather",
+    "weather_check": "get_weather",
+    "weathercheck": "get_weather",
+    "filesystem_read_directory": "list_directory",
+    "filesystemreaddirectory": "list_directory",
+    "read_directory": "list_directory",
+    "readdirectory": "list_directory",
+    "filesystem_read_file": "read_file",
+    "filesystemreadfile": "read_file",
 }
 
 REQUIRED_ARGUMENT_SETS = {
@@ -165,6 +173,11 @@ def _tool_call_from_object(item: Any) -> ToolCall | None:
     if "tool" in item or "tool_name" in item:
         tool_name = str(item.get("tool") or item.get("tool_name"))
         args = item.get("arguments") or item.get("args") or {}
+        args = args if isinstance(args, dict) else {}
+        return ToolCall(name=_canonical_tool(tool_name), args=args, ok=not _missing_arguments(_canonical_tool(tool_name), args))
+    if "name" in item and "arguments" in item:
+        tool_name = str(item["name"])
+        args = item.get("arguments") or {}
         args = args if isinstance(args, dict) else {}
         return ToolCall(name=_canonical_tool(tool_name), args=args, ok=not _missing_arguments(_canonical_tool(tool_name), args))
     return None

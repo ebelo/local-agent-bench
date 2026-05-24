@@ -39,3 +39,4 @@ class TaskResult:
     latency_ms: int
     raw_transcript: list[dict[str, str]]
     assertion_results: list[dict[str, Any]] = field(default_factory=list)
+    native_platform_tool_score: dict[str, Any] | None = None

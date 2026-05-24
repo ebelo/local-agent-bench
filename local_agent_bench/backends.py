@@ -4,6 +4,7 @@ import json
 import os
 import shutil
 import subprocess
+import uuid
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Protocol
@@ -16,6 +17,8 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 RAW_OLLAMA_REACT = "raw-ollama-react"
 OPENCLAW_REACT = "openclaw-react"
 HERMES_REACT = "hermes-react"
+OPENCLAW_NATIVE = "openclaw-native"
+HERMES_NATIVE = "hermes-native"
 
 RUNTIME_ALIASES = {
     "raw-ollama": RAW_OLLAMA_REACT,
@@ -23,8 +26,10 @@ RUNTIME_ALIASES = {
     RAW_OLLAMA_REACT: RAW_OLLAMA_REACT,
     "openclaw": OPENCLAW_REACT,
     OPENCLAW_REACT: OPENCLAW_REACT,
+    OPENCLAW_NATIVE: OPENCLAW_NATIVE,
     "hermes": HERMES_REACT,
     HERMES_REACT: HERMES_REACT,
+    HERMES_NATIVE: HERMES_NATIVE,
 }
 
 
@@ -167,6 +172,91 @@ class HermesChatBackend:
         }
 
 
+class OpenClawNativeBackend:
+    runtime = OPENCLAW_NATIVE
+
+    def __init__(
+        self,
+        *,
+        binary: str | None = None,
+        timeout_seconds: int = 600,
+        run_command: CommandRunner | None = None,
+    ) -> None:
+        self.binary = binary or os.environ.get("LOCAL_AGENT_BENCH_OPENCLAW_BIN", "openclaw")
+        self.timeout_seconds = timeout_seconds
+        self._run_command = run_command or run_subprocess
+
+    def native_turn(self, model: str, prompt: str) -> CommandResult:
+        argv = [
+            self.binary,
+            "agent",
+            "--local",
+            "--json",
+            "--model",
+            model,
+            "--session-key",
+            f"local-agent-bench:{os.getpid()}:{uuid.uuid4().hex}",
+            "--message",
+            prompt,
+        ]
+        thinking = os.environ.get("LOCAL_AGENT_BENCH_OPENCLAW_THINKING")
+        if thinking:
+            argv.extend(["--thinking", thinking])
+        return _run_cli(argv, self.timeout_seconds, self._run_command)
+
+    def metadata(self, model: str) -> dict[str, Any]:
+        return {
+            "adapter": self.runtime,
+            "model": model,
+            "openclaw_version": command_output([self.binary, "--version"]),
+            "openclaw_mode": "agent --local --json",
+            "native_platform_tool_score": True,
+        }
+
+
+class HermesNativeBackend:
+    runtime = HERMES_NATIVE
+
+    def __init__(
+        self,
+        *,
+        binary: str | None = None,
+        toolsets: str | None = None,
+        timeout_seconds: int = 600,
+        run_command: CommandRunner | None = None,
+    ) -> None:
+        self.binary = binary or os.environ.get("LOCAL_AGENT_BENCH_HERMES_BIN", "hermes")
+        self.toolsets = toolsets or os.environ.get("LOCAL_AGENT_BENCH_HERMES_NATIVE_TOOLSETS", "safe")
+        self.timeout_seconds = timeout_seconds
+        self._run_command = run_command or run_subprocess
+
+    def native_turn(self, model: str, prompt: str) -> CommandResult:
+        argv = [
+            self.binary,
+            "chat",
+            "--query",
+            prompt,
+            "--quiet",
+            "--model",
+            model,
+            "--toolsets",
+            self.toolsets,
+            "--source",
+            "local-agent-bench-native",
+        ]
+        return _run_cli(argv, self.timeout_seconds, self._run_command)
+
+    def metadata(self, model: str) -> dict[str, Any]:
+        return {
+            "adapter": self.runtime,
+            "model": model,
+            "hermes_version": command_output([self.binary, "--version"]),
+            "hermes_mode": "chat --query --quiet",
+            "hermes_toolsets": self.toolsets,
+            "native_platform_tool_score": True,
+        }
+
+
 def normalize_runtime(runtime: str) -> str:
     normalized = RUNTIME_ALIASES.get(runtime)
     if not normalized:
@@ -183,6 +273,10 @@ def build_backend(runtime: str, base_url: str, timeout_seconds: int = 600) -> Ch
         return OpenClawChatBackend(timeout_seconds=timeout_seconds)
     if normalized == HERMES_REACT:
         return HermesChatBackend(timeout_seconds=timeout_seconds)
+    if normalized == OPENCLAW_NATIVE:
+        return OpenClawNativeBackend(timeout_seconds=timeout_seconds)
+    if normalized == HERMES_NATIVE:
+        return HermesNativeBackend(timeout_seconds=timeout_seconds)
     raise AssertionError(f"unhandled runtime: {normalized}")
 
 

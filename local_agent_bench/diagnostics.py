@@ -6,7 +6,15 @@ import shutil
 import subprocess
 from dataclasses import dataclass
 
-from local_agent_bench.backends import HERMES_REACT, OPENCLAW_REACT, RAW_OLLAMA_REACT, command_output, normalize_runtime
+from local_agent_bench.backends import (
+    HERMES_NATIVE,
+    HERMES_REACT,
+    OPENCLAW_NATIVE,
+    OPENCLAW_REACT,
+    RAW_OLLAMA_REACT,
+    command_output,
+    normalize_runtime,
+)
 from local_agent_bench.ollama import OllamaClient, OllamaError
 from local_agent_bench.tools import (
     ToolError,
@@ -51,9 +59,9 @@ def _runtime_checks(runtime: str, base_url: str, model: str | None) -> list[Chec
         if model:
             checks.append(_model_installed(base_url, model))
         return checks
-    if runtime == OPENCLAW_REACT:
+    if runtime in {OPENCLAW_REACT, OPENCLAW_NATIVE}:
         return [_cli_available("openclaw", "LOCAL_AGENT_BENCH_OPENCLAW_BIN")]
-    if runtime == HERMES_REACT:
+    if runtime in {HERMES_REACT, HERMES_NATIVE}:
         return [_cli_available("hermes", "LOCAL_AGENT_BENCH_HERMES_BIN")]
     return [Check("runtime", False, "configuration", f"unsupported runtime: {runtime}")]
 

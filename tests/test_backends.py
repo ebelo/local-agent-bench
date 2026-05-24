@@ -6,7 +6,9 @@ from local_agent_bench.backends import (
     BackendError,
     CommandResult,
     HermesChatBackend,
+    HermesNativeBackend,
     OpenClawChatBackend,
+    OpenClawNativeBackend,
     extract_openclaw_response_text,
     normalize_runtime,
     redact_command_text,
@@ -19,6 +21,8 @@ class BackendTest(unittest.TestCase):
         self.assertEqual(normalize_runtime("ollama"), "raw-ollama-react")
         self.assertEqual(normalize_runtime("openclaw"), "openclaw-react")
         self.assertEqual(normalize_runtime("hermes"), "hermes-react")
+        self.assertEqual(normalize_runtime("openclaw-native"), "openclaw-native")
+        self.assertEqual(normalize_runtime("hermes-native"), "hermes-native")
 
     def test_renders_cli_turn_prompt(self) -> None:
         prompt = render_cli_turn_prompt(
@@ -83,6 +87,42 @@ class BackendTest(unittest.TestCase):
         self.assertIn("safe", argv)
         self.assertIn("--max-turns", argv)
         self.assertIn("--ignore-rules", argv)
+
+    def test_openclaw_native_backend_builds_agent_command(self) -> None:
+        calls: list[tuple[list[str], int, Path]] = []
+
+        def runner(argv: list[str], timeout: int, cwd: Path) -> CommandResult:
+            calls.append((argv, timeout, cwd))
+            return CommandResult(0, json.dumps({"name": "tool_call", "arguments": {"id": "weather"}}), "")
+
+        backend = OpenClawNativeBackend(binary="openclaw", timeout_seconds=30, run_command=runner)
+        result = backend.native_turn("ollama/qwen2.5-coder:7b", "How is the weather in Sion now?")
+
+        self.assertIn('"tool_call"', result.stdout)
+        argv = calls[0][0]
+        self.assertEqual(argv[:3], ["openclaw", "agent", "--local"])
+        self.assertIn("--json", argv)
+        self.assertIn("--model", argv)
+        self.assertIn("ollama/qwen2.5-coder:7b", argv)
+        self.assertIn("--message", argv)
+
+    def test_hermes_native_backend_builds_chat_command(self) -> None:
+        calls: list[tuple[list[str], int, Path]] = []
+
+        def runner(argv: list[str], timeout: int, cwd: Path) -> CommandResult:
+            calls.append((argv, timeout, cwd))
+            return CommandResult(0, "The weather is clear.", "")
+
+        backend = HermesNativeBackend(binary="hermes", toolsets="safe", timeout_seconds=30, run_command=runner)
+        result = backend.native_turn("ollama/qwen2.5-coder:7b", "How is the weather in Sion now?")
+
+        self.assertEqual(result.stdout, "The weather is clear.")
+        argv = calls[0][0]
+        self.assertEqual(argv[0], "hermes")
+        self.assertIn("chat", argv)
+        self.assertIn("--query", argv)
+        self.assertIn("--model", argv)
+        self.assertIn("ollama/qwen2.5-coder:7b", argv)
 
     def test_cli_failure_raises_backend_error(self) -> None:
         def runner(argv: list[str], timeout: int, cwd: Path) -> CommandResult:

@@ -69,6 +69,8 @@ Select a runtime adapter with `--runtime`:
 python3 -m local_agent_bench run --runtime raw-ollama-react --model qwen2.5-coder:7b
 python3 -m local_agent_bench run --runtime openclaw-react --model ollama/qwen2.5-coder:7b
 python3 -m local_agent_bench run --runtime hermes-react --model <provider/model>
+python3 -m local_agent_bench run --runtime openclaw-native --model ollama/qwen2.5-coder:7b
+python3 -m local_agent_bench run --runtime hermes-native --model ollama/qwen2.5-coder:7b
 ```
 
 `openclaw-react` calls `openclaw infer model run --local --json`; `hermes-react` calls `hermes chat --query --quiet --ignore-rules`.
@@ -76,6 +78,8 @@ Both adapters use the same benchmark ReAct protocol and the same harness-owned t
 The OpenClaw adapter uses the stateless infer path instead of a chat-agent turn, avoiding runtime tools, session transcript, and workspace instruction injection in public benchmark output.
 The Hermes adapter runs with `--ignore-rules` and defaults to the `safe` toolset to avoid user memory, project instructions, file tools, and terminal tools.
 Hermes may reject small local models if their configured context window is below its agent minimum; treat that as a runtime-configuration failure, not a benchmark-task failure.
+
+`openclaw-native` and `hermes-native` run a platform-native agent turn and add `native_platform_tool_score` to each result. This score checks whether the platform/model emitted native tool-call traces for the task's required tools and whether required arguments were present. It is intentionally separate from the ReAct score: a model can pass `raw-ollama-react` while failing native tool-call formation inside a platform.
 
 ## Initial Benchmark
 
@@ -128,10 +132,12 @@ Current:
 - `raw-ollama-react`: a minimal ReAct loop using Ollama's local HTTP API.
 - `openclaw-react`: the same ReAct loop, with assistant turns produced through `openclaw infer model run --local --json`.
 - `hermes-react`: the same ReAct loop, with assistant turns produced through `hermes chat --query --quiet --ignore-rules`.
+- `openclaw-native`: an OpenClaw agent turn where OpenClaw owns native tool-call formation.
+- `hermes-native`: a Hermes agent turn where Hermes owns native tool-call formation.
 
 Planned:
 
-- native runtime tool adapters for OpenClaw and Hermes, where the runtime itself owns tool execution and the benchmark imports observed tool traces
+- deeper native runtime trace import for full tool execution evidence
 - `baseline`: run with a known strong hosted model to establish a ceiling
 
 ## Scoring
@@ -143,6 +149,7 @@ Each task receives:
 - `tool_calls`: tools requested by the model
 - `tool_results`: whether local tools succeeded or failed
 - `final_answer`: the model's final response
+- `native_platform_tool_score`: present for native platform runtimes, with detected native calls, missing required tools, and missing required arguments
 
 Failure reasons:
 
@@ -157,6 +164,10 @@ Failure reasons:
 - `IGNORED_TOOL_RESULT`
 - `HALLUCINATED_RESULT`
 - `MISSING_REQUIRED_TOOL`
+- `NO_NATIVE_TOOL_ATTEMPT`
+- `NATIVE_MISSING_REQUIRED_TOOL`
+- `NATIVE_MISSING_REQUIRED_ARGUMENT`
+- `NATIVE_WRONG_TOOL`
 - `FORBIDDEN_TOOL`
 - `ASSERTION_FAILED`
 - `CONTEXT_LOSS`
@@ -194,7 +205,7 @@ The benchmark is designed to be reproducible on different hardware. Results shou
 
 Generated result JSON redacts the local project root and home directory as `<PROJECT_ROOT>` and `<HOME>`. Do not commit raw, unredacted benchmark results from local machines.
 
-CLI adapter binaries can be overridden with `LOCAL_AGENT_BENCH_OPENCLAW_BIN` and `LOCAL_AGENT_BENCH_HERMES_BIN`. OpenClaw thinking can be set with `LOCAL_AGENT_BENCH_OPENCLAW_THINKING`; Hermes toolsets can be set with `LOCAL_AGENT_BENCH_HERMES_TOOLSETS`.
+CLI adapter binaries can be overridden with `LOCAL_AGENT_BENCH_OPENCLAW_BIN` and `LOCAL_AGENT_BENCH_HERMES_BIN`. OpenClaw thinking can be set with `LOCAL_AGENT_BENCH_OPENCLAW_THINKING`; Hermes ReAct toolsets can be set with `LOCAL_AGENT_BENCH_HERMES_TOOLSETS`, and Hermes native toolsets with `LOCAL_AGENT_BENCH_HERMES_NATIVE_TOOLSETS`.
 
 ## Design Notes
 

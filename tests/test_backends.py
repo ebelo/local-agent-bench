@@ -9,6 +9,7 @@ from local_agent_bench.backends import (
     HermesNativeBackend,
     OpenClawChatBackend,
     OpenClawNativeBackend,
+    PiChatBackend,
     extract_openclaw_response_text,
     normalize_runtime,
     redact_command_text,
@@ -23,6 +24,8 @@ class BackendTest(unittest.TestCase):
         self.assertEqual(normalize_runtime("hermes"), "hermes-react")
         self.assertEqual(normalize_runtime("openclaw-native"), "openclaw-native")
         self.assertEqual(normalize_runtime("hermes-native"), "hermes-native")
+        self.assertEqual(normalize_runtime("pi"), "pi-react")
+        self.assertEqual(normalize_runtime("pi-react"), "pi-react")
 
     def test_renders_cli_turn_prompt(self) -> None:
         prompt = render_cli_turn_prompt(
@@ -87,6 +90,26 @@ class BackendTest(unittest.TestCase):
         self.assertIn("safe", argv)
         self.assertIn("--max-turns", argv)
         self.assertIn("--ignore-rules", argv)
+
+    def test_pi_backend_builds_oneshot_command(self) -> None:
+        calls: list[tuple[list[str], int, Path]] = []
+
+        def runner(argv: list[str], timeout: int, cwd: Path) -> CommandResult:
+            calls.append((argv, timeout, cwd))
+            return CommandResult(0, "Final Answer: ok\n", "")
+
+        backend = PiChatBackend(command="npx -y @earendil-works/pi-coding-agent", timeout_seconds=30, run_command=runner)
+        result = backend.chat("ollama/qwen2.5-coder:7b", [{"role": "user", "content": "Hello"}])
+
+        self.assertEqual(result, "Final Answer: ok")
+        argv = calls[0][0]
+        self.assertEqual(argv[:3], ["npx", "-y", "@earendil-works/pi-coding-agent"])
+        self.assertIn("--print", argv)
+        self.assertIn("--no-session", argv)
+        self.assertIn("--no-tools", argv)
+        self.assertIn("--no-context-files", argv)
+        self.assertIn("--model", argv)
+        self.assertIn("ollama/qwen2.5-coder:7b", argv)
 
     def test_openclaw_native_backend_builds_agent_command(self) -> None:
         calls: list[tuple[list[str], int, Path]] = []

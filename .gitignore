@@ -2,6 +2,6 @@ __pycache__/
 .pytest_cache/
 .coverage
 .venv/
+.pi-bench/
 results/*.json
 reports/*.md
-

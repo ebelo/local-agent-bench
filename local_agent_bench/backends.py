@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import shlex
 import shutil
 import subprocess
 import uuid
@@ -19,6 +20,7 @@ OPENCLAW_REACT = "openclaw-react"
 HERMES_REACT = "hermes-react"
 OPENCLAW_NATIVE = "openclaw-native"
 HERMES_NATIVE = "hermes-native"
+PI_REACT = "pi-react"
 
 RUNTIME_ALIASES = {
     "raw-ollama": RAW_OLLAMA_REACT,
@@ -30,6 +32,8 @@ RUNTIME_ALIASES = {
     "hermes": HERMES_REACT,
     HERMES_REACT: HERMES_REACT,
     HERMES_NATIVE: HERMES_NATIVE,
+    "pi": PI_REACT,
+    PI_REACT: PI_REACT,
 }
 
 
@@ -172,6 +176,55 @@ class HermesChatBackend:
         }
 
 
+class PiChatBackend:
+    runtime = PI_REACT
+
+    def __init__(
+        self,
+        *,
+        command: str | None = None,
+        timeout_seconds: int = 600,
+        run_command: CommandRunner | None = None,
+    ) -> None:
+        command_text = command or os.environ.get("LOCAL_AGENT_BENCH_PI_COMMAND", "pi")
+        self.command = shlex.split(command_text)
+        if not self.command:
+            self.command = ["pi"]
+        self.timeout_seconds = timeout_seconds
+        self._run_command = run_command or run_subprocess
+
+    def chat(self, model: str, messages: list[dict[str, str]], temperature: float = 0.0) -> str:
+        del temperature
+        prompt = render_cli_turn_prompt(messages)
+        argv = [
+            *self.command,
+            "--print",
+            "--no-session",
+            "--no-tools",
+            "--no-context-files",
+            "--no-skills",
+            "--no-prompt-templates",
+            "--no-extensions",
+            "--offline",
+            "--mode",
+            "text",
+            "--model",
+            model,
+            prompt,
+        ]
+        result = _run_cli(argv, self.timeout_seconds, self._run_command)
+        return result.stdout.strip()
+
+    def metadata(self, model: str) -> dict[str, Any]:
+        return {
+            "adapter": self.runtime,
+            "model": model,
+            "pi_version": command_output([*self.command, "--version"]),
+            "pi_mode": "--print --no-session --no-tools --no-context-files",
+            "pi_command": redact_command_text(" ".join(self.command)),
+        }
+
+
 class OpenClawNativeBackend:
     runtime = OPENCLAW_NATIVE
 
@@ -273,6 +326,8 @@ def build_backend(runtime: str, base_url: str, timeout_seconds: int = 600) -> Ch
         return OpenClawChatBackend(timeout_seconds=timeout_seconds)
     if normalized == HERMES_REACT:
         return HermesChatBackend(timeout_seconds=timeout_seconds)
+    if normalized == PI_REACT:
+        return PiChatBackend(timeout_seconds=timeout_seconds)
     if normalized == OPENCLAW_NATIVE:
         return OpenClawNativeBackend(timeout_seconds=timeout_seconds)
     if normalized == HERMES_NATIVE:

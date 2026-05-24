@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import platform
+import shlex
 import shutil
 import subprocess
 from dataclasses import dataclass
@@ -11,6 +12,7 @@ from local_agent_bench.backends import (
     HERMES_REACT,
     OPENCLAW_NATIVE,
     OPENCLAW_REACT,
+    PI_REACT,
     RAW_OLLAMA_REACT,
     command_output,
     normalize_runtime,
@@ -63,6 +65,8 @@ def _runtime_checks(runtime: str, base_url: str, model: str | None) -> list[Chec
         return [_cli_available("openclaw", "LOCAL_AGENT_BENCH_OPENCLAW_BIN")]
     if runtime in {HERMES_REACT, HERMES_NATIVE}:
         return [_cli_available("hermes", "LOCAL_AGENT_BENCH_HERMES_BIN")]
+    if runtime == PI_REACT:
+        return [_command_available("pi_cli", os.environ.get("LOCAL_AGENT_BENCH_PI_COMMAND", "pi"))]
     return [Check("runtime", False, "configuration", f"unsupported runtime: {runtime}")]
 
 
@@ -73,6 +77,17 @@ def _cli_available(default_binary: str, env_var: str) -> Check:
         return Check(f"{default_binary}_cli", False, "configuration", f"{binary} not found on PATH")
     version = command_output([binary, "--version"])
     return Check(f"{default_binary}_cli", version is not None, "configuration", version or f"{binary} exists")
+
+
+def _command_available(name: str, command: str) -> Check:
+    argv = shlex.split(command)
+    if not argv:
+        return Check(name, False, "configuration", "empty command")
+    resolved = shutil.which(argv[0])
+    if not resolved:
+        return Check(name, False, "configuration", f"{argv[0]} not found on PATH")
+    version = command_output([*argv, "--version"])
+    return Check(name, version is not None, "configuration", version or f"{command} exists")
 
 
 def _ollama_version() -> Check:

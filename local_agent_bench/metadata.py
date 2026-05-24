@@ -4,29 +4,24 @@ import platform
 import subprocess
 from typing import Any
 
-from local_agent_bench.ollama import OllamaClient, OllamaError
 
-
-def collect_run_metadata(client: OllamaClient, model: str, runtime: str, benchmark: str) -> dict[str, Any]:
-    model_info = _model_info(client, model)
-    return {
+def collect_run_metadata(
+    model: str,
+    runtime: str,
+    benchmark: str,
+    adapter_metadata: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    metadata = {
         "runtime": runtime,
         "benchmark": benchmark,
         "git_commit": _command(["git", "rev-parse", "HEAD"]),
         "python": platform.python_version(),
         "platform": platform.platform(),
-        "ollama_version": _command(["ollama", "--version"]),
         "model": model,
-        "model_details": model_info.get("details", {}),
-        "model_info": model_info.get("model_info", {}),
     }
-
-
-def _model_info(client: OllamaClient, model: str) -> dict[str, Any]:
-    try:
-        return client.show_model(model)
-    except OllamaError as exc:
-        return {"error": str(exc)}
+    if adapter_metadata:
+        metadata.update(adapter_metadata)
+    return metadata
 
 
 def _command(args: list[str]) -> str | None:

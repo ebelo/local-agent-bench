@@ -5,7 +5,7 @@ import re
 import time
 from dataclasses import asdict
 
-from local_agent_bench.ollama import OllamaClient, OllamaError
+from local_agent_bench.backends import BackendError, ChatBackend, _ollama_failure_reason
 from local_agent_bench.scoring import score_task
 from local_agent_bench.tools import ToolError, call_tool, tool_descriptions
 from local_agent_bench.types import Task, TaskResult, ToolCall
@@ -36,7 +36,7 @@ Do not invent filesystem contents or current weather. If a tool is needed, call 
 """
 
 
-def run_task(client: OllamaClient, model: str, task: Task, max_steps: int = 5) -> TaskResult:
+def run_task(backend: ChatBackend, model: str, task: Task, max_steps: int = 5) -> TaskResult:
     start = time.monotonic()
     transcript = [
         {"role": "system", "content": SYSTEM_PROMPT.format(tools=tool_descriptions())},
@@ -48,15 +48,15 @@ def run_task(client: OllamaClient, model: str, task: Task, max_steps: int = 5) -
 
     for _ in range(max_steps):
         try:
-            content = client.chat(model, transcript)
-        except OllamaError as exc:
+            content = backend.chat(model, transcript)
+        except BackendError as exc:
             return TaskResult(
                 task_id=task.id,
                 category=task.category,
-                runtime="raw-ollama-react",
+                runtime=backend.runtime,
                 model=model,
                 score=0.0,
-                failure_reason=_ollama_failure_reason(exc),
+                failure_reason=exc.failure_reason,
                 final_answer=str(exc),
                 tool_calls=calls,
                 latency_ms=_elapsed_ms(start),
@@ -93,7 +93,7 @@ def run_task(client: OllamaClient, model: str, task: Task, max_steps: int = 5) -
     return TaskResult(
         task_id=task.id,
         category=task.category,
-        runtime="raw-ollama-react",
+        runtime=backend.runtime,
         model=model,
         score=score,
         failure_reason=reason,
@@ -132,12 +132,3 @@ def parse_action(content: str) -> tuple[str, dict[str, object]]:
 
 def _elapsed_ms(start: float) -> int:
     return int((time.monotonic() - start) * 1000)
-
-
-def _ollama_failure_reason(exc: OllamaError) -> str:
-    text = f"{exc} {exc.body or ''}".casefold()
-    if "model" in text and "not found" in text:
-        return "MODEL_NOT_INSTALLED"
-    if exc.status_code == 404:
-        return "MODEL_NOT_INSTALLED"
-    return "OLLAMA_UNREACHABLE"

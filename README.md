@@ -63,6 +63,20 @@ The default Ollama endpoint is `http://localhost:11434`. Override it with:
 export OLLAMA_BASE_URL=http://localhost:11434
 ```
 
+Select a runtime adapter with `--runtime`:
+
+```bash
+python3 -m local_agent_bench run --runtime raw-ollama-react --model qwen2.5-coder:7b
+python3 -m local_agent_bench run --runtime openclaw-react --model ollama/qwen2.5-coder:7b
+python3 -m local_agent_bench run --runtime hermes-react --model <provider/model>
+```
+
+`openclaw-react` calls `openclaw infer model run --local --json`; `hermes-react` calls `hermes chat --query --quiet --ignore-rules`.
+Both adapters use the same benchmark ReAct protocol and the same harness-owned tools as the raw Ollama runner, so task evidence and scoring stay comparable across runtimes.
+The OpenClaw adapter uses the stateless infer path instead of a chat-agent turn, avoiding runtime tools, session transcript, and workspace instruction injection in public benchmark output.
+The Hermes adapter runs with `--ignore-rules` and defaults to the `safe` toolset to avoid user memory, project instructions, file tools, and terminal tools.
+Hermes may reject small local models if their configured context window is below its agent minimum; treat that as a runtime-configuration failure, not a benchmark-task failure.
+
 ## Initial Benchmark
 
 The first benchmark file is [benchmarks/smoke.json](benchmarks/smoke.json). It checks:
@@ -111,12 +125,13 @@ See [docs/task-schema.md](docs/task-schema.md) for the supported assertion types
 
 Current:
 
-- `raw-ollama`: a minimal ReAct loop using Ollama's local HTTP API
+- `raw-ollama-react`: a minimal ReAct loop using Ollama's local HTTP API.
+- `openclaw-react`: the same ReAct loop, with assistant turns produced through `openclaw infer model run --local --json`.
+- `hermes-react`: the same ReAct loop, with assistant turns produced through `hermes chat --query --quiet --ignore-rules`.
 
 Planned:
 
-- `openclaw`: run the same tasks through OpenClaw's agent runtime
-- `hermes`: run the same tasks through Hermes
+- native runtime tool adapters for OpenClaw and Hermes, where the runtime itself owns tool execution and the benchmark imports observed tool traces
 - `baseline`: run with a known strong hosted model to establish a ceiling
 
 ## Scoring
@@ -146,6 +161,8 @@ Failure reasons:
 - `ASSERTION_FAILED`
 - `CONTEXT_LOSS`
 - `TIMEOUT`
+- `RUNTIME_UNAVAILABLE`
+- `RUNTIME_ERROR`
 - `UNKNOWN_FAILURE`
 
 Results also include assertion-level details so a partial failure can show exactly which condition failed.
@@ -156,6 +173,7 @@ Results also include assertion-level details so a partial failure can show exact
 
 - `host`: Python and platform metadata
 - `configuration`: Ollama CLI/API reachability and model availability
+- `configuration`: OpenClaw/Hermes CLI availability for CLI-backed runtimes
 - `tooling`: local filesystem tools, known-location fallback, and composed weather tool
 - `network`: external API access needed by live-data tasks
 
@@ -175,6 +193,8 @@ The benchmark is designed to be reproducible on different hardware. Results shou
 - benchmark commit SHA
 
 Generated result JSON redacts the local project root and home directory as `<PROJECT_ROOT>` and `<HOME>`. Do not commit raw, unredacted benchmark results from local machines.
+
+CLI adapter binaries can be overridden with `LOCAL_AGENT_BENCH_OPENCLAW_BIN` and `LOCAL_AGENT_BENCH_HERMES_BIN`. OpenClaw thinking can be set with `LOCAL_AGENT_BENCH_OPENCLAW_THINKING`; Hermes toolsets can be set with `LOCAL_AGENT_BENCH_HERMES_TOOLSETS`.
 
 ## Design Notes
 

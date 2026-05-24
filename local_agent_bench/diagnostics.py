@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import os
 import platform
+import shutil
 import subprocess
 from dataclasses import dataclass
 
+from local_agent_bench.backends import HERMES_REACT, OPENCLAW_REACT, RAW_OLLAMA_REACT, command_output, normalize_runtime
 from local_agent_bench.ollama import OllamaClient, OllamaError
 from local_agent_bench.tools import (
     ToolError,
@@ -23,20 +26,45 @@ class Check:
     detail: str
 
 
-def run_diagnostics(base_url: str, model: str | None, requires_network: bool = True) -> list[Check]:
+def run_diagnostics(
+    base_url: str,
+    model: str | None,
+    requires_network: bool = True,
+    runtime: str = RAW_OLLAMA_REACT,
+) -> list[Check]:
+    normalized_runtime = normalize_runtime(runtime)
     checks = [
         Check("python", True, "host", platform.python_version()),
         Check("platform", True, "host", platform.platform()),
-        _ollama_version(),
-        _ollama_reachable(base_url),
         _filesystem_tools(),
         _known_location_fallback(),
     ]
+    checks.extend(_runtime_checks(normalized_runtime, base_url, model))
     if requires_network:
         checks.extend([_weather_api(), _weather_tool()])
-    if model:
-        checks.append(_model_installed(base_url, model))
     return checks
+
+
+def _runtime_checks(runtime: str, base_url: str, model: str | None) -> list[Check]:
+    if runtime == RAW_OLLAMA_REACT:
+        checks = [_ollama_version(), _ollama_reachable(base_url)]
+        if model:
+            checks.append(_model_installed(base_url, model))
+        return checks
+    if runtime == OPENCLAW_REACT:
+        return [_cli_available("openclaw", "LOCAL_AGENT_BENCH_OPENCLAW_BIN")]
+    if runtime == HERMES_REACT:
+        return [_cli_available("hermes", "LOCAL_AGENT_BENCH_HERMES_BIN")]
+    return [Check("runtime", False, "configuration", f"unsupported runtime: {runtime}")]
+
+
+def _cli_available(default_binary: str, env_var: str) -> Check:
+    binary = os.environ.get(env_var, default_binary)
+    resolved = shutil.which(binary)
+    if not resolved:
+        return Check(f"{default_binary}_cli", False, "configuration", f"{binary} not found on PATH")
+    version = command_output([binary, "--version"])
+    return Check(f"{default_binary}_cli", version is not None, "configuration", version or f"{binary} exists")
 
 
 def _ollama_version() -> Check:

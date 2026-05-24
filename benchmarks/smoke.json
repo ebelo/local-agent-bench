@@ -1,0 +1,69 @@
+{
+  "name": "smoke",
+  "description": "Initial filesystem and weather tasks for local agent configuration diagnosis.",
+  "tasks": [
+    {
+      "id": "fs_current_directory",
+      "category": "filesystem",
+      "prompt": "Tell me the absolute path of the current working directory.",
+      "required_tools": ["get_cwd"],
+      "allowed_tools": ["get_cwd"],
+      "diagnostic_layer": "tool_protocol",
+      "assertions": [
+        {"type": "answer_contains_tool_result", "tool": "get_cwd", "path": "cwd"},
+        {"type": "answer_contains_any", "values": ["local-agent-bench"]}
+      ]
+    },
+    {
+      "id": "fs_list_project",
+      "category": "filesystem",
+      "prompt": "List the files and folders in the current project directory.",
+      "required_tools": ["list_directory"],
+      "allowed_tools": ["list_directory"],
+      "diagnostic_layer": "tool_protocol",
+      "assertions": [
+        {"type": "tool_result_contains", "tool": "list_directory", "path": "entries[].name", "value": "README.md"},
+        {"type": "tool_result_contains", "tool": "list_directory", "path": "entries[].name", "value": "benchmarks"},
+        {"type": "tool_result_contains", "tool": "list_directory", "path": "entries[].name", "value": "local_agent_bench"},
+        {"type": "answer_contains_all", "values": ["README.md", "benchmarks", "local_agent_bench"]}
+      ]
+    },
+    {
+      "id": "fs_read_fixture",
+      "category": "filesystem",
+      "prompt": "Read the fixture note and tell me the benchmark codename.",
+      "required_tools": ["read_file"],
+      "allowed_tools": ["read_file"],
+      "diagnostic_layer": "tool_protocol",
+      "assertions": [
+        {"type": "answer_contains_all", "values": ["alpine-signal"]}
+      ]
+    },
+    {
+      "id": "weather_berlin_current",
+      "category": "weather",
+      "prompt": "What is the current weather in Berlin, Germany?",
+      "required_tools": ["get_weather"],
+      "allowed_tools": ["get_weather"],
+      "requires_network": true,
+      "diagnostic_layer": "tool_execution",
+      "assertions": [
+        {"type": "answer_contains_any", "values": ["Berlin"]},
+        {"type": "answer_contains_tool_result", "tool": "get_weather", "path": "temperature_c"}
+      ]
+    },
+    {
+      "id": "multi_step_read_then_weather",
+      "category": "multi_step",
+      "prompt": "Read the fixture note, identify the location mentioned there, then get the current weather for that location.",
+      "required_tools": ["read_file", "get_weather"],
+      "allowed_tools": ["read_file", "get_weather"],
+      "requires_network": true,
+      "diagnostic_layer": "agent_loop",
+      "assertions": [
+        {"type": "answer_contains_any", "values": ["Berlin"]},
+        {"type": "answer_contains_tool_result", "tool": "get_weather", "path": "temperature_c"}
+      ]
+    }
+  ]
+}

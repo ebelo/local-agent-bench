@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "local-agent-bench"
+version = "0.1.0"
+description = "Benchmark local LLM agentic capabilities across Ollama and agent runtimes."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [
+  { name = "Local Agent Bench contributors" }
+]
+dependencies = []
+
+[project.scripts]
+local-agent-bench = "local_agent_bench.__main__:main"
+
+[tool.setuptools]
+packages = ["local_agent_bench"]

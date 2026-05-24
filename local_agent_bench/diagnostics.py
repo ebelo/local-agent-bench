@@ -1,0 +1,107 @@
+from __future__ import annotations
+
+import platform
+import subprocess
+from dataclasses import dataclass
+
+from local_agent_bench.ollama import OllamaClient, OllamaError
+from local_agent_bench.tools import (
+    ToolError,
+    fetch_weather,
+    get_weather,
+    list_directory,
+    read_file,
+    resolve_location,
+)
+
+
+@dataclass(frozen=True)
+class Check:
+    name: str
+    ok: bool
+    layer: str
+    detail: str
+
+
+def run_diagnostics(base_url: str, model: str | None, requires_network: bool = True) -> list[Check]:
+    checks = [
+        Check("python", True, "host", platform.python_version()),
+        Check("platform", True, "host", platform.platform()),
+        _ollama_version(),
+        _ollama_reachable(base_url),
+        _filesystem_tools(),
+        _known_location_fallback(),
+    ]
+    if requires_network:
+        checks.extend([_weather_api(), _weather_tool()])
+    if model:
+        checks.append(_model_installed(base_url, model))
+    return checks
+
+
+def _ollama_version() -> Check:
+    try:
+        completed = subprocess.run(["ollama", "--version"], check=False, text=True, capture_output=True, timeout=10)
+    except (FileNotFoundError, subprocess.TimeoutExpired) as exc:
+        return Check("ollama_cli", False, "configuration", str(exc))
+    ok = completed.returncode == 0
+    detail = completed.stdout.strip() or completed.stderr.strip()
+    return Check("ollama_cli", ok, "configuration", detail)
+
+
+def _ollama_reachable(base_url: str) -> Check:
+    client = OllamaClient(base_url)
+    try:
+        models = client.list_models()
+    except OllamaError as exc:
+        return Check("ollama_api", False, "configuration", f"{base_url}: {exc}")
+    return Check("ollama_api", True, "configuration", f"{base_url}, models={len(models)}")
+
+
+def _model_installed(base_url: str, model: str) -> Check:
+    client = OllamaClient(base_url)
+    try:
+        models = client.list_models()
+    except OllamaError as exc:
+        return Check("model_installed", False, "configuration", str(exc))
+    if model in models:
+        return Check("model_installed", True, "configuration", model)
+    return Check("model_installed", False, "configuration", f"{model} not in {models}")
+
+
+def _filesystem_tools() -> Check:
+    try:
+        listing = list_directory(".")
+        fixture = read_file("benchmarks/fixtures.md")
+    except ToolError as exc:
+        return Check("filesystem_tools", False, "tooling", str(exc))
+    except Exception as exc:
+        return Check("filesystem_tools", False, "tooling", f"{type(exc).__name__}: {exc}")
+    entries = len(listing["entries"])
+    return Check("filesystem_tools", True, "tooling", f"entries={entries}; fixture={len(fixture['content'])} chars")
+
+
+def _known_location_fallback() -> Check:
+    try:
+        location = resolve_location("Berlin, Germany")
+    except Exception as exc:
+        return Check("known_location_fallback", False, "tooling", f"{type(exc).__name__}: {exc}")
+    detail = f"{location['name']} ({location['latitude']}, {location['longitude']})"
+    return Check("known_location_fallback", True, "tooling", detail)
+
+
+def _weather_api() -> Check:
+    try:
+        weather = fetch_weather(52.52, 13.405)
+    except Exception as exc:
+        return Check("weather_api", False, "network", f"{type(exc).__name__}: {exc}")
+    current = weather.get("current", {})
+    return Check("weather_api", "temperature_2m" in current, "network", f"current keys={sorted(current)}")
+
+
+def _weather_tool() -> Check:
+    try:
+        weather = get_weather("Berlin, Germany")
+    except Exception as exc:
+        return Check("weather_tool", False, "tooling", f"{type(exc).__name__}: {exc}")
+    return Check("weather_tool", True, "tooling", f"{weather['location']}; weather={weather['temperature_c']} C")

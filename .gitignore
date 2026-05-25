@@ -4,5 +4,6 @@ __pycache__/
 .venv/
 .pi-bench/
 results/*.json
+results/**/*.json
 reports/*.md
 reports/*.log

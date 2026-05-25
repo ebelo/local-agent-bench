@@ -73,8 +73,10 @@ def run_task(backend: ChatBackend, model: str, task: Task, max_steps: int = 5) -
         try:
             name, args = parse_action(content)
         except ValueError:
-            invalid_tool_syntax = True
             final_answer = content.strip()
+            if calls:
+                break
+            invalid_tool_syntax = True
             break
 
         try:

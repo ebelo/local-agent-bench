@@ -67,6 +67,38 @@ Passes when the final answer contains at least one value.
 
 Passes when the final answer contains every value.
 
+`answer_not_contains_any`
+
+```json
+{"type": "answer_not_contains_any", "values": ["blue", "green"]}
+```
+
+Passes when the final answer contains none of the listed values.
+
+`tool_call_count`
+
+```json
+{"type": "tool_call_count", "tool": "read_file", "min": 2, "max": 2}
+```
+
+Passes when the named tool was called within the optional minimum and maximum bounds.
+
+`tool_call_sequence`
+
+```json
+{"type": "tool_call_sequence", "tools": ["read_file", "get_weather"]}
+```
+
+Passes when the observed tool calls contain the expected sequence in order. Extra calls before, between, or after the expected calls are allowed unless restricted by `allowed_tools`, `forbidden_tools`, or `tool_call_count`.
+
+`tool_call_failed`
+
+```json
+{"type": "tool_call_failed", "tool": "read_file"}
+```
+
+Passes when the named tool had at least one failed call. This is useful for recovery tasks where an initial failure is intentional and should not make the whole task fail if the agent recovers.
+
 `tool_result_contains`
 
 ```json

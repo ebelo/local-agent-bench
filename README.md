@@ -95,6 +95,20 @@ The first benchmark file is [benchmarks/smoke.json](benchmarks/smoke.json). It c
 
 The weather tool uses Open-Meteo and does not need an API key.
 
+The next benchmark tier is [benchmarks/agentic.json](benchmarks/agentic.json). It checks:
+
+- recovery after an intentional bad file path
+- grounding an answer in fixture content instead of prior knowledge
+- synthesizing facts from two files
+- choosing only the relevant tool when other tools are available
+- conditional branching from a file observation into a weather lookup
+
+Run it with:
+
+```bash
+python3 -m local_agent_bench run --runtime pi-react --model ollama/qwen3.5:9b --benchmark benchmarks/agentic.json
+```
+
 `run` performs a preflight check before executing benchmark tasks. Use `--skip-preflight` only when intentionally testing degraded configuration behavior.
 
 ## Task Schema

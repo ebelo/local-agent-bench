@@ -1,0 +1,72 @@
+{
+  "name": "agentic",
+  "description": "Higher-friction agent tasks for recovery, grounding, synthesis, tool discipline, and conditional tool use.",
+  "tasks": [
+    {
+      "id": "recovery_bad_path_then_fixture",
+      "category": "recovery",
+      "prompt": "First try to read benchmarks/agentic/missing-note.md. If that fails, recover by listing benchmarks/agentic, find the recovery note, read it, and tell me the recovery code.",
+      "required_tools": ["read_file", "list_directory"],
+      "allowed_tools": ["read_file", "list_directory"],
+      "diagnostic_layer": "agent_loop",
+      "assertions": [
+        {"type": "tool_call_sequence", "tools": ["read_file", "list_directory", "read_file"]},
+        {"type": "tool_call_failed", "tool": "read_file"},
+        {"type": "answer_contains_all", "values": ["ridge-42"]}
+      ]
+    },
+    {
+      "id": "ground_fixture_over_prior",
+      "category": "grounding",
+      "prompt": "Read benchmarks/agentic/grounding.md and answer only with the deployment color stated there.",
+      "required_tools": ["read_file"],
+      "allowed_tools": ["read_file"],
+      "diagnostic_layer": "grounding",
+      "assertions": [
+        {"type": "answer_contains_all", "values": ["teal"]},
+        {"type": "answer_not_contains_any", "values": ["blue", "green"]}
+      ]
+    },
+    {
+      "id": "two_file_synthesis",
+      "category": "synthesis",
+      "prompt": "Read benchmarks/agentic/project.md and benchmarks/agentic/release.md, then answer with the project codename and release window.",
+      "required_tools": ["read_file"],
+      "allowed_tools": ["read_file", "list_directory"],
+      "diagnostic_layer": "agent_loop",
+      "assertions": [
+        {"type": "tool_call_count", "tool": "read_file", "min": 2},
+        {"type": "answer_contains_all", "values": ["alpine-signal", "2026-Q3"]}
+      ]
+    },
+    {
+      "id": "weather_tool_discipline",
+      "category": "tool_selection",
+      "prompt": "What is the current weather in Berlin, Germany? Use only the weather tool; do not inspect files or directories.",
+      "required_tools": ["get_weather"],
+      "allowed_tools": ["get_weather"],
+      "forbidden_tools": ["read_file", "list_directory", "get_cwd"],
+      "requires_network": true,
+      "diagnostic_layer": "tool_selection",
+      "assertions": [
+        {"type": "tool_call_count", "tool": "get_weather", "min": 1, "max": 1},
+        {"type": "answer_contains_any", "values": ["Berlin"]},
+        {"type": "answer_contains_tool_result", "tool": "get_weather", "path": "temperature_c"}
+      ]
+    },
+    {
+      "id": "conditional_weather_branch",
+      "category": "branching",
+      "prompt": "Read benchmarks/agentic/branching.md. It tells you which city to use. Then get the current weather for that city and answer with the city and temperature.",
+      "required_tools": ["read_file", "get_weather"],
+      "allowed_tools": ["read_file", "get_weather"],
+      "requires_network": true,
+      "diagnostic_layer": "agent_loop",
+      "assertions": [
+        {"type": "tool_call_sequence", "tools": ["read_file", "get_weather"]},
+        {"type": "answer_contains_any", "values": ["Zurich", "Zürich"]},
+        {"type": "answer_contains_tool_result", "tool": "get_weather", "path": "temperature_c"}
+      ]
+    }
+  ]
+}

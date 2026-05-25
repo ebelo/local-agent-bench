@@ -52,7 +52,7 @@ def score_task(
             score = 0.25 if called_set else 0.0
             return score, MISSING_REQUIRED_TOOL, [{"ok": False, "type": "required_tools", "detail": sorted(missing)}]
 
-    if any(not call.ok for call in tool_calls):
+    if any(not call.ok for call in tool_calls) and not _expects_failed_tool_call(task.assertions):
         if any(call.error and "missing" in call.error.lower() for call in tool_calls):
             return 0.5, BAD_ARGUMENTS, assertion_results
         return 0.5, TOOL_EXECUTION_FAILED, assertion_results
@@ -87,6 +87,33 @@ def _evaluate_assertion(assertion: dict[str, Any], final_answer: str, tool_calls
         missing = [value for value in values if not _contains(answer, value)]
         return _result(assertion, not missing, {"missing": missing, "expected": values})
 
+    if assertion_type == "answer_not_contains_any":
+        values = [str(value) for value in assertion.get("values", [])]
+        matched = [value for value in values if _contains(answer, value)]
+        return _result(assertion, not matched, {"matched": matched, "forbidden": values})
+
+    if assertion_type == "tool_call_count":
+        tool = str(assertion.get("tool", ""))
+        observed = sum(1 for call in tool_calls if call.name == tool)
+        minimum = int(assertion.get("min", 0))
+        maximum = assertion.get("max")
+        ok = observed >= minimum and (maximum is None or observed <= int(maximum))
+        return _result(assertion, ok, {"observed": observed, "min": minimum, "max": maximum})
+
+    if assertion_type == "tool_call_sequence":
+        expected = [str(tool) for tool in assertion.get("tools", [])]
+        observed = [call.name for call in tool_calls]
+        return _result(assertion, _contains_subsequence(observed, expected), {"observed": observed, "expected": expected})
+
+    if assertion_type == "tool_call_failed":
+        tool = str(assertion.get("tool", ""))
+        failed = [call for call in tool_calls if call.name == tool and not call.ok]
+        return _result(
+            assertion,
+            bool(failed),
+            {"observed": [{"name": call.name, "args": call.args, "error": call.error} for call in failed]},
+        )
+
     if assertion_type == "tool_result_contains":
         values = _tool_values(tool_calls, str(assertion.get("tool", "")), str(assertion.get("path", "")))
         expected = assertion.get("value")
@@ -107,8 +134,24 @@ def _assertion_uses_tool(result: dict[str, Any]) -> bool:
     return assertion_type in {"tool_result_contains", "answer_contains_tool_result"}
 
 
+def _expects_failed_tool_call(assertions: list[dict[str, Any]]) -> bool:
+    return any(assertion.get("type") == "tool_call_failed" for assertion in assertions)
+
+
 def _contains(answer: str, value: str) -> bool:
     return value.casefold() in answer
+
+
+def _contains_subsequence(observed: list[str], expected: list[str]) -> bool:
+    if not expected:
+        return True
+    index = 0
+    for tool in observed:
+        if tool == expected[index]:
+            index += 1
+            if index == len(expected):
+                return True
+    return False
 
 
 def _answer_contains_value(answer: str, value: Any) -> bool:
@@ -171,4 +214,3 @@ def _same_value(observed: Any, expected: Any) -> bool:
     if isinstance(observed, (int, float)) and isinstance(expected, (int, float)):
         return float(observed) == float(expected)
     return str(observed).casefold() == str(expected).casefold()
-

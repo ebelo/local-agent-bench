@@ -132,6 +132,18 @@ KNOWN_LOCATIONS: dict[str, dict[str, Any]] = {
         "latitude": 52.52,
         "longitude": 13.405,
     },
+    "zurich": {
+        "name": "Zurich",
+        "country": "Switzerland",
+        "latitude": 47.3769,
+        "longitude": 8.5417,
+    },
+    "zürich": {
+        "name": "Zurich",
+        "country": "Switzerland",
+        "latitude": 47.3769,
+        "longitude": 8.5417,
+    },
 }
 
 
@@ -146,7 +158,7 @@ def tool_descriptions() -> str:
         [
             '- get_cwd: get the project root. args: {}',
             '- list_directory: list files/folders under the project root. args: {"path": "."}',
-            '- read_file: read a UTF-8 file under the project root. args: {"path": "benchmarks/fixtures.md"}',
+            '- read_file: read a UTF-8 file under the project root. args: {"path": "benchmarks/fixtures.md"}; use the requested path when one is provided',
             '- get_weather: get current weather through Open-Meteo. args: {"location": "Berlin, Germany"}',
         ]
     )

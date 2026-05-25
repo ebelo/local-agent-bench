@@ -103,6 +103,71 @@ class ScoringTest(unittest.TestCase):
         self.assertEqual(reason, PASS)
         self.assertTrue(assertions[0]["ok"])
 
+    def test_answer_not_contains_any_rejects_forbidden_text(self) -> None:
+        task = Task(
+            id="grounding",
+            category="grounding",
+            prompt="Read color",
+            required_tools=["read_file"],
+            assertions=[{"type": "answer_not_contains_any", "values": ["blue", "green"]}],
+        )
+        calls = [ToolCall(name="read_file", args={}, ok=True, result={"content": "Deployment color: teal"})]
+        score, reason, assertions = score_task(task, "The color is blue.", calls, False)
+        self.assertEqual(score, 0.5)
+        self.assertEqual(reason, "ASSERTION_FAILED")
+        self.assertFalse(assertions[0]["ok"])
+
+    def test_tool_call_count_can_require_multiple_reads(self) -> None:
+        task = Task(
+            id="two-file",
+            category="synthesis",
+            prompt="Read two files",
+            required_tools=["read_file"],
+            assertions=[{"type": "tool_call_count", "tool": "read_file", "min": 2}],
+        )
+        calls = [
+            ToolCall(name="read_file", args={"path": "a.md"}, ok=True, result={}),
+            ToolCall(name="read_file", args={"path": "b.md"}, ok=True, result={}),
+        ]
+        score, reason, assertions = score_task(task, "done", calls, False)
+        self.assertEqual(score, 1.0)
+        self.assertEqual(reason, PASS)
+        self.assertTrue(assertions[0]["ok"])
+
+    def test_tool_call_sequence_matches_subsequence(self) -> None:
+        task = Task(
+            id="sequence",
+            category="branching",
+            prompt="Read then weather",
+            required_tools=["read_file", "get_weather"],
+            assertions=[{"type": "tool_call_sequence", "tools": ["read_file", "get_weather"]}],
+        )
+        calls = [
+            ToolCall(name="read_file", args={}, ok=True, result={}),
+            ToolCall(name="get_weather", args={}, ok=True, result={}),
+        ]
+        score, reason, assertions = score_task(task, "done", calls, False)
+        self.assertEqual(score, 1.0)
+        self.assertEqual(reason, PASS)
+        self.assertTrue(assertions[0]["ok"])
+
+    def test_tool_call_failed_detects_recovery_attempt(self) -> None:
+        task = Task(
+            id="recovery",
+            category="recovery",
+            prompt="Recover from bad path",
+            required_tools=["read_file"],
+            assertions=[{"type": "tool_call_failed", "tool": "read_file"}],
+        )
+        calls = [
+            ToolCall(name="read_file", args={"path": "missing.md"}, ok=False, error="path does not exist"),
+            ToolCall(name="read_file", args={"path": "ok.md"}, ok=True, result={}),
+        ]
+        score, reason, assertions = score_task(task, "done", calls, False)
+        self.assertEqual(score, 1.0)
+        self.assertEqual(reason, PASS)
+        self.assertTrue(assertions[0]["ok"])
+
     def test_scores_no_tool_attempt(self) -> None:
         task = Task(id="fs", category="filesystem", prompt="List files", required_tools=["list_directory"])
         score, reason, _ = score_task(task, "I cannot access files.", [], False)

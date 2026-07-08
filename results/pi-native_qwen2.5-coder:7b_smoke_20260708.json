@@ -1,0 +1,233 @@
+{
+  "metadata": {
+    "runtime": "pi-native",
+    "benchmark": "benchmarks/smoke.json",
+    "git_commit": "e2fcef5967a42cec92dae41089f7b9b6035909a4",
+    "python": "3.12.3",
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "model": "ollama/qwen2.5-coder:7b",
+    "adapter": "pi-native",
+    "pi_version": "0.80.3",
+    "pi_mode": "--print --no-session --no-context-files --mode text (native tools active)",
+    "pi_command": "npx -y @earendil-works/pi-coding-agent",
+    "native_platform_tool_score": true
+  },
+  "runtime": "pi-native",
+  "model": "ollama/qwen2.5-coder:7b",
+  "benchmark": "benchmarks/smoke.json",
+  "results": [
+    {
+      "task_id": "fs_current_directory",
+      "category": "filesystem",
+      "runtime": "pi-native",
+      "model": "ollama/qwen2.5-coder:7b",
+      "score": 0.0,
+      "failure_reason": "NO_NATIVE_TOOL_ATTEMPT",
+      "final_answer": "```bash\n{\n  \"command\": \"echo $PWD\"\n}\n```",
+      "tool_calls": [],
+      "latency_ms": 9371,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "Tell me the absolute path of the current working directory."
+        },
+        {
+          "role": "assistant",
+          "content": "```bash\n{\n  \"command\": \"echo $PWD\"\n}\n```"
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": {
+        "score": 0.0,
+        "failure_reason": "NO_NATIVE_TOOL_ATTEMPT",
+        "tool_intent_detected": false,
+        "observed_tool_calls": [],
+        "missing_required_tools": [
+          "get_cwd"
+        ]
+      }
+    },
+    {
+      "task_id": "fs_list_project",
+      "category": "filesystem",
+      "runtime": "pi-native",
+      "model": "ollama/qwen2.5-coder:7b",
+      "score": 0.25,
+      "failure_reason": "NATIVE_MISSING_REQUIRED_TOOL",
+      "final_answer": "{\"name\": \"bash\", \"arguments\": {\"command\": \"ls -la\"}}",
+      "tool_calls": [
+        {
+          "name": "bash",
+          "args": {
+            "command": "ls -la"
+          },
+          "ok": true,
+          "result": null,
+          "error": null
+        }
+      ],
+      "latency_ms": 1695,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "List the files and folders in the current project directory."
+        },
+        {
+          "role": "assistant",
+          "content": "{\"name\": \"bash\", \"arguments\": {\"command\": \"ls -la\"}}"
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": {
+        "score": 0.25,
+        "failure_reason": "NATIVE_MISSING_REQUIRED_TOOL",
+        "tool_intent_detected": true,
+        "observed_tool_calls": [
+          {
+            "name": "bash",
+            "args": {
+              "command": "ls -la"
+            },
+            "ok": true,
+            "error": null
+          }
+        ],
+        "missing_required_tools": [
+          "list_directory"
+        ]
+      }
+    },
+    {
+      "task_id": "fs_read_fixture",
+      "category": "filesystem",
+      "runtime": "pi-native",
+      "model": "ollama/qwen2.5-coder:7b",
+      "score": 1.0,
+      "failure_reason": "PASS",
+      "final_answer": "{\n  \"name\": \"read\",\n  \"arguments\": {\n    \"path\": \"<PROJECT_ROOT>/misc/fixture_note.md\"\n  }\n}",
+      "tool_calls": [
+        {
+          "name": "read_file",
+          "args": {
+            "path": "<PROJECT_ROOT>/misc/fixture_note.md"
+          },
+          "ok": true,
+          "result": null,
+          "error": null
+        }
+      ],
+      "latency_ms": 2304,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "Read the fixture note and tell me the benchmark codename."
+        },
+        {
+          "role": "assistant",
+          "content": "{\n  \"name\": \"read\",\n  \"arguments\": {\n    \"path\": \"<PROJECT_ROOT>/misc/fixture_note.md\"\n  }\n}"
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": {
+        "score": 1.0,
+        "failure_reason": "PASS",
+        "tool_intent_detected": true,
+        "observed_tool_calls": [
+          {
+            "name": "read_file",
+            "args": {
+              "path": "<PROJECT_ROOT>/misc/fixture_note.md"
+            },
+            "ok": true,
+            "error": null
+          }
+        ],
+        "missing_required_tools": []
+      }
+    },
+    {
+      "task_id": "weather_berlin_current",
+      "category": "weather",
+      "runtime": "pi-native",
+      "model": "ollama/qwen2.5-coder:7b",
+      "score": 0.25,
+      "failure_reason": "NATIVE_MISSING_REQUIRED_TOOL",
+      "final_answer": "{\n    \"name\": \"bash\",\n    \"arguments\": {\n        \"command\": \"curl -s 'https://api.openweathermap.org/data/2.5/weather?q=Berlin&appid=YOUR_API_KEY'\",\n        \"timeout\": 10\n    }\n}",
+      "tool_calls": [
+        {
+          "name": "bash",
+          "args": {
+            "command": "curl -s 'https://api.openweathermap.org/data/2.5/weather?q=Berlin&appid=YOUR_API_KEY'",
+            "timeout": 10
+          },
+          "ok": true,
+          "result": null,
+          "error": null
+        }
+      ],
+      "latency_ms": 2503,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "What is the current weather in Berlin, Germany?"
+        },
+        {
+          "role": "assistant",
+          "content": "{\n    \"name\": \"bash\",\n    \"arguments\": {\n        \"command\": \"curl -s 'https://api.openweathermap.org/data/2.5/weather?q=Berlin&appid=YOUR_API_KEY'\",\n        \"timeout\": 10\n    }\n}"
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": {
+        "score": 0.25,
+        "failure_reason": "NATIVE_MISSING_REQUIRED_TOOL",
+        "tool_intent_detected": true,
+        "observed_tool_calls": [
+          {
+            "name": "bash",
+            "args": {
+              "command": "curl -s 'https://api.openweathermap.org/data/2.5/weather?q=Berlin&appid=YOUR_API_KEY'",
+              "timeout": 10
+            },
+            "ok": true,
+            "error": null
+          }
+        ],
+        "missing_required_tools": [
+          "get_weather"
+        ]
+      }
+    },
+    {
+      "task_id": "multi_step_read_then_weather",
+      "category": "multi_step",
+      "runtime": "pi-native",
+      "model": "ollama/qwen2.5-coder:7b",
+      "score": 0.0,
+      "failure_reason": "NO_NATIVE_TOOL_ATTEMPT",
+      "final_answer": "```bash\nread path=\"./fixture_note.md\"\nlocation=$(rg -o -e 'Location: (.*?)' \"$path\")\ncity=$(echo \"$location\" | cut -d ':' -f 2 | xargs)\ntimeout=60bash \"curl -s https://api.openweathermap.org/data/2.5/weather?q=$city&appid=<your_api_key>&units=metric\"\n```",
+      "tool_calls": [],
+      "latency_ms": 3312,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "Read the fixture note, identify the location mentioned there, then get the current weather for that location."
+        },
+        {
+          "role": "assistant",
+          "content": "```bash\nread path=\"./fixture_note.md\"\nlocation=$(rg -o -e 'Location: (.*?)' \"$path\")\ncity=$(echo \"$location\" | cut -d ':' -f 2 | xargs)\ntimeout=60bash \"curl -s https://api.openweathermap.org/data/2.5/weather?q=$city&appid=<your_api_key>&units=metric\"\n```"
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": {
+        "score": 0.0,
+        "failure_reason": "NO_NATIVE_TOOL_ATTEMPT",
+        "tool_intent_detected": false,
+        "observed_tool_calls": [],
+        "missing_required_tools": [
+          "get_weather",
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

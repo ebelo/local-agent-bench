@@ -1,0 +1,115 @@
+{
+  "metadata": {
+    "runtime": "hermes-native",
+    "benchmark": "benchmarks/smoke.json",
+    "git_commit": "e2fcef5967a42cec92dae41089f7b9b6035909a4",
+    "python": "3.12.3",
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "model": "ollama/qwen2.5-coder:7b",
+    "adapter": "hermes-native",
+    "hermes_version": "Hermes Agent v0.18.2 (2026.7.7.2) · upstream 8e734810\nInstall directory: <HOME>/.hermes/hermes-agent\nInstall method: git\nPython: 3.11.15\nOpenAI SDK: 2.24.0\nUpdate available: 28 commits behind — run 'hermes update'",
+    "hermes_mode": "chat --query --quiet --ignore-rules --max-turns 1",
+    "hermes_toolsets": "safe",
+    "native_platform_tool_score": true
+  },
+  "runtime": "hermes-native",
+  "model": "ollama/qwen2.5-coder:7b",
+  "benchmark": "benchmarks/smoke.json",
+  "results": [
+    {
+      "task_id": "fs_current_directory",
+      "category": "filesystem",
+      "runtime": "hermes-native",
+      "model": "ollama/qwen2.5-coder:7b",
+      "score": 0.0,
+      "failure_reason": "RUNTIME_ERROR",
+      "final_answer": "session_id: 20260708_210309_979f84",
+      "tool_calls": [],
+      "latency_ms": 2091,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "Tell me the absolute path of the current working directory."
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": null
+    },
+    {
+      "task_id": "fs_list_project",
+      "category": "filesystem",
+      "runtime": "hermes-native",
+      "model": "ollama/qwen2.5-coder:7b",
+      "score": 0.0,
+      "failure_reason": "RUNTIME_ERROR",
+      "final_answer": "session_id: 20260708_210312_85dd8f",
+      "tool_calls": [],
+      "latency_ms": 2151,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "List the files and folders in the current project directory."
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": null
+    },
+    {
+      "task_id": "fs_read_fixture",
+      "category": "filesystem",
+      "runtime": "hermes-native",
+      "model": "ollama/qwen2.5-coder:7b",
+      "score": 0.0,
+      "failure_reason": "RUNTIME_ERROR",
+      "final_answer": "session_id: 20260708_210314_7d45f2",
+      "tool_calls": [],
+      "latency_ms": 2189,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "Read the fixture note and tell me the benchmark codename."
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": null
+    },
+    {
+      "task_id": "weather_berlin_current",
+      "category": "weather",
+      "runtime": "hermes-native",
+      "model": "ollama/qwen2.5-coder:7b",
+      "score": 0.0,
+      "failure_reason": "RUNTIME_ERROR",
+      "final_answer": "session_id: 20260708_210316_b95a5a",
+      "tool_calls": [],
+      "latency_ms": 2216,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "What is the current weather in Berlin, Germany?"
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": null
+    },
+    {
+      "task_id": "multi_step_read_then_weather",
+      "category": "multi_step",
+      "runtime": "hermes-native",
+      "model": "ollama/qwen2.5-coder:7b",
+      "score": 0.0,
+      "failure_reason": "RUNTIME_ERROR",
+      "final_answer": "session_id: 20260708_210318_04ae94",
+      "tool_calls": [],
+      "latency_ms": 2275,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "Read the fixture note, identify the location mentioned there, then get the current weather for that location."
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": null
+    }
+  ]
+}

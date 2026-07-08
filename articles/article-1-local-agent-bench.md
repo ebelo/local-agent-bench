@@ -177,7 +177,7 @@ Local Agent Bench doesn't just test models in isolation. It tests models *throug
 
 - **pi-native** — Runs `pi --print --no-session --mode text` with Pi's native tools active (bash, read, write, edit). Tests Pi's real platform tool-calling layer.
 
-All adapters use the same benchmark tasks, the same harness-owned tools, and the same scoring logic. The ReAct adapters share the same benchmark-owned prompt and parser, making cross-runtime comparison fair. The native adapters test the real platform agent loops — and as documented in [article-3](article-3-native-adapters.md), they reveal real platform constraints (context overflow, context requirements, tool registration gaps) rather than model capabilities.
+All adapters use the same benchmark tasks, the same harness-owned tools, and the same scoring logic. The ReAct adapters share the same benchmark-owned prompt and parser, making cross-runtime comparison fair. The native adapters test the real platform agent loops — and as documented in [article-3](article-3-native-adapters.md), they reveal real platform constraints across all five benchmark models (context overflow, model-override rejection, silent session failure, toolset misconfiguration, tool registration gaps) rather than model capabilities.
 
 ### ReAct vs Native Tool Calling
 
@@ -185,11 +185,11 @@ Because the benchmark includes both ReAct adapters and native adapters for the s
 
 With **ReAct**, the model must hand-format every tool call as text — `Thought:`, `Action:`, `Action Input: {"path": "."}` — and the harness parses that text. Smaller models frequently mangle this: a missing colon, a broken JSON brace, a tool name typo. Each of these produces an `INVALID_TOOL_SYNTAX` failure. The model may have correctly reasoned about *which* tool to call and *what* arguments to pass, but it still scores 0 because the format was wrong.
 
-With **native tool calling**, the platform handles the formatting. The model's output is parsed into a structured function call by the runtime, not by a text parser. This removes the format-compliance tax entirely. A model that scored 0/5 on ReAct purely because of syntax errors can jump to 2/5 or 3/5 on native — same reasoning, same tool selection, just no formatting penalty.
+With **native tool calling**, the platform handles the formatting. The model's output is parsed into a structured function call by the runtime, not by a text parser. This removes the format-compliance tax entirely — *if the platform supports the model at all*. As article-3 documents, most model+platform combinations fail before the model even gets a chance to reason: 14 out of 15 native adapter cells scored 0/5, with failures spanning context overflow, model-override rejection, silent session failure, and tool mismatch. The one exception — qwen2.5-coder:7b through pi-native scoring 1.5/5 — was driven by a coincidental tool-name alias (Pi's `read` → benchmark's `read_file`).
 
 But native calling doesn't fix everything. Failures like `IGNORED_TOOL_RESULT` (the tool returned data but the model didn't use it) and `HALLUCINATED_RESULT` (the model invented data that wasn't in the observation) stay roughly the same. These are reasoning problems, not format problems. If the model doesn't pay attention to the observation, switching from ReAct to native calling doesn't help.
 
-This is why the benchmark reports both scores separately. The gap between a model's ReAct score and its native score tells you where to invest: a model with ReAct 0/5 and native 3/5 has a formatting problem — it needs a better prompt template or a runtime that handles formatting for it. A model with ReAct 2/5 and native 2/5 has a reasoning problem — no amount of format help will fix it; you need a larger or better model.
+This is why the benchmark reports both scores separately. The gap between a model's ReAct score and its native score tells you where to invest: a model with ReAct 0/5 and native 3/5 has a formatting problem — it needs a better prompt template or a runtime that handles formatting for it. A model with ReAct 2/5 and native 2/5 has a reasoning problem — no amount of format help will fix it; you need a larger or better model. In practice, the native adapters currently serve as **platform diagnostics** rather than model rankings — they tell you which platforms work with which models, not which model is best.
 
 ## Hardware and Reproducibility
 

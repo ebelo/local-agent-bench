@@ -276,25 +276,27 @@ Only qwen2.5-coder and qwen3.5:9b can recover from errors on their own (through 
 
 ## Native Adapter Findings
 
-The three native adapters — `openclaw-native`, `hermes-native`, and `pi-native` — test the real platform agent loops instead of the benchmark-owned ReAct protocol. All scored 0/5 across 30 runs (2 models × 3 adapters × 5 tasks). Full analysis in [article-3](article-3-native-adapters.md).
+The three native adapters — `openclaw-native`, `hermes-native`, and `pi-native` — test the real platform agent loops instead of the benchmark-owned ReAct protocol. Testing covered all five benchmark models across all three native adapters (75 runs total: 5 models × 3 adapters × 5 tasks). 14 of 15 cells scored 0/5; the one exception was qwen2.5-coder:7b through pi-native at 1.5/5. Full analysis in [article-3](article-3-native-adapters.md).
 
-| Adapter | mistral:7b | lfm2.5 | Root Cause |
-|---------|-----------|--------|------------|
-| openclaw-native | 0/5 (CONTEXT_OVERFLOW) | 0/5 (RUNTIME_ERROR) | OpenClaw agent loads ~56K chars workspace context, overflowing 32K-context models |
-| hermes-native | 0/5 (RUNTIME_ERROR) | 0/5 (NO_NATIVE_TOOL_ATTEMPT) | Hermes requires 64K context minimum; mistral:7b refused, lfm2.5 runs but can't find benchmark tools |
-| pi-native | 0/5 (NO_NATIVE_TOOL_ATTEMPT) | 0/5 (NO_NATIVE_TOOL_ATTEMPT) | Pi's native tools (bash, read, write) ≠ benchmark tools; model uses Pi's tools, not benchmark's |
+| Adapter | mistral:7b | lfm2.5 | qwen3.5:9b | qwen2.5-coder:7b | ornith:9b | Root Cause |
+|---------|:---------:|:------:|:----------:|:----------------:|:--------:|------------|
+| openclaw-native | 0/5 | 0/5 | 0/5 | 0/5 | 0/5 | Context overflow (32K models) or model-override rejected (40K+ models) |
+| hermes-native | 0/5 | 0/5 | 0/5 | 0/5 | 0/5 | Silent session failure (32K models) or toolset mismatch (40K+ models) |
+| pi-native | 0/5 | 0/5 | 0/5 | **1.5/5** | 0/5 | Tool mismatch — Pi's tools ≠ benchmark tools (one partial pass via `read` alias) |
 
 **Key findings:**
 
-1. **OpenClaw agent mode** has a ~56K-token context floor from workspace files (AGENTS.md, MEMORY.md, skills, tool schemas). 7B models with 32K context overflow before seeing the task.
+1. **OpenClaw agent mode** has two failure modes: context overflow for 32K models (mistral:7b, qwen2.5-coder:7b — ~56K workspace context overflows 32K window) and model-override rejection for 40K+ models (qwen3.5:9b, ornith:9b, lfm2.5 — OpenClaw blocks `--model` overrides for agent "main").
 
-2. **Hermes** has a hard 64K context gate — it refuses to run models with less context and exits with code 1.
+2. **Hermes** has a hard 64K context floor. Models with 32K context (mistral:7b, qwen2.5-coder:7b) produce silent empty sessions in v0.18.2. Models with sufficient context (qwen3.5:9b, ornith:9b, lfm2.5) run but report only `vision_analyze` as available — the safe toolset may not be correctly registered.
 
-3. **Pi** has the best context isolation (minimal system prompt with `--no-context-files --no-skills`) but its native tools don't include the benchmark's `get_cwd`, `list_directory`, `read_file`, or `get_weather`. The model correctly uses Pi's `bash` and `read` tools but the benchmark can't score platform-specific tool calls.
+3. **Pi** has the best context isolation and is the only platform where any model scored non-zero. qwen2.5-coder:7b scored 1.5/5 through pi-native — the only model that emitted structured tool-call JSON matching a benchmark tool (Pi's `read` → benchmark's `read_file` via alias map).
 
-4. **No platform registers the benchmark's tools.** The native adapters reveal a tool registration gap: benchmark tools exist only in the benchmark's own prompt, not in any platform's tool registry. To properly test platform-native tool calling, benchmark tools would need to be registered as platform extensions.
+4. **No platform registers the benchmark's tools** (`get_cwd`, `list_directory`, `read_file`, `get_weather`). The native adapters reveal a tool registration gap: benchmark tools exist only in the benchmark's own prompt, not in any platform's tool registry.
 
-These findings are real platform constraints that would affect any user trying to deploy 7B models through these runtimes. The ReAct adapters, which use a benchmark-owned prompt and parser, remain the fair cross-runtime comparison method.
+5. **ReAct rankings do not predict native performance.** The top three ReAct models all scored 0/5 through native adapters (with the single qwen2.5-coder:7b pi-native exception). Native adapters serve as platform diagnostics, not model rankings.
+
+These findings are real platform constraints that would affect any user trying to deploy small models through these runtimes. The ReAct adapters, which use a benchmark-owned prompt and parser, remain the fair cross-runtime comparison method.
 
 ## Conclusions
 

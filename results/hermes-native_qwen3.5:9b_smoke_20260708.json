@@ -1,0 +1,176 @@
+{
+  "metadata": {
+    "runtime": "hermes-native",
+    "benchmark": "benchmarks/smoke.json",
+    "git_commit": "e2fcef5967a42cec92dae41089f7b9b6035909a4",
+    "python": "3.12.3",
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "model": "ollama/qwen3.5:9b",
+    "adapter": "hermes-native",
+    "hermes_version": "Hermes Agent v0.18.2 (2026.7.7.2) · upstream 8e734810\nInstall directory: <HOME>/.hermes/hermes-agent\nInstall method: git\nPython: 3.11.15\nOpenAI SDK: 2.24.0\nUpdate available: 28 commits behind — run 'hermes update'",
+    "hermes_mode": "chat --query --quiet --ignore-rules --max-turns 1",
+    "hermes_toolsets": "safe",
+    "native_platform_tool_score": true
+  },
+  "runtime": "hermes-native",
+  "model": "ollama/qwen3.5:9b",
+  "benchmark": "benchmarks/smoke.json",
+  "results": [
+    {
+      "task_id": "fs_current_directory",
+      "category": "filesystem",
+      "runtime": "hermes-native",
+      "model": "ollama/qwen3.5:9b",
+      "score": 0.0,
+      "failure_reason": "NO_NATIVE_TOOL_ATTEMPT",
+      "final_answer": "<PROJECT_ROOT>",
+      "tool_calls": [],
+      "latency_ms": 14690,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "Tell me the absolute path of the current working directory."
+        },
+        {
+          "role": "assistant",
+          "content": "<PROJECT_ROOT>"
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": {
+        "score": 0.0,
+        "failure_reason": "NO_NATIVE_TOOL_ATTEMPT",
+        "tool_intent_detected": false,
+        "observed_tool_calls": [],
+        "missing_required_tools": [
+          "get_cwd"
+        ]
+      }
+    },
+    {
+      "task_id": "fs_list_project",
+      "category": "filesystem",
+      "runtime": "hermes-native",
+      "model": "ollama/qwen3.5:9b",
+      "score": 0.0,
+      "failure_reason": "NO_NATIVE_TOOL_ATTEMPT",
+      "final_answer": "I'm unable to list the directory contents because my available tools don't include `terminal` or file listing capabilities — only `vision_analyze`. \n\nThe current project workspace is at `<PROJECT_ROOT>`, but I can't directly access your files without a compatible tool.\n\nTo view the folder structure, you'll need to run:\n```bash\nls -la <PROJECT_ROOT>\n```\n\nWould like me to try an approach with `vision_analyze` instead?",
+      "tool_calls": [],
+      "latency_ms": 16773,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "List the files and folders in the current project directory."
+        },
+        {
+          "role": "assistant",
+          "content": "I'm unable to list the directory contents because my available tools don't include `terminal` or file listing capabilities — only `vision_analyze`. \n\nThe current project workspace is at `<PROJECT_ROOT>`, but I can't directly access your files without a compatible tool.\n\nTo view the folder structure, you'll need to run:\n```bash\nls -la <PROJECT_ROOT>\n```\n\nWould like me to try an approach with `vision_analyze` instead?"
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": {
+        "score": 0.0,
+        "failure_reason": "NO_NATIVE_TOOL_ATTEMPT",
+        "tool_intent_detected": false,
+        "observed_tool_calls": [],
+        "missing_required_tools": [
+          "list_directory"
+        ]
+      }
+    },
+    {
+      "task_id": "fs_read_fixture",
+      "category": "filesystem",
+      "runtime": "hermes-native",
+      "model": "ollama/qwen3.5:9b",
+      "score": 0.0,
+      "failure_reason": "NO_NATIVE_TOOL_ATTEMPT",
+      "final_answer": "I was unable to find a file called 'fixture_note' in your workspace. The `search_files` tool isn't currently available in my toolkit — only `vision_analyze`.\n\nTo get you the benchmark codename, I would need one of these:\n1. A direct path/filename (e.g., `/path/to/fixture-note.txt`) so I can read it directly with a terminal command\n2. The filepath if it's somewhere in your workspace that I can locate via git or by reading individual files\n\nCould you provide the name and/or location of this fixture note?",
+      "tool_calls": [],
+      "latency_ms": 15220,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "Read the fixture note and tell me the benchmark codename."
+        },
+        {
+          "role": "assistant",
+          "content": "I was unable to find a file called 'fixture_note' in your workspace. The `search_files` tool isn't currently available in my toolkit — only `vision_analyze`.\n\nTo get you the benchmark codename, I would need one of these:\n1. A direct path/filename (e.g., `/path/to/fixture-note.txt`) so I can read it directly with a terminal command\n2. The filepath if it's somewhere in your workspace that I can locate via git or by reading individual files\n\nCould you provide the name and/or location of this fixture note?"
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": {
+        "score": 0.0,
+        "failure_reason": "NO_NATIVE_TOOL_ATTEMPT",
+        "tool_intent_detected": false,
+        "observed_tool_calls": [],
+        "missing_required_tools": [
+          "read_file"
+        ]
+      }
+    },
+    {
+      "task_id": "weather_berlin_current",
+      "category": "weather",
+      "runtime": "hermes-native",
+      "model": "ollama/qwen3.5:9b",
+      "score": 0.0,
+      "failure_reason": "NO_NATIVE_TOOL_ATTEMPT",
+      "final_answer": "I don't have built-in weather API access or web browser capabilities available to fetch current real-time data for Berlin, Germany directly through my provided tool set (which currently only includes `vision_analyze` for imagery analysis).",
+      "tool_calls": [],
+      "latency_ms": 26710,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "What is the current weather in Berlin, Germany?"
+        },
+        {
+          "role": "assistant",
+          "content": "I don't have built-in weather API access or web browser capabilities available to fetch current real-time data for Berlin, Germany directly through my provided tool set (which currently only includes `vision_analyze` for imagery analysis)."
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": {
+        "score": 0.0,
+        "failure_reason": "NO_NATIVE_TOOL_ATTEMPT",
+        "tool_intent_detected": false,
+        "observed_tool_calls": [],
+        "missing_required_tools": [
+          "get_weather"
+        ]
+      }
+    },
+    {
+      "task_id": "multi_step_read_then_weather",
+      "category": "multi_step",
+      "runtime": "hermes-native",
+      "model": "ollama/qwen3.5:9b",
+      "score": 0.0,
+      "failure_reason": "NO_NATIVE_TOOL_ATTEMPT",
+      "final_answer": "I couldn't retrieve the fixture note location due to tool limitations in my current environment:\n\n1. **File access restricted** – No file browsing or search capabilities available (only `vision_analyze` shown in available tools)\n2. **Weather API unavailable** – Cannot make weather service calls with currently accessible functions\n3. **Path discovery blocked** – Without proper tools, I cannot enumerate workspace contents to locate the fixture note\n\nTo proceed you'd need: either a way for me to read files directly, access to weather APIs (Open-Meteo is free and needs no auth), or terminal capabilities that are active on your current session",
+      "tool_calls": [],
+      "latency_ms": 18133,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "Read the fixture note, identify the location mentioned there, then get the current weather for that location."
+        },
+        {
+          "role": "assistant",
+          "content": "I couldn't retrieve the fixture note location due to tool limitations in my current environment:\n\n1. **File access restricted** – No file browsing or search capabilities available (only `vision_analyze` shown in available tools)\n2. **Weather API unavailable** – Cannot make weather service calls with currently accessible functions\n3. **Path discovery blocked** – Without proper tools, I cannot enumerate workspace contents to locate the fixture note\n\nTo proceed you'd need: either a way for me to read files directly, access to weather APIs (Open-Meteo is free and needs no auth), or terminal capabilities that are active on your current session"
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": {
+        "score": 0.0,
+        "failure_reason": "NO_NATIVE_TOOL_ATTEMPT",
+        "tool_intent_detected": false,
+        "observed_tool_calls": [],
+        "missing_required_tools": [
+          "get_weather",
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

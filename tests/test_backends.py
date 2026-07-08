@@ -10,6 +10,7 @@ from local_agent_bench.backends import (
     OpenClawChatBackend,
     OpenClawNativeBackend,
     PiChatBackend,
+    PiNativeBackend,
     extract_openclaw_response_text,
     normalize_runtime,
     redact_command_text,
@@ -26,6 +27,7 @@ class BackendTest(unittest.TestCase):
         self.assertEqual(normalize_runtime("hermes-native"), "hermes-native")
         self.assertEqual(normalize_runtime("pi"), "pi-react")
         self.assertEqual(normalize_runtime("pi-react"), "pi-react")
+        self.assertEqual(normalize_runtime("pi-native"), "pi-native")
 
     def test_renders_cli_turn_prompt(self) -> None:
         prompt = render_cli_turn_prompt(
@@ -150,6 +152,31 @@ class BackendTest(unittest.TestCase):
         self.assertIn("--ignore-rules", argv)
         self.assertIn("--max-turns", argv)
         self.assertIn("--quiet", argv)
+
+    def test_pi_native_backend_builds_command(self) -> None:
+        calls: list[tuple[list[str], int, Path]] = []
+
+        def runner(argv: list[str], timeout: int, cwd: Path) -> CommandResult:
+            calls.append((argv, timeout, cwd))
+            return CommandResult(0, '{"name":"get_weather","arguments":{"location":"Sion"}}', "")
+
+        backend = PiNativeBackend(command="pi", timeout_seconds=30, run_command=runner)
+        result = backend.native_turn("ollama/mistral:7b", "How is the weather in Sion now?")
+
+        self.assertIn('"get_weather"', result.stdout)
+        argv = calls[0][0]
+        self.assertEqual(argv[0], "pi")
+        self.assertIn("--print", argv)
+        self.assertIn("--no-session", argv)
+        self.assertIn("--no-context-files", argv)
+        self.assertIn("--no-skills", argv)
+        self.assertIn("--no-extensions", argv)
+        self.assertIn("--mode", argv)
+        self.assertIn("json", argv)
+        self.assertIn("--model", argv)
+        self.assertIn("ollama/mistral:7b", argv)
+        # --no-tools should NOT be present (native mode keeps tools active)
+        self.assertNotIn("--no-tools", argv)
 
     def test_cli_failure_raises_backend_error(self) -> None:
         def runner(argv: list[str], timeout: int, cwd: Path) -> CommandResult:

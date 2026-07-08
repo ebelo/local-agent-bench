@@ -6,7 +6,7 @@ import os
 import sys
 from pathlib import Path
 
-from local_agent_bench.backends import HERMES_NATIVE, OPENCLAW_NATIVE, RAW_OLLAMA_REACT, build_backend, normalize_runtime
+from local_agent_bench.backends import HERMES_NATIVE, OPENCLAW_NATIVE, PI_NATIVE, RAW_OLLAMA_REACT, build_backend, normalize_runtime
 from local_agent_bench.diagnostics import run_diagnostics
 from local_agent_bench.metadata import collect_run_metadata
 from local_agent_bench.native import run_native_task
@@ -106,7 +106,7 @@ def _run(
                 print(f"{status} [{check.layer}] {check.name}: {check.detail}", file=sys.stderr)
             return 1
 
-    if backend.runtime in {OPENCLAW_NATIVE, HERMES_NATIVE}:
+    if backend.runtime in {OPENCLAW_NATIVE, HERMES_NATIVE, PI_NATIVE}:
         results = [run_native_task(backend, model, task) for task in tasks]
     else:
         results = [run_task(backend, model, task, max_steps=max_steps, task_timeout=task_timeout) for task in tasks]

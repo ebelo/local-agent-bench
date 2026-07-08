@@ -21,6 +21,7 @@ HERMES_REACT = "hermes-react"
 OPENCLAW_NATIVE = "openclaw-native"
 HERMES_NATIVE = "hermes-native"
 PI_REACT = "pi-react"
+PI_NATIVE = "pi-native"
 
 RUNTIME_ALIASES = {
     "raw-ollama": RAW_OLLAMA_REACT,
@@ -34,6 +35,8 @@ RUNTIME_ALIASES = {
     HERMES_NATIVE: HERMES_NATIVE,
     "pi": PI_REACT,
     PI_REACT: PI_REACT,
+    "pi-native": PI_NATIVE,
+    PI_NATIVE: PI_NATIVE,
 }
 
 
@@ -225,6 +228,53 @@ class PiChatBackend:
         }
 
 
+class PiNativeBackend:
+    runtime = PI_NATIVE
+
+    def __init__(
+        self,
+        *,
+        command: str | None = None,
+        timeout_seconds: int = 600,
+        run_command: CommandRunner | None = None,
+    ) -> None:
+        command_text = command or os.environ.get("LOCAL_AGENT_BENCH_PI_COMMAND", "pi")
+        self.command = shlex.split(command_text)
+        if not self.command:
+            self.command = ["pi"]
+        self.timeout_seconds = timeout_seconds
+        self._run_command = run_command or run_subprocess
+
+    def native_turn(self, model: str, prompt: str) -> CommandResult:
+        full_prompt = render_native_prompt(prompt)
+        argv = [
+            *self.command,
+            "--print",
+            "--no-session",
+            "--no-context-files",
+            "--no-skills",
+            "--no-prompt-templates",
+            "--no-extensions",
+            "--offline",
+            "--mode",
+            "json",
+            "--model",
+            model,
+            full_prompt,
+        ]
+        return _run_cli(argv, self.timeout_seconds, self._run_command)
+
+    def metadata(self, model: str) -> dict[str, Any]:
+        return {
+            "adapter": self.runtime,
+            "model": model,
+            "pi_version": command_output([*self.command, "--version"]),
+            "pi_mode": "--print --no-session --no-context-files --mode json (native tool-calling)",
+            "pi_command": redact_command_text(" ".join(self.command)),
+            "native_platform_tool_score": True,
+        }
+
+
 class OpenClawNativeBackend:
     runtime = OPENCLAW_NATIVE
 
@@ -342,6 +392,8 @@ def build_backend(runtime: str, base_url: str, timeout_seconds: int = 600) -> Ch
         return OpenClawNativeBackend(timeout_seconds=timeout_seconds)
     if normalized == HERMES_NATIVE:
         return HermesNativeBackend(timeout_seconds=timeout_seconds)
+    if normalized == PI_NATIVE:
+        return PiNativeBackend(timeout_seconds=timeout_seconds)
     raise AssertionError(f"unhandled runtime: {normalized}")
 
 

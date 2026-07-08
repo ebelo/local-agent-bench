@@ -31,6 +31,7 @@ DEFAULT_RUNTIMES = [
     "hermes-react",
     "openclaw-native",
     "hermes-native",
+    "pi-native",
 ]
 OLLAMA_PREFIX_RUNTIMES = {
     "pi-react",
@@ -38,6 +39,7 @@ OLLAMA_PREFIX_RUNTIMES = {
     "hermes-react",
     "openclaw-native",
     "hermes-native",
+    "pi-native",
 }
 
 

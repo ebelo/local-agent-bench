@@ -111,23 +111,24 @@ class BackendTest(unittest.TestCase):
         self.assertIn("--model", argv)
         self.assertIn("ollama/qwen2.5-coder:7b", argv)
 
-    def test_openclaw_native_backend_builds_agent_command(self) -> None:
+    def test_openclaw_native_backend_builds_infer_command(self) -> None:
         calls: list[tuple[list[str], int, Path]] = []
 
         def runner(argv: list[str], timeout: int, cwd: Path) -> CommandResult:
             calls.append((argv, timeout, cwd))
-            return CommandResult(0, json.dumps({"name": "tool_call", "arguments": {"id": "weather"}}), "")
+            return CommandResult(0, json.dumps({"payloads": [{"text": '{"name": "tool_call", "arguments": {"id": "weather"}}'}]}), "")
 
         backend = OpenClawNativeBackend(binary="openclaw", timeout_seconds=30, run_command=runner)
         result = backend.native_turn("ollama/qwen2.5-coder:7b", "How is the weather in Sion now?")
 
+        # native_turn extracts the model text from the JSON envelope
         self.assertIn('"tool_call"', result.stdout)
         argv = calls[0][0]
-        self.assertEqual(argv[:3], ["openclaw", "agent", "--local"])
-        self.assertIn("--json", argv)
+        self.assertEqual(argv[:5], ["openclaw", "infer", "model", "run", "--json"])
+        self.assertIn("--local", argv)
         self.assertIn("--model", argv)
         self.assertIn("ollama/qwen2.5-coder:7b", argv)
-        self.assertIn("--message", argv)
+        self.assertIn("--prompt", argv)
 
     def test_hermes_native_backend_builds_chat_command(self) -> None:
         calls: list[tuple[list[str], int, Path]] = []
@@ -146,6 +147,9 @@ class BackendTest(unittest.TestCase):
         self.assertIn("--query", argv)
         self.assertIn("--model", argv)
         self.assertIn("ollama/qwen2.5-coder:7b", argv)
+        self.assertIn("--ignore-rules", argv)
+        self.assertIn("--max-turns", argv)
+        self.assertIn("--quiet", argv)
 
     def test_cli_failure_raises_backend_error(self) -> None:
         def runner(argv: list[str], timeout: int, cwd: Path) -> CommandResult:

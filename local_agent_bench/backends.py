@@ -5,12 +5,12 @@ import os
 import shlex
 import shutil
 import subprocess
-import uuid
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Protocol
 
 from local_agent_bench.ollama import OllamaClient, OllamaError
+from local_agent_bench.tools import tool_descriptions
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -240,29 +240,35 @@ class OpenClawNativeBackend:
         self._run_command = run_command or run_subprocess
 
     def native_turn(self, model: str, prompt: str) -> CommandResult:
+        full_prompt = render_native_prompt(prompt)
         argv = [
             self.binary,
-            "agent",
-            "--local",
+            "infer",
+            "model",
+            "run",
             "--json",
+            "--local",
             "--model",
             model,
-            "--session-key",
-            f"local-agent-bench:{os.getpid()}:{uuid.uuid4().hex}",
-            "--message",
-            prompt,
+            "--prompt",
+            full_prompt,
         ]
         thinking = os.environ.get("LOCAL_AGENT_BENCH_OPENCLAW_THINKING")
         if thinking:
             argv.extend(["--thinking", thinking])
-        return _run_cli(argv, self.timeout_seconds, self._run_command)
+        result = _run_cli(argv, self.timeout_seconds, self._run_command)
+        # Extract the model's response text from the JSON envelope so
+        # that extract_native_tool_calls() sees the raw model output,
+        # not the infer wrapper structure.
+        extracted = extract_openclaw_response_text(result.stdout)
+        return CommandResult(result.returncode, extracted, result.stderr)
 
     def metadata(self, model: str) -> dict[str, Any]:
         return {
             "adapter": self.runtime,
             "model": model,
             "openclaw_version": command_output([self.binary, "--version"]),
-            "openclaw_mode": "agent --local --json",
+            "openclaw_mode": "infer model run --local --json (native tool-calling prompt)",
             "native_platform_tool_score": True,
         }
 
@@ -284,16 +290,20 @@ class HermesNativeBackend:
         self._run_command = run_command or run_subprocess
 
     def native_turn(self, model: str, prompt: str) -> CommandResult:
+        full_prompt = render_native_prompt(prompt)
         argv = [
             self.binary,
             "chat",
             "--query",
-            prompt,
+            full_prompt,
             "--quiet",
             "--model",
             model,
             "--toolsets",
             self.toolsets,
+            "--max-turns",
+            "1",
+            "--ignore-rules",
             "--source",
             "local-agent-bench-native",
         ]
@@ -304,7 +314,7 @@ class HermesNativeBackend:
             "adapter": self.runtime,
             "model": model,
             "hermes_version": command_output([self.binary, "--version"]),
-            "hermes_mode": "chat --query --quiet",
+            "hermes_mode": "chat --query --quiet --ignore-rules --max-turns 1 (native tool-calling prompt)",
             "hermes_toolsets": self.toolsets,
             "native_platform_tool_score": True,
         }
@@ -350,6 +360,41 @@ def render_cli_turn_prompt(messages: list[dict[str, str]]) -> str:
     rendered.append("")
     rendered.append("Next assistant message:")
     return "\n\n".join(rendered)
+
+
+NATIVE_SYSTEM_PROMPT = """You are running inside a benchmark harness with native tool-calling support.
+
+Available tools:
+{tools}
+
+When you need to call a tool, emit a JSON object in one of these formats:
+
+```json
+{{"name": "tool_call", "arguments": {{"tool": "get_weather", "location": "Berlin, Germany"}}}}
+```
+
+or:
+
+```json
+{{"tool": "get_weather", "arguments": {{"location": "Berlin, Germany"}}}}
+```
+
+or:
+
+```json
+{{"name": "get_weather", "arguments": {{"location": "Berlin, Germany"}}}}
+```
+
+After reasoning about the task, emit exactly one tool call if a tool is needed, or a final text answer if the task can be answered directly.
+
+Do not invent filesystem contents or current weather. If a tool is needed, call it.
+"""
+
+
+def render_native_prompt(task_prompt: str) -> str:
+    """Render a benchmark task prompt with the native tool-calling system prompt."""
+    system = NATIVE_SYSTEM_PROMPT.format(tools=tool_descriptions())
+    return f"{system}\n\nTask:\n{task_prompt}"
 
 
 def extract_openclaw_response_text(stdout: str) -> str:

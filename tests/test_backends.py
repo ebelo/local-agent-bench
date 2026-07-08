@@ -157,12 +157,12 @@ class BackendTest(unittest.TestCase):
 
         def runner(argv: list[str], timeout: int, cwd: Path) -> CommandResult:
             calls.append((argv, timeout, cwd))
-            return CommandResult(0, '{"name":"get_weather","arguments":{"location":"Sion"}}', "")
+            return CommandResult(0, 'The weather is clear.', "")
 
         backend = PiNativeBackend(command="pi", timeout_seconds=30, run_command=runner)
         result = backend.native_turn("ollama/mistral:7b", "How is the weather in Sion now?")
 
-        self.assertIn('"get_weather"', result.stdout)
+        self.assertEqual(result.stdout, "The weather is clear.")
         argv = calls[0][0]
         self.assertEqual(argv[0], "pi")
         self.assertIn("--print", argv)
@@ -171,7 +171,7 @@ class BackendTest(unittest.TestCase):
         self.assertIn("--no-skills", argv)
         self.assertIn("--no-extensions", argv)
         self.assertIn("--mode", argv)
-        self.assertIn("json", argv)
+        self.assertIn("text", argv)
         self.assertIn("--model", argv)
         self.assertIn("ollama/mistral:7b", argv)
         # --no-tools should NOT be present (native mode keeps tools active)

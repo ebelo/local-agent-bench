@@ -247,7 +247,6 @@ class PiNativeBackend:
         self._run_command = run_command or run_subprocess
 
     def native_turn(self, model: str, prompt: str) -> CommandResult:
-        full_prompt = render_native_prompt(prompt)
         argv = [
             *self.command,
             "--print",
@@ -258,10 +257,10 @@ class PiNativeBackend:
             "--no-extensions",
             "--offline",
             "--mode",
-            "json",
+            "text",
             "--model",
             model,
-            full_prompt,
+            prompt,
         ]
         return _run_cli(argv, self.timeout_seconds, self._run_command)
 
@@ -270,7 +269,7 @@ class PiNativeBackend:
             "adapter": self.runtime,
             "model": model,
             "pi_version": command_output([*self.command, "--version"]),
-            "pi_mode": "--print --no-session --no-context-files --mode json (native tool-calling)",
+            "pi_mode": "--print --no-session --no-context-files --mode text (native tools active)",
             "pi_command": redact_command_text(" ".join(self.command)),
             "native_platform_tool_score": True,
         }

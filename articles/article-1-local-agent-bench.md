@@ -20,9 +20,16 @@ Most benchmark harnesses conflate these layers. They give you a single score and
 
 ## What Local Agent Bench Does
 
-Local Agent Bench is a small, open-source Python harness that evaluates the agentic capabilities of local LLMs served through Ollama and agent runtimes such as OpenClaw, Hermes, and Pi. It runs a controlled set of tasks — each requiring one or more tool calls — and scores the model on a fine-grained scale from 0.0 to 1.0, with an explicit failure reason for every non-passing result.
+Local Agent Bench is a small, open-source Python harness that evaluates the agentic capabilities of local LLMs served through Ollama and agent runtimes such as OpenClaw, Hermes, and Pi. It now separates evaluation into two sequential topics:
 
-The benchmark uses a ReAct-style protocol: the model is given a system prompt describing available tools, and it must respond with either a tool call (Action + Action Input with JSON arguments) or a Final Answer. The harness owns the tools — `get_cwd`, `list_directory`, `read_file`, `get_weather` — so tool execution is deterministic and identical across all runtimes. The only variable is the model's reasoning and format compliance.
+1. **Controlled tool protocol** — the harness owns the tools, prompt, parser, and assertions. This is the fair cross-model comparison layer.
+2. **Platform-native use cases** — the runtime owns the tools, context, and agent loop. The benchmark asks useful tasks and judges whether the agent actually completed them.
+
+Both topics use a 0.0 to 1.0 task score and explicit failure reasons, but they answer different questions. The controlled suite asks whether the model can follow the benchmark's tool protocol. The platform-native suite asks whether a model/runtime combination is useful in its natural environment.
+
+The controlled suite uses a ReAct-style protocol: the model is given a system prompt describing available tools, and it must respond with either a tool call (Action + Action Input with JSON arguments) or a Final Answer. The harness owns the tools — `get_cwd`, `list_directory`, `read_file`, `get_weather` — so tool execution is deterministic and identical across all runtimes. The only variable is the model's reasoning and format compliance.
+
+The platform-native suite uses use-case prompts instead: "list the project", "read this fixture", "recover from a missing path", "get current weather". It lets Pi, Hermes, or OpenClaw choose their own native tools. Scoring combines deterministic answer checks with an LLM judge that evaluates task completion and evidence of real tool use.
 
 ### What Is ReAct?
 
@@ -177,7 +184,7 @@ Local Agent Bench doesn't just test models in isolation. It tests models *throug
 
 - **pi-native** — Runs `pi --print --no-session --mode text` with Pi's native tools active (bash, read, write, edit). Tests Pi's real platform tool-calling layer.
 
-All adapters use the same benchmark tasks, the same harness-owned tools, and the same scoring logic. The ReAct adapters share the same benchmark-owned prompt and parser, making cross-runtime comparison fair. The native adapters test the real platform agent loops — and as documented in [article-3](article-3-native-adapters.md), they reveal real platform constraints across all five benchmark models (context overflow, model-override rejection, silent session failure, toolset misconfiguration, tool registration gaps) rather than model capabilities.
+The ReAct adapters all use the same benchmark tasks, the same harness-owned tools, and the same scoring logic. That makes cross-runtime comparison fair. The native adapters are used in two ways: strict tool-call compatibility tests, and the new `platform_native.json` use-case suite. As documented in [article-3](article-3-native-adapters.md), these reveal real platform constraints across all five benchmark models: context overflow, model-override rejection, silent session failure, toolset misconfiguration, tool registration gaps, and the difference between tool-call syntax and user-visible completion.
 
 ### ReAct vs Native Tool Calling
 
@@ -185,11 +192,11 @@ Because the benchmark includes both ReAct adapters and native adapters for the s
 
 With **ReAct**, the model must hand-format every tool call as text — `Thought:`, `Action:`, `Action Input: {"path": "."}` — and the harness parses that text. Smaller models frequently mangle this: a missing colon, a broken JSON brace, a tool name typo. Each of these produces an `INVALID_TOOL_SYNTAX` failure. The model may have correctly reasoned about *which* tool to call and *what* arguments to pass, but it still scores 0 because the format was wrong.
 
-With **native tool calling**, the platform handles the formatting. The model uses platform tools such as Pi's `bash` or `read`, OpenClaw's tools, or Hermes toolsets instead of the benchmark's ReAct prompt. This removes the ReAct formatting tax — *if the platform supports the model and exposes useful tools*. As article-3 documents, strict benchmark-tool scoring still gives most native cells 0/5 because the benchmark tools are not registered with the platforms. A second LLM-as-judge pass is needed to ask whether the user-visible task was actually completed.
+With **platform-native use cases**, the benchmark no longer forces the model to call `get_weather` or `list_directory`. The runtime can use platform tools such as Pi's `bash` or `read`, OpenClaw's tools, or Hermes toolsets. This removes the ReAct formatting tax — *if the platform supports the model and exposes useful tools*. The task prompt asks for an evidence line naming the command or tool used and the relevant output, then an LLM judge evaluates whether the response actually completed the task.
 
 But native calling doesn't fix everything. Failures like `IGNORED_TOOL_RESULT` (the tool returned data but the model didn't use it) and `HALLUCINATED_RESULT` (the model invented data that wasn't in the observation) stay roughly the same. These are reasoning problems, not format problems. If the model doesn't pay attention to the observation, switching from ReAct to native calling doesn't help.
 
-This is why the benchmark reports native results in two layers: strict protocol compatibility and flexible task completion. The strict score tells you whether benchmark tools are wired into the platform. The judge score tells you whether the platform response was actually useful. In practice, the native adapters currently serve as **platform diagnostics** rather than model rankings — they tell you which platforms work with which models, not which model is best.
+This is why the benchmark reports native results in two layers: strict protocol compatibility and platform-native task completion. The strict score tells you whether benchmark tools are wired into the platform. The platform-native use-case score tells you whether the platform response was actually useful. In practice, the native adapters currently serve as **platform diagnostics** rather than pure model rankings — they tell you which platforms work with which models, not just which model is best.
 
 ## Hardware and Reproducibility
 
@@ -297,7 +304,8 @@ Local Agent Bench is deliberately small and focused. It does not:
 - Test browser navigation or web search (planned for levels 6–7)
 - Test multi-turn conversation (each task is a single ReAct loop)
 - Compare against hosted frontier models (planned as a `baseline` adapter)
-- Test native function calling in isolation (the `native` adapters provide a separate score but the task suite is the same)
+- Test API-level function calling in isolation. The native adapters test real CLI/platform loops, not OpenAI-style function-call APIs directly.
+- Prove tool execution when a platform hides tool traces from stdout. The platform-native suite asks for evidence and judges it, but opaque CLIs still require caution.
 
 These limitations are intentional. The benchmark's value is diagnostic precision, not breadth. A model that scores 5/5 on the smoke benchmark and 5/5 on the agentic benchmark has demonstrated that it can follow a ReAct protocol, call the right tools with valid arguments, chain tool calls across multiple steps, recover from errors, and ground its answers in observed data. That is the foundation everything else is built on.
 

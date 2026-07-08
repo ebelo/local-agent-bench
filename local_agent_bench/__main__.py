@@ -11,6 +11,7 @@ from local_agent_bench.diagnostics import run_diagnostics
 from local_agent_bench.judge import judge_native_result
 from local_agent_bench.metadata import collect_run_metadata
 from local_agent_bench.native import run_native_task
+from local_agent_bench.platform_native import run_platform_native_task
 from local_agent_bench.react import result_to_jsonable, run_task
 from local_agent_bench.redaction import redact_local_context
 from local_agent_bench.tasks import load_tasks
@@ -18,6 +19,7 @@ from local_agent_bench.tasks import load_tasks
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_BENCHMARK = PROJECT_ROOT / "benchmarks" / "smoke.json"
+DEFAULT_PLATFORM_NATIVE_BENCHMARK = PROJECT_ROOT / "benchmarks" / "platform_native.json"
 
 
 def main() -> int:
@@ -58,6 +60,19 @@ def main() -> int:
     rejudge.add_argument("--judge-model", default=os.environ.get("LOCAL_AGENT_BENCH_JUDGE_MODEL", "ollama/glm-5.2:cloud"))
     rejudge.add_argument("--timeout", type=int, default=60)
 
+    platform_native = subparsers.add_parser(
+        "run-platform-native",
+        help="Run use-case tasks through a native platform and score completion with an LLM judge.",
+    )
+    platform_native.add_argument("--model", default=os.environ.get("OLLAMA_MODEL"), required=os.environ.get("OLLAMA_MODEL") is None)
+    platform_native.add_argument("--runtime", dest="command_runtime", default=PI_NATIVE)
+    platform_native.add_argument("--benchmark", type=Path, default=DEFAULT_PLATFORM_NATIVE_BENCHMARK)
+    platform_native.add_argument("--output", type=Path)
+    platform_native.add_argument("--runtime-timeout", dest="command_runtime_timeout", type=int, default=None)
+    platform_native.add_argument("--skip-preflight", action="store_true")
+    platform_native.add_argument("--judge-model", default=os.environ.get("LOCAL_AGENT_BENCH_JUDGE_MODEL", "ollama/glm-5.2:cloud"))
+    platform_native.add_argument("--judge-timeout", type=int, default=60)
+
 
     args = parser.parse_args()
     if args.command == "rejudge":
@@ -81,6 +96,18 @@ def main() -> int:
             args.skip_preflight,
             args.command_runtime_timeout if args.command_runtime_timeout is not None else args.runtime_timeout,
             args.task_timeout,
+        )
+    if args.command == "run-platform-native":
+        return _run_platform_native(
+            args.ollama_base_url,
+            runtime,
+            args.model,
+            args.benchmark,
+            args.output,
+            args.skip_preflight,
+            args.command_runtime_timeout if args.command_runtime_timeout is not None else args.runtime_timeout,
+            args.judge_model,
+            args.judge_timeout,
         )
     return 2
 
@@ -201,6 +228,74 @@ def _rejudge(input_file: Path, benchmark: Path, output: Path | None, judge_model
     out_path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(f"Written to {out_path}", file=sys.stderr)
     return 0
+
+
+def _run_platform_native(
+    base_url: str,
+    runtime: str,
+    model: str,
+    benchmark: Path,
+    output: Path | None,
+    skip_preflight: bool,
+    runtime_timeout: int,
+    judge_model: str,
+    judge_timeout: int,
+) -> int:
+    if runtime not in {OPENCLAW_NATIVE, HERMES_NATIVE, PI_NATIVE}:
+        print("run-platform-native requires a native runtime: openclaw-native, hermes-native, or pi-native", file=sys.stderr)
+        return 2
+
+    backend = build_backend(runtime, base_url, timeout_seconds=runtime_timeout)
+    tasks = load_tasks(benchmark)
+    requires_network = any(task.requires_network for task in tasks)
+
+    if not skip_preflight:
+        checks = run_diagnostics(base_url, model, requires_network=requires_network, runtime=backend.runtime)
+        failed = [check for check in checks if not check.ok]
+        if failed:
+            for check in checks:
+                status = "PASS" if check.ok else "FAIL"
+                print(f"{status} [{check.layer}] {check.name}: {check.detail}", file=sys.stderr)
+            return 1
+
+    results = [
+        run_platform_native_task(
+            backend,
+            model,
+            task,
+            judge_model=judge_model,
+            judge_timeout=judge_timeout,
+        )
+        for task in tasks
+    ]
+    jsonable = {
+        "metadata": collect_run_metadata(
+            model,
+            backend.runtime,
+            str(benchmark),
+            {
+                **backend.metadata(model),
+                "platform_native_task_score": True,
+                "judge_model": judge_model,
+            },
+        ),
+        "runtime": backend.runtime,
+        "model": model,
+        "benchmark": str(benchmark),
+        "results": [result_to_jsonable(result) for result in results],
+    }
+
+    jsonable = redact_local_context(jsonable, PROJECT_ROOT)
+    text = json.dumps(jsonable, indent=2, ensure_ascii=False)
+    if output:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(text + "\n", encoding="utf-8")
+    else:
+        print(text)
+
+    total = sum(result.score for result in results)
+    print(f"Platform-native judge total: {total:.1f}/{len(results)}", file=sys.stderr)
+    return 0 if total == len(results) else 1
 
 
 if __name__ == "__main__":

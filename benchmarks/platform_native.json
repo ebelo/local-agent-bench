@@ -1,0 +1,52 @@
+{
+  "name": "platform-native",
+  "description": "Use-case tasks for real platform agent loops. Runtimes may use any native tools they expose; scoring is task-completion oriented.",
+  "tasks": [
+    {
+      "id": "native_current_directory",
+      "category": "filesystem",
+      "prompt": "Use your available tools if needed and tell me the absolute path of the current working directory. Do not guess. In your final answer, include a short Evidence line naming the command or tool you used and the relevant output.",
+      "diagnostic_layer": "platform_native",
+      "assertions": [
+        {"type": "answer_contains_any", "values": ["local-agent-bench", "<PROJECT_ROOT>"]}
+      ]
+    },
+    {
+      "id": "native_list_project",
+      "category": "filesystem",
+      "prompt": "Use your available tools to list the files and folders in the current project directory. Include README.md, benchmarks, and local_agent_bench if they are present. In your final answer, include a short Evidence line naming the command or tool you used and the relevant output.",
+      "diagnostic_layer": "platform_native",
+      "assertions": [
+        {"type": "answer_contains_all", "values": ["README.md", "benchmarks", "local_agent_bench"]}
+      ]
+    },
+    {
+      "id": "native_read_fixture",
+      "category": "filesystem",
+      "prompt": "Use your available tools to read benchmarks/fixtures.md, then tell me the benchmark codename. In your final answer, include a short Evidence line naming the command or tool you used and the relevant output.",
+      "diagnostic_layer": "platform_native",
+      "assertions": [
+        {"type": "answer_contains_all", "values": ["alpine-signal"]}
+      ]
+    },
+    {
+      "id": "native_weather_berlin",
+      "category": "weather",
+      "prompt": "Use your available tools to get the current weather in Berlin, Germany. You may use a shell command, curl, or any weather-capable tool available to you. Do not invent the weather. In your final answer, include a short Evidence line naming the command or tool you used and the relevant output.",
+      "requires_network": true,
+      "diagnostic_layer": "platform_native",
+      "assertions": [
+        {"type": "answer_contains_any", "values": ["Berlin"]}
+      ]
+    },
+    {
+      "id": "native_recover_missing_path",
+      "category": "recovery",
+      "prompt": "Use your available tools to read benchmarks/agentic/missing-note.md. If that path is missing, recover by inspecting benchmarks/agentic, find the recovery note, read it, and tell me the recovery code. In your final answer, include a short Evidence line naming the commands or tools you used and the relevant output.",
+      "diagnostic_layer": "platform_native",
+      "assertions": [
+        {"type": "answer_contains_all", "values": ["ridge-42"]}
+      ]
+    }
+  ]
+}

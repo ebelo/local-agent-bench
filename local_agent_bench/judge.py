@@ -29,6 +29,7 @@ def judge_native_result(
     task: Task,
     final_answer: str,
     *,
+    transcript: list[dict[str, str]] | None = None,
     judge_model: str | None = None,
     openclaw_bin: str | None = None,
     timeout: int = 60,
@@ -44,7 +45,7 @@ def judge_native_result(
     judge_model = judge_model or os.environ.get("LOCAL_AGENT_BENCH_JUDGE_MODEL", "ollama/glm-5.2:cloud")
     openclaw_bin = openclaw_bin or os.environ.get("LOCAL_AGENT_BENCH_OPENCLAW_BIN", "openclaw")
 
-    prompt = _build_judge_prompt(task, final_answer)
+    prompt = _build_judge_prompt(task, final_answer, transcript=transcript)
 
     try:
         raw = _run_inference(openclaw_bin, judge_model, prompt, timeout)
@@ -63,12 +64,18 @@ def judge_native_result(
 
 def judge_task_result(result: TaskResult, task: Task, **kwargs: Any) -> dict[str, Any]:
     """Convenience wrapper: judge a TaskResult object."""
-    return judge_native_result(task, result.final_answer, **kwargs)
+    return judge_native_result(task, result.final_answer, transcript=result.raw_transcript, **kwargs)
 
 
-def _build_judge_prompt(task: Task, final_answer: str) -> str:
+def _build_judge_prompt(
+    task: Task,
+    final_answer: str,
+    *,
+    transcript: list[dict[str, str]] | None = None,
+) -> str:
     """Build the system + user prompt for the LLM judge."""
     assertions_desc = _describe_assertions(task.assertions)
+    transcript_desc = _describe_transcript(transcript)
 
     system = (
         "You are an expert evaluator for AI agent benchmarks. "
@@ -96,12 +103,24 @@ def _build_judge_prompt(task: Task, final_answer: str) -> str:
     user = (
         f"## Task\n{task.prompt}\n\n"
         f"## Expected assertions\n{assertions_desc}\n\n"
+        f"## Full platform transcript\n{transcript_desc}\n\n"
         f"## Agent's full response\n```\n{final_answer[:8000]}\n```\n\n"
         "Evaluate the agent's response. Did it accomplish the task? "
         "Respond with the JSON object only."
     )
 
     return f"{system}\n\n{user}"
+
+
+def _describe_transcript(transcript: list[dict[str, str]] | None) -> str:
+    if not transcript:
+        return "(not available)"
+    parts = []
+    for item in transcript[-6:]:
+        role = item.get("role", "?")
+        content = item.get("content", "")
+        parts.append(f"{role}:\n{content[:4000]}")
+    return "\n\n".join(parts)
 
 
 def _describe_assertions(assertions: list[dict[str, Any]]) -> str:

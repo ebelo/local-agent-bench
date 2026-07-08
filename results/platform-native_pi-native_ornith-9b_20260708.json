@@ -1,0 +1,402 @@
+{
+  "metadata": {
+    "runtime": "pi-native",
+    "benchmark": "benchmarks/platform_native.json",
+    "git_commit": "da732a90c09761a9158840ca3ae00912661e5140",
+    "python": "3.12.3",
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "model": "ollama/ornith:9b",
+    "adapter": "pi-native",
+    "pi_version": "0.80.3",
+    "pi_mode": "--print --no-session --no-context-files --mode text (native tools active)",
+    "pi_command": "npx -y @earendil-works/pi-coding-agent",
+    "native_platform_tool_score": true,
+    "platform_native_task_score": true,
+    "judge_model": "ollama/glm-5.2:cloud"
+  },
+  "runtime": "pi-native",
+  "model": "ollama/ornith:9b",
+  "benchmark": "benchmarks/platform_native.json",
+  "results": [
+    {
+      "task_id": "native_current_directory",
+      "category": "filesystem",
+      "runtime": "pi-native",
+      "model": "ollama/ornith:9b",
+      "score": 1.0,
+      "failure_reason": "PLATFORM_NATIVE_PASS",
+      "final_answer": "**Current Working Directory (absolute path):** `<PROJECT_ROOT>`\n\n**Evidence:** Used `bash` with command `pwd`, which returned the path above.",
+      "tool_calls": [],
+      "latency_ms": 18145,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "Use your available tools if needed and tell me the absolute path of the current working directory. Do not guess. In your final answer, include a short Evidence line naming the command or tool you used and the relevant output."
+        },
+        {
+          "role": "assistant",
+          "content": "**Current Working Directory (absolute path):** `<PROJECT_ROOT>`\n\n**Evidence:** Used `bash` with command `pwd`, which returned the path above."
+        }
+      ],
+      "assertion_results": [
+        {
+          "ok": true,
+          "type": "answer_contains_any",
+          "assertion": {
+            "type": "answer_contains_any",
+            "values": [
+              "local-agent-bench",
+              "<PROJECT_ROOT>"
+            ]
+          },
+          "detail": {
+            "matched": [
+              "local-agent-bench"
+            ],
+            "expected": [
+              "local-agent-bench",
+              "<PROJECT_ROOT>"
+            ]
+          }
+        }
+      ],
+      "native_platform_tool_score": {
+        "suite": "platform-native",
+        "score": 1.0,
+        "failure_reason": "PLATFORM_NATIVE_PASS",
+        "judge": {
+          "judge_score": 1.0,
+          "judge_verdict": "JUDGE_PASS",
+          "judge_reasoning": "The agent provided the absolute path of the current working directory, which contains 'local-agent-bench' matching the expected assertion. It included an Evidence line naming the command (bash with pwd) and the relevant output, as requested.",
+          "judge_raw": "{\"verdict\": \"PASS\", \"score\": 1.0, \"reasoning\": \"The agent provided the absolute path of the current working directory, which contains 'local-agent-bench' matching the expected assertion. It included an Evidence line naming the command (bash with pwd) and the relevant output, as requested.\"}",
+          "judge_model": "ollama/glm-5.2:cloud"
+        },
+        "deterministic_score": 1.0,
+        "deterministic_reason": "PASS",
+        "deterministic_passed": true,
+        "assertion_results": [
+          {
+            "ok": true,
+            "type": "answer_contains_any",
+            "assertion": {
+              "type": "answer_contains_any",
+              "values": [
+                "local-agent-bench",
+                "<PROJECT_ROOT>"
+              ]
+            },
+            "detail": {
+              "matched": [
+                "local-agent-bench"
+              ],
+              "expected": [
+                "local-agent-bench",
+                "<PROJECT_ROOT>"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "native_list_project",
+      "category": "filesystem",
+      "runtime": "pi-native",
+      "model": "ollama/ornith:9b",
+      "score": 1.0,
+      "failure_reason": "PLATFORM_NATIVE_PASS",
+      "final_answer": "Here is what I see in the current directory (`<PROJECT_ROOT>/`):\n\n| Type       | Name                    | Description / Purpose                                  |\n|------------|-------------------------|--------------------------------------------------------|\n| **File**   | `.gitignore`           | Git ignore rules for this repo                         |\n| **File**   | `README.md`            | Project documentation & guidelines                     |\n| **File**   | `LICENSE`              | License file (likely MIT or similar)                   |\n| **File**   | `pyproject.toml`       | Python project metadata                                |\n| **File**   | `run_final_matrix.sh`  | Script for the last batch of evaluations               |\n| **File**   | `run_matrix_ornith.sh` | Script to run a specific matrix (Ornith variant)        |\n| **File**   | `run_phase12.sh`       | Run-phase 1 & 2 evaluation script                      |\n| **File**   | `run_qwen35_matrix.sh` | Qwen-35 series evaluations                             |\n| **File**   | `run_remaining.sh`     | Remaining evaluation workers                            |\n| **Dir (empty)** | `articles/`       | Blog posts about the benchmark                        |\n| **Dir**    | `benchmarks/`          | Contains sub-benchmark suites                         |\n| **Dir**    | `docs/`                | Project documentation                                |\n| **Dir**    | `local_agent_bench/`   | Sub-directory for agent benchmarks                   |\n| **Dir (empty)** | `results/`       | Results from evaluations                            |\n| **Dir (empty)** | `runners/`        | Contains runner implementations                     |\n\nOther interesting items:\n- `.git`, `.github`, `.pytest_cache` directories exist but are hidden (not directly shown by basic listing).\n- `tests/` directory is also present.\n\n**Quick summary:** This repo appears to be a benchmark project called \"local-agent-bench\" with various scripts for evaluating different models, sub-directories for documentation and results, a README explaining the purpose, license file, and tests directory. It seems like you are running some kind of evaluation/benchmark process using multiple model series (Ornith, Qwen, etc.).\n\n---\n\n**Evidence:**\n- Command used: `ls` (via bash in `<PROJECT_ROOT>/`)  \n- Output shown is the `./` listing which matches my findings above.",
+      "tool_calls": [],
+      "latency_ms": 31964,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "Use your available tools to list the files and folders in the current project directory. Include README.md, benchmarks, and local_agent_bench if they are present. In your final answer, include a short Evidence line naming the command or tool you used and the relevant output."
+        },
+        {
+          "role": "assistant",
+          "content": "Here is what I see in the current directory (`<PROJECT_ROOT>/`):\n\n| Type       | Name                    | Description / Purpose                                  |\n|------------|-------------------------|--------------------------------------------------------|\n| **File**   | `.gitignore`           | Git ignore rules for this repo                         |\n| **File**   | `README.md`            | Project documentation & guidelines                     |\n| **File**   | `LICENSE`              | License file (likely MIT or similar)                   |\n| **File**   | `pyproject.toml`       | Python project metadata                                |\n| **File**   | `run_final_matrix.sh`  | Script for the last batch of evaluations               |\n| **File**   | `run_matrix_ornith.sh` | Script to run a specific matrix (Ornith variant)        |\n| **File**   | `run_phase12.sh`       | Run-phase 1 & 2 evaluation script                      |\n| **File**   | `run_qwen35_matrix.sh` | Qwen-35 series evaluations                             |\n| **File**   | `run_remaining.sh`     | Remaining evaluation workers                            |\n| **Dir (empty)** | `articles/`       | Blog posts about the benchmark                        |\n| **Dir**    | `benchmarks/`          | Contains sub-benchmark suites                         |\n| **Dir**    | `docs/`                | Project documentation                                |\n| **Dir**    | `local_agent_bench/`   | Sub-directory for agent benchmarks                   |\n| **Dir (empty)** | `results/`       | Results from evaluations                            |\n| **Dir (empty)** | `runners/`        | Contains runner implementations                     |\n\nOther interesting items:\n- `.git`, `.github`, `.pytest_cache` directories exist but are hidden (not directly shown by basic listing).\n- `tests/` directory is also present.\n\n**Quick summary:** This repo appears to be a benchmark project called \"local-agent-bench\" with various scripts for evaluating different models, sub-directories for documentation and results, a README explaining the purpose, license file, and tests directory. It seems like you are running some kind of evaluation/benchmark process using multiple model series (Ornith, Qwen, etc.).\n\n---\n\n**Evidence:**\n- Command used: `ls` (via bash in `<PROJECT_ROOT>/`)  \n- Output shown is the `./` listing which matches my findings above."
+        }
+      ],
+      "assertion_results": [
+        {
+          "ok": true,
+          "type": "answer_contains_all",
+          "assertion": {
+            "type": "answer_contains_all",
+            "values": [
+              "README.md",
+              "benchmarks",
+              "local_agent_bench"
+            ]
+          },
+          "detail": {
+            "missing": [],
+            "expected": [
+              "README.md",
+              "benchmarks",
+              "local_agent_bench"
+            ]
+          }
+        }
+      ],
+      "native_platform_tool_score": {
+        "suite": "platform-native",
+        "score": 1.0,
+        "failure_reason": "PLATFORM_NATIVE_PASS",
+        "judge": {
+          "judge_score": 1.0,
+          "judge_verdict": "JUDGE_PASS",
+          "judge_reasoning": "The agent listed the files and folders in the current project directory and included all required items: README.md, benchmarks, and local_agent_bench. The response provides a detailed, structured listing of files and directories that appears consistent with real tool execution (claiming to have used `ls` via bash). The evidence line is present as requested. All expected assertions are satisfied.",
+          "judge_raw": "{\"verdict\": \"PASS\", \"score\": 1.0, \"reasoning\": \"The agent listed the files and folders in the current project directory and included all required items: README.md, benchmarks, and local_agent_bench. The response provides a detailed, structured listing of files and directories that appears consistent with real tool execution (claiming to have used `ls` via bash). The evidence line is present as requested. All expected assertions are satisfied.\"}",
+          "judge_model": "ollama/glm-5.2:cloud"
+        },
+        "deterministic_score": 1.0,
+        "deterministic_reason": "PASS",
+        "deterministic_passed": true,
+        "assertion_results": [
+          {
+            "ok": true,
+            "type": "answer_contains_all",
+            "assertion": {
+              "type": "answer_contains_all",
+              "values": [
+                "README.md",
+                "benchmarks",
+                "local_agent_bench"
+              ]
+            },
+            "detail": {
+              "missing": [],
+              "expected": [
+                "README.md",
+                "benchmarks",
+                "local_agent_bench"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "native_read_fixture",
+      "category": "filesystem",
+      "runtime": "pi-native",
+      "model": "ollama/ornith:9b",
+      "score": 1.0,
+      "failure_reason": "PLATFORM_NATIVE_PASS",
+      "final_answer": "## Benchmark Codename: `alpine-signal`\n\n**Evidence:** Read the file **benchmarks/fixtures.md**, which contains:\n\n> ```text\n> # Benchmark Fixture\n> Codename: alpine-signal\n> Location for the multi-step weather task: Berlin, Germany.\n> ```",
+      "tool_calls": [],
+      "latency_ms": 14883,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "Use your available tools to read benchmarks/fixtures.md, then tell me the benchmark codename. In your final answer, include a short Evidence line naming the command or tool you used and the relevant output."
+        },
+        {
+          "role": "assistant",
+          "content": "## Benchmark Codename: `alpine-signal`\n\n**Evidence:** Read the file **benchmarks/fixtures.md**, which contains:\n\n> ```text\n> # Benchmark Fixture\n> Codename: alpine-signal\n> Location for the multi-step weather task: Berlin, Germany.\n> ```"
+        }
+      ],
+      "assertion_results": [
+        {
+          "ok": true,
+          "type": "answer_contains_all",
+          "assertion": {
+            "type": "answer_contains_all",
+            "values": [
+              "alpine-signal"
+            ]
+          },
+          "detail": {
+            "missing": [],
+            "expected": [
+              "alpine-signal"
+            ]
+          }
+        }
+      ],
+      "native_platform_tool_score": {
+        "suite": "platform-native",
+        "score": 1.0,
+        "failure_reason": "PLATFORM_NATIVE_PASS",
+        "judge": {
+          "judge_score": 1.0,
+          "judge_verdict": "JUDGE_PASS",
+          "judge_reasoning": "The agent provided the correct benchmark codename 'alpine-signal' and included an Evidence line as requested. The quoted file content is plausible and matches the expected fixture content, indicating the agent read the actual file rather than hallucinating the answer.",
+          "judge_raw": "{\"verdict\": \"PASS\", \"score\": 1.0, \"reasoning\": \"The agent provided the correct benchmark codename 'alpine-signal' and included an Evidence line as requested. The quoted file content is plausible and matches the expected fixture content, indicating the agent read the actual file rather than hallucinating the answer.\"}",
+          "judge_model": "ollama/glm-5.2:cloud"
+        },
+        "deterministic_score": 1.0,
+        "deterministic_reason": "PASS",
+        "deterministic_passed": true,
+        "assertion_results": [
+          {
+            "ok": true,
+            "type": "answer_contains_all",
+            "assertion": {
+              "type": "answer_contains_all",
+              "values": [
+                "alpine-signal"
+              ]
+            },
+            "detail": {
+              "missing": [],
+              "expected": [
+                "alpine-signal"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "native_weather_berlin",
+      "category": "weather",
+      "runtime": "pi-native",
+      "model": "ollama/ornith:9b",
+      "score": 1.0,
+      "failure_reason": "PLATFORM_NATIVE_PASS",
+      "final_answer": "Got the weather data from Open-Meteo API. Here's what it shows:\n\n**Weather in Berlin, Germany — Current Conditions** (nighttime, GMT)\n\n| Variable | Value |\n|---|---|\n| 🌡️ Temperature (2m height) | **19.9°C** |\n| 💧 Relative humidity | 56% |\n| 👕 Feels like temperature | 17.9°C |\n| ☁️ Weather description | Code 2 — Mainly clear / mostly sunny |\n| 🌬️ Wind speed (10m) | 15.2 km/h |\n| 🌧️ Precipitation | 0.0 mm — dry conditions |\n\nBerlin is quite pleasant this evening: ~20°C, low humidity, little to no wind, and mostly clear skies with zero precipitation expected. A comfortable summer night! 🍺\n\n---\n\n**Evidence:** `curl https://api.open-meteo.com/v1/forecast?latitude=52.52&longitude=13.40&current=...` returned:\n> Temperature: 19.9 | Humidity: 56 | Feels like: 17.9 | Weather code: 2 (Mainly clear) | Windspeed: 15.2 km/h | Precipitation: 0 mm",
+      "tool_calls": [],
+      "latency_ms": 44326,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "Use your available tools to get the current weather in Berlin, Germany. You may use a shell command, curl, or any weather-capable tool available to you. Do not invent the weather. In your final answer, include a short Evidence line naming the command or tool you used and the relevant output."
+        },
+        {
+          "role": "assistant",
+          "content": "Got the weather data from Open-Meteo API. Here's what it shows:\n\n**Weather in Berlin, Germany — Current Conditions** (nighttime, GMT)\n\n| Variable | Value |\n|---|---|\n| 🌡️ Temperature (2m height) | **19.9°C** |\n| 💧 Relative humidity | 56% |\n| 👕 Feels like temperature | 17.9°C |\n| ☁️ Weather description | Code 2 — Mainly clear / mostly sunny |\n| 🌬️ Wind speed (10m) | 15.2 km/h |\n| 🌧️ Precipitation | 0.0 mm — dry conditions |\n\nBerlin is quite pleasant this evening: ~20°C, low humidity, little to no wind, and mostly clear skies with zero precipitation expected. A comfortable summer night! 🍺\n\n---\n\n**Evidence:** `curl https://api.open-meteo.com/v1/forecast?latitude=52.52&longitude=13.40&current=...` returned:\n> Temperature: 19.9 | Humidity: 56 | Feels like: 17.9 | Weather code: 2 (Mainly clear) | Windspeed: 15.2 km/h | Precipitation: 0 mm"
+        }
+      ],
+      "assertion_results": [
+        {
+          "ok": true,
+          "type": "answer_contains_any",
+          "assertion": {
+            "type": "answer_contains_any",
+            "values": [
+              "Berlin"
+            ]
+          },
+          "detail": {
+            "matched": [
+              "Berlin"
+            ],
+            "expected": [
+              "Berlin"
+            ]
+          }
+        }
+      ],
+      "native_platform_tool_score": {
+        "suite": "platform-native",
+        "score": 1.0,
+        "failure_reason": "PLATFORM_NATIVE_PASS",
+        "judge": {
+          "judge_score": 1.0,
+          "judge_verdict": "JUDGE_PASS",
+          "judge_reasoning": "The agent used curl to query the Open-Meteo API for Berlin's weather using correct coordinates (52.52, 13.40) and provided a detailed Evidence line with the command and output as requested. The response includes 'Berlin' and presents real weather data (temperature, humidity, wind speed, precipitation) consistent with the API's format. The data appears to come from actual tool execution rather than hallucination.",
+          "judge_raw": "{\"verdict\": \"PASS\", \"score\": 1.0, \"reasoning\": \"The agent used curl to query the Open-Meteo API for Berlin's weather using correct coordinates (52.52, 13.40) and provided a detailed Evidence line with the command and output as requested. The response includes 'Berlin' and presents real weather data (temperature, humidity, wind speed, precipitation) consistent with the API's format. The data appears to come from actual tool execution rather than hallucination.\"}",
+          "judge_model": "ollama/glm-5.2:cloud"
+        },
+        "deterministic_score": 1.0,
+        "deterministic_reason": "PASS",
+        "deterministic_passed": true,
+        "assertion_results": [
+          {
+            "ok": true,
+            "type": "answer_contains_any",
+            "assertion": {
+              "type": "answer_contains_any",
+              "values": [
+                "Berlin"
+              ]
+            },
+            "detail": {
+              "matched": [
+                "Berlin"
+              ],
+              "expected": [
+                "Berlin"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "native_recover_missing_path",
+      "category": "recovery",
+      "runtime": "pi-native",
+      "model": "ollama/ornith:9b",
+      "score": 1.0,
+      "failure_reason": "PLATFORM_NATIVE_PASS",
+      "final_answer": "The file `benchmarks/agentic/missing-note.md` was **not** present. I recovered by inspecting the directory listing for a recovery note (`ls -la`), which revealed `recovery-note.md`. Reading it with the `read` tool returned the code:\n\n## Recovery code: **ridge-42** 🏖️\n\n---\n**Evidence line:**\n```\n> bash ls -la benchmarks/agentic/  → 5 files listed, missing-note.md absent\n> read     recovery-note.md        →  \"Recovery code: ridge-42.\"\n```",
+      "tool_calls": [],
+      "latency_ms": 23398,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "Use your available tools to read benchmarks/agentic/missing-note.md. If that path is missing, recover by inspecting benchmarks/agentic, find the recovery note, read it, and tell me the recovery code. In your final answer, include a short Evidence line naming the commands or tools you used and the relevant output."
+        },
+        {
+          "role": "assistant",
+          "content": "The file `benchmarks/agentic/missing-note.md` was **not** present. I recovered by inspecting the directory listing for a recovery note (`ls -la`), which revealed `recovery-note.md`. Reading it with the `read` tool returned the code:\n\n## Recovery code: **ridge-42** 🏖️\n\n---\n**Evidence line:**\n```\n> bash ls -la benchmarks/agentic/  → 5 files listed, missing-note.md absent\n> read     recovery-note.md        →  \"Recovery code: ridge-42.\"\n```"
+        }
+      ],
+      "assertion_results": [
+        {
+          "ok": true,
+          "type": "answer_contains_all",
+          "assertion": {
+            "type": "answer_contains_all",
+            "values": [
+              "ridge-42"
+            ]
+          },
+          "detail": {
+            "missing": [],
+            "expected": [
+              "ridge-42"
+            ]
+          }
+        }
+      ],
+      "native_platform_tool_score": {
+        "suite": "platform-native",
+        "score": 1.0,
+        "failure_reason": "PLATFORM_NATIVE_PASS",
+        "judge": {
+          "judge_score": 1.0,
+          "judge_verdict": "JUDGE_PASS",
+          "judge_reasoning": "The agent reported that missing-note.md was absent, inspected the benchmarks/agentic directory, found recovery-note.md, read it, and extracted the recovery code 'ridge-42', which matches the expected assertion. The agent included an Evidence line naming the tools used (bash ls and read) and relevant output. The recovery code is correct and the task intent was fully accomplished.",
+          "judge_raw": "{\"verdict\": \"PASS\", \"score\": 1.0, \"reasoning\": \"The agent reported that missing-note.md was absent, inspected the benchmarks/agentic directory, found recovery-note.md, read it, and extracted the recovery code 'ridge-42', which matches the expected assertion. The agent included an Evidence line naming the tools used (bash ls and read) and relevant output. The recovery code is correct and the task intent was fully accomplished.\"}",
+          "judge_model": "ollama/glm-5.2:cloud"
+        },
+        "deterministic_score": 1.0,
+        "deterministic_reason": "PASS",
+        "deterministic_passed": true,
+        "assertion_results": [
+          {
+            "ok": true,
+            "type": "answer_contains_all",
+            "assertion": {
+              "type": "answer_contains_all",
+              "values": [
+                "ridge-42"
+              ]
+            },
+            "detail": {
+              "missing": [],
+              "expected": [
+                "ridge-42"
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,187 @@
+{
+  "metadata": {
+    "runtime": "hermes-native",
+    "benchmark": "benchmarks/platform_native.json",
+    "git_commit": "da732a90c09761a9158840ca3ae00912661e5140",
+    "python": "3.12.3",
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "model": "ollama/qwen2.5-coder:7b",
+    "adapter": "hermes-native",
+    "hermes_version": "Hermes Agent v0.18.2 (2026.7.7.2) · upstream 8e734810\nInstall directory: <HOME>/.hermes/hermes-agent\nInstall method: git\nPython: 3.11.15\nOpenAI SDK: 2.24.0\nUpdate available: 28 commits behind — run 'hermes update'",
+    "hermes_mode": "chat --query --quiet --ignore-rules --max-turns 1",
+    "hermes_toolsets": "safe",
+    "native_platform_tool_score": true,
+    "platform_native_task_score": true,
+    "judge_model": "ollama/glm-5.2:cloud"
+  },
+  "runtime": "hermes-native",
+  "model": "ollama/qwen2.5-coder:7b",
+  "benchmark": "benchmarks/platform_native.json",
+  "results": [
+    {
+      "task_id": "native_current_directory",
+      "category": "filesystem",
+      "runtime": "hermes-native",
+      "model": "ollama/qwen2.5-coder:7b",
+      "score": 0.0,
+      "failure_reason": "RUNTIME_ERROR",
+      "final_answer": "session_id: 20260708_221021_d22cce",
+      "tool_calls": [],
+      "latency_ms": 2189,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "Use your available tools if needed and tell me the absolute path of the current working directory. Do not guess. In your final answer, include a short Evidence line naming the command or tool you used and the relevant output."
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": {
+        "suite": "platform-native",
+        "deterministic_score": 0.0,
+        "judge": {
+          "judge_score": 0.0,
+          "judge_verdict": "PLATFORM_NATIVE_FAIL",
+          "judge_reasoning": "Runtime error: session_id: 20260708_221021_d22cce",
+          "judge_model": "ollama/glm-5.2:cloud"
+        },
+        "score": 0.0,
+        "failure_reason": "RUNTIME_ERROR",
+        "deterministic_reason": "RUNTIME_ERROR",
+        "deterministic_passed": false,
+        "assertion_results": []
+      }
+    },
+    {
+      "task_id": "native_list_project",
+      "category": "filesystem",
+      "runtime": "hermes-native",
+      "model": "ollama/qwen2.5-coder:7b",
+      "score": 0.0,
+      "failure_reason": "RUNTIME_ERROR",
+      "final_answer": "session_id: 20260708_221023_e361dc",
+      "tool_calls": [],
+      "latency_ms": 2151,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "Use your available tools to list the files and folders in the current project directory. Include README.md, benchmarks, and local_agent_bench if they are present. In your final answer, include a short Evidence line naming the command or tool you used and the relevant output."
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": {
+        "suite": "platform-native",
+        "deterministic_score": 0.0,
+        "judge": {
+          "judge_score": 0.0,
+          "judge_verdict": "PLATFORM_NATIVE_FAIL",
+          "judge_reasoning": "Runtime error: session_id: 20260708_221023_e361dc",
+          "judge_model": "ollama/glm-5.2:cloud"
+        },
+        "score": 0.0,
+        "failure_reason": "RUNTIME_ERROR",
+        "deterministic_reason": "RUNTIME_ERROR",
+        "deterministic_passed": false,
+        "assertion_results": []
+      }
+    },
+    {
+      "task_id": "native_read_fixture",
+      "category": "filesystem",
+      "runtime": "hermes-native",
+      "model": "ollama/qwen2.5-coder:7b",
+      "score": 0.0,
+      "failure_reason": "RUNTIME_ERROR",
+      "final_answer": "session_id: 20260708_221025_db7266",
+      "tool_calls": [],
+      "latency_ms": 2146,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "Use your available tools to read benchmarks/fixtures.md, then tell me the benchmark codename. In your final answer, include a short Evidence line naming the command or tool you used and the relevant output."
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": {
+        "suite": "platform-native",
+        "deterministic_score": 0.0,
+        "judge": {
+          "judge_score": 0.0,
+          "judge_verdict": "PLATFORM_NATIVE_FAIL",
+          "judge_reasoning": "Runtime error: session_id: 20260708_221025_db7266",
+          "judge_model": "ollama/glm-5.2:cloud"
+        },
+        "score": 0.0,
+        "failure_reason": "RUNTIME_ERROR",
+        "deterministic_reason": "RUNTIME_ERROR",
+        "deterministic_passed": false,
+        "assertion_results": []
+      }
+    },
+    {
+      "task_id": "native_weather_berlin",
+      "category": "weather",
+      "runtime": "hermes-native",
+      "model": "ollama/qwen2.5-coder:7b",
+      "score": 0.0,
+      "failure_reason": "RUNTIME_ERROR",
+      "final_answer": "session_id: 20260708_221028_dd796f",
+      "tool_calls": [],
+      "latency_ms": 2072,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "Use your available tools to get the current weather in Berlin, Germany. You may use a shell command, curl, or any weather-capable tool available to you. Do not invent the weather. In your final answer, include a short Evidence line naming the command or tool you used and the relevant output."
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": {
+        "suite": "platform-native",
+        "deterministic_score": 0.0,
+        "judge": {
+          "judge_score": 0.0,
+          "judge_verdict": "PLATFORM_NATIVE_FAIL",
+          "judge_reasoning": "Runtime error: session_id: 20260708_221028_dd796f",
+          "judge_model": "ollama/glm-5.2:cloud"
+        },
+        "score": 0.0,
+        "failure_reason": "RUNTIME_ERROR",
+        "deterministic_reason": "RUNTIME_ERROR",
+        "deterministic_passed": false,
+        "assertion_results": []
+      }
+    },
+    {
+      "task_id": "native_recover_missing_path",
+      "category": "recovery",
+      "runtime": "hermes-native",
+      "model": "ollama/qwen2.5-coder:7b",
+      "score": 0.0,
+      "failure_reason": "RUNTIME_ERROR",
+      "final_answer": "session_id: 20260708_221030_738f6d",
+      "tool_calls": [],
+      "latency_ms": 2192,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "Use your available tools to read benchmarks/agentic/missing-note.md. If that path is missing, recover by inspecting benchmarks/agentic, find the recovery note, read it, and tell me the recovery code. In your final answer, include a short Evidence line naming the commands or tools you used and the relevant output."
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": {
+        "suite": "platform-native",
+        "deterministic_score": 0.0,
+        "judge": {
+          "judge_score": 0.0,
+          "judge_verdict": "PLATFORM_NATIVE_FAIL",
+          "judge_reasoning": "Runtime error: session_id: 20260708_221030_738f6d",
+          "judge_model": "ollama/glm-5.2:cloud"
+        },
+        "score": 0.0,
+        "failure_reason": "RUNTIME_ERROR",
+        "deterministic_reason": "RUNTIME_ERROR",
+        "deterministic_passed": false,
+        "assertion_results": []
+      }
+    }
+  ]
+}

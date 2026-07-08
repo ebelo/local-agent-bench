@@ -1,6 +1,6 @@
 # Local LLM Agent Rankings: 2026 Mid-Year Report
 
-*Six models, four runtimes, 94 sequential benchmark runs, 30-second usability threshold. Which local models can actually use tools — fast enough to matter?*
+*Six models, four runtimes, 102 sequential controlled benchmark runs, 30-second usability threshold. Which local models can actually use tools — fast enough to matter?*
 
 ---
 
@@ -41,7 +41,7 @@ This report presents results from Local Agent Bench, an open-source diagnostic b
 | hermes-react | Hermes `chat --query --quiet --ignore-rules` | Default (>0) | ❌ No |
 | pi-react | Pi `--print --no-session --no-tools --offline` | Default (>0) | ❌ No |
 
-Native adapters (tested separately, see [article-3](article-3-native-adapters.md)):
+Native adapters and platform-native use cases are tested separately, see [article-3](article-3-native-adapters.md):
 
 | Runtime | How it works | What it tests |
 |---------|-------------|---------------|
@@ -276,13 +276,18 @@ Only qwen2.5-coder and qwen3.5:9b can recover from errors on their own (through 
 
 ## Native Adapter Findings
 
-The three native adapters — `openclaw-native`, `hermes-native`, and `pi-native` — test the real platform agent loops instead of the benchmark-owned ReAct protocol. Testing covered all five benchmark models across all three native adapters (75 runs total: 5 models × 3 adapters × 5 tasks). Native results now have two scores: a strict benchmark-tool score and an LLM-as-judge task-completion score using OpenClaw + `ollama/glm-5.2:cloud`. Full analysis in [article-3](article-3-native-adapters.md).
+The three native adapters — `openclaw-native`, `hermes-native`, and `pi-native` — test real platform agent loops instead of the benchmark-owned ReAct protocol. Testing now has two native layers:
 
-| Adapter | Strict Result | Judge Result | Root Cause |
-|---------|---------------|--------------|------------|
+1. **Strict benchmark-tool compatibility**: can the model emit tool-call JSON matching `get_cwd`, `list_directory`, `read_file`, and `get_weather`?
+2. **Platform-native use cases**: can the model/runtime complete useful tasks using whatever tools the platform actually exposes?
+
+The platform-native suite uses `benchmarks/platform_native.json` and asks the agent to include a short evidence line naming the command/tool and output it used. Completion is scored by an LLM judge (`ollama/glm-5.2:cloud`) with deterministic text assertions as guardrails. Full analysis in [article-3](article-3-native-adapters.md).
+
+| Adapter | Strict Tool Score | Platform-Native Use-Case Score | Root Cause |
+|---------|-------------------|--------------------------------|------------|
 | openclaw-native | 0/5 for all models | 0/5 for all models | Context overflow (32K models) or model-override rejected (40K+ models) |
-| hermes-native | 0/5 for all models | 0/5 for all models | Silent session failure (32K models) or toolset mismatch (40K+ models) |
-| pi-native | qwen2.5-coder:7b 1.5/5; others 0/5 | qwen3.5:9b 3/5; ornith:9b 2/5; lfm2.5 1.5/5; mistral 1/5; qwen2.5-coder 0/5 | Pi tools work, but strict benchmark-tool parsing misses platform-native task completion |
+| hermes-native | 0/5 for all models | Ornith 0.5/5; others 0/5 | Silent session failure (32K models) or toolset mismatch (40K+ models) |
+| pi-native | qwen2.5-coder:7b 1.5/5; others 0/5 | Ornith 5/5; qwen3.5 3/5; lfm2.5 3/5; qwen2.5-coder 1/5; mistral 1/5 | Pi tools are usable when prompted for evidence; strict benchmark-tool parsing misses this |
 
 **Key findings:**
 
@@ -290,11 +295,11 @@ The three native adapters — `openclaw-native`, `hermes-native`, and `pi-native
 
 2. **Hermes** has a hard 64K context floor. Models with 32K context (mistral:7b, qwen2.5-coder:7b) produce silent empty sessions in v0.18.2. Models with sufficient context (qwen3.5:9b, ornith:9b, lfm2.5) run but report only `vision_analyze` as available — the safe toolset may not be correctly registered.
 
-3. **Pi** has the best context isolation and is the only platform where models completed tasks. Strict scoring only credited qwen2.5-coder:7b's JSON-like tool calls (1.5/5), but LLM judging credited qwen3.5:9b (3/5) and Ornith:9b (2/5) for real task completion through Pi's native tools.
+3. **Pi** has the best context isolation and is the only platform where models completed full use cases. With evidence requested, Ornith:9b scored 5/5, qwen3.5:9b and lfm2.5 scored 3/5, and qwen2.5-coder/mistral scored 1/5.
 
 4. **No platform registers the benchmark's tools** (`get_cwd`, `list_directory`, `read_file`, `get_weather`). The native adapters reveal a tool registration gap: benchmark tools exist only in the benchmark's own prompt, not in any platform's tool registry.
 
-5. **ReAct rankings do not predict strict native performance, but they partly predict Pi task completion.** Native adapters serve primarily as platform diagnostics; when judged flexibly, Pi-native qwen3.5:9b and Ornith:9b are genuinely useful despite strict 0/5 parser scores.
+5. **ReAct rankings do not predict strict native performance, but they partly predict Pi task completion.** Native adapters serve primarily as platform diagnostics; when judged as use cases, Pi-native Ornith:9b becomes the standout result despite strict 0/5 parser scoring.
 
 These findings are real platform constraints that would affect any user trying to deploy small models through these runtimes. The ReAct adapters, which use a benchmark-owned prompt and parser, remain the fair cross-runtime comparison method.
 
@@ -326,11 +331,11 @@ If you are choosing a local model for agentic tool use in the 7–9B range, rank
 
 ### The Bigger Picture
 
-The local LLM ecosystem in mid-2026 has reached a point where a 7B coding model (qwen2.5-coder) can outperform larger models on agentic tool use — deterministically, in under 4 seconds per task, on consumer hardware. The bottleneck is no longer model size or quantization level. It's the alignment between the model's training data and the ReAct protocol, combined with the runtime's ability to scaffold without adding excessive latency.
+The local LLM ecosystem in mid-2026 has reached a point where a 7B coding model (qwen2.5-coder) can outperform larger models on controlled ReAct tool use — deterministically, in under 4 seconds per task, on consumer hardware. But the platform-native use-case suite adds a second lesson: controlled protocol excellence is not the same as user-visible agent usefulness. In native Pi use cases, Ornith:9b is the standout.
 
 The 30-second usability threshold exposes a crucial tradeoff: the runtime that maximizes score (openclaw-react) may be too slow for the model that needs it most (mistral, qwen3.5). The practical sweet spot is raw-ollama-react with a model trained to follow ReAct natively — qwen2.5-coder:7b sits in that spot alone.
 
-The next frontier for Local Agent Bench is higher capability levels: web search grounding, browser navigation, and end-to-end agent work. But the foundation is clear: the models are ready. The runtimes need to get faster, not smarter.
+The next frontier for Local Agent Bench is higher capability levels: web search grounding, browser navigation, and end-to-end agent work. The foundation is now two-track: controlled protocol rankings for model comparison, and platform-native use cases for holistic deployability.
 
 ---
 

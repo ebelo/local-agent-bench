@@ -41,6 +41,14 @@ This report presents results from Local Agent Bench, an open-source diagnostic b
 | hermes-react | Hermes `chat --query --quiet --ignore-rules` | Default (>0) | ❌ No |
 | pi-react | Pi `--print --no-session --no-tools --offline` | Default (>0) | ❌ No |
 
+Native adapters (tested separately, see [article-3](article-3-native-adapters.md)):
+
+| Runtime | How it works | What it tests |
+|---------|-------------|---------------|
+| openclaw-native | `openclaw agent --local --json` (full workspace) | OpenClaw agent loop with real tools |
+| hermes-native | `hermes chat --query --quiet --ignore-rules` | Hermes tool loop with safe toolset |
+| pi-native | `pi --print --mode text` (native tools active) | Pi tool loop with bash/read/write |
+
 ### Benchmark Tasks
 
 Two benchmark suites were used:
@@ -265,6 +273,28 @@ The recovery task — try a bad path, detect failure, list the directory, find t
 | granite4.1:8b | 0% | — |
 
 Only qwen2.5-coder and qwen3.5:9b can recover from errors on their own (through raw-ollama-react). Ornith:9b needs openclaw scaffolding to recover. Everyone else simply can't.
+
+## Native Adapter Findings
+
+The three native adapters — `openclaw-native`, `hermes-native`, and `pi-native` — test the real platform agent loops instead of the benchmark-owned ReAct protocol. All scored 0/5 across 30 runs (2 models × 3 adapters × 5 tasks). Full analysis in [article-3](article-3-native-adapters.md).
+
+| Adapter | mistral:7b | lfm2.5 | Root Cause |
+|---------|-----------|--------|------------|
+| openclaw-native | 0/5 (CONTEXT_OVERFLOW) | 0/5 (RUNTIME_ERROR) | OpenClaw agent loads ~56K chars workspace context, overflowing 32K-context models |
+| hermes-native | 0/5 (RUNTIME_ERROR) | 0/5 (NO_NATIVE_TOOL_ATTEMPT) | Hermes requires 64K context minimum; mistral:7b refused, lfm2.5 runs but can't find benchmark tools |
+| pi-native | 0/5 (NO_NATIVE_TOOL_ATTEMPT) | 0/5 (NO_NATIVE_TOOL_ATTEMPT) | Pi's native tools (bash, read, write) ≠ benchmark tools; model uses Pi's tools, not benchmark's |
+
+**Key findings:**
+
+1. **OpenClaw agent mode** has a ~56K-token context floor from workspace files (AGENTS.md, MEMORY.md, skills, tool schemas). 7B models with 32K context overflow before seeing the task.
+
+2. **Hermes** has a hard 64K context gate — it refuses to run models with less context and exits with code 1.
+
+3. **Pi** has the best context isolation (minimal system prompt with `--no-context-files --no-skills`) but its native tools don't include the benchmark's `get_cwd`, `list_directory`, `read_file`, or `get_weather`. The model correctly uses Pi's `bash` and `read` tools but the benchmark can't score platform-specific tool calls.
+
+4. **No platform registers the benchmark's tools.** The native adapters reveal a tool registration gap: benchmark tools exist only in the benchmark's own prompt, not in any platform's tool registry. To properly test platform-native tool calling, benchmark tools would need to be registered as platform extensions.
+
+These findings are real platform constraints that would affect any user trying to deploy 7B models through these runtimes. The ReAct adapters, which use a benchmark-owned prompt and parser, remain the fair cross-runtime comparison method.
 
 ## Conclusions
 

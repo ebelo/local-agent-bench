@@ -171,9 +171,13 @@ Local Agent Bench doesn't just test models in isolation. It tests models *throug
 
 - **pi-react** — Uses Pi's `--print` mode with all context stripped (`--no-tools`, `--no-context-files`, `--no-skills`, `--no-prompt-templates`, `--no-extensions`, `--offline`). This is the most stripped-down adapter.
 
-- **openclaw-native** and **hermes-native** — Run a full platform agent turn where the platform owns native tool-call formation. These add a `native_platform_tool_score` separate from the ReAct score, so you can compare "can the model do ReAct" vs "can the model do native function calling."
+- **openclaw-native** — Runs `openclaw agent --local --json`, a full agent session with workspace context, skills, and tool schemas. Tests OpenClaw's real platform tool-calling layer.
 
-All adapters use the same benchmark tasks, the same harness-owned tools, and the same scoring logic. The only variable is how the model's response is obtained. This makes cross-runtime comparison fair and meaningful.
+- **hermes-native** — Runs `hermes chat --query --quiet --ignore-rules --max-turns 1` with Hermes's safe toolset. Tests Hermes's real platform tool-calling layer.
+
+- **pi-native** — Runs `pi --print --no-session --mode text` with Pi's native tools active (bash, read, write, edit). Tests Pi's real platform tool-calling layer.
+
+All adapters use the same benchmark tasks, the same harness-owned tools, and the same scoring logic. The ReAct adapters share the same benchmark-owned prompt and parser, making cross-runtime comparison fair. The native adapters test the real platform agent loops — and as documented in [article-3](article-3-native-adapters.md), they reveal real platform constraints (context overflow, context requirements, tool registration gaps) rather than model capabilities.
 
 ### ReAct vs Native Tool Calling
 

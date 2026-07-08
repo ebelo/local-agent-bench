@@ -5,6 +5,7 @@ import os
 import shlex
 import shutil
 import subprocess
+import uuid
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Protocol
@@ -290,35 +291,29 @@ class OpenClawNativeBackend:
         self._run_command = run_command or run_subprocess
 
     def native_turn(self, model: str, prompt: str) -> CommandResult:
-        full_prompt = render_native_prompt(prompt)
         argv = [
             self.binary,
-            "infer",
-            "model",
-            "run",
-            "--json",
+            "agent",
             "--local",
+            "--json",
             "--model",
             model,
-            "--prompt",
-            full_prompt,
+            "--session-key",
+            f"local-agent-bench:{os.getpid()}:{uuid.uuid4().hex}",
+            "--message",
+            prompt,
         ]
         thinking = os.environ.get("LOCAL_AGENT_BENCH_OPENCLAW_THINKING")
         if thinking:
             argv.extend(["--thinking", thinking])
-        result = _run_cli(argv, self.timeout_seconds, self._run_command)
-        # Extract the model's response text from the JSON envelope so
-        # that extract_native_tool_calls() sees the raw model output,
-        # not the infer wrapper structure.
-        extracted = extract_openclaw_response_text(result.stdout)
-        return CommandResult(result.returncode, extracted, result.stderr)
+        return _run_cli(argv, self.timeout_seconds, self._run_command)
 
     def metadata(self, model: str) -> dict[str, Any]:
         return {
             "adapter": self.runtime,
             "model": model,
             "openclaw_version": command_output([self.binary, "--version"]),
-            "openclaw_mode": "infer model run --local --json (native tool-calling prompt)",
+            "openclaw_mode": "agent --local --json",
             "native_platform_tool_score": True,
         }
 
@@ -340,12 +335,11 @@ class HermesNativeBackend:
         self._run_command = run_command or run_subprocess
 
     def native_turn(self, model: str, prompt: str) -> CommandResult:
-        full_prompt = render_native_prompt(prompt)
         argv = [
             self.binary,
             "chat",
             "--query",
-            full_prompt,
+            prompt,
             "--quiet",
             "--model",
             model,
@@ -357,14 +351,16 @@ class HermesNativeBackend:
             "--source",
             "local-agent-bench-native",
         ]
-        return _run_cli(argv, self.timeout_seconds, self._run_command)
+        result = _run_cli(argv, self.timeout_seconds, self._run_command)
+        cleaned = _strip_hermes_preamble(result.stdout)
+        return CommandResult(result.returncode, cleaned, result.stderr)
 
     def metadata(self, model: str) -> dict[str, Any]:
         return {
             "adapter": self.runtime,
             "model": model,
             "hermes_version": command_output([self.binary, "--version"]),
-            "hermes_mode": "chat --query --quiet --ignore-rules --max-turns 1 (native tool-calling prompt)",
+            "hermes_mode": "chat --query --quiet --ignore-rules --max-turns 1",
             "hermes_toolsets": self.toolsets,
             "native_platform_tool_score": True,
         }
@@ -447,6 +443,27 @@ def render_native_prompt(task_prompt: str) -> str:
     """Render a benchmark task prompt with the native tool-calling system prompt."""
     system = NATIVE_SYSTEM_PROMPT.format(tools=tool_descriptions())
     return f"{system}\n\nTask:\n{task_prompt}"
+
+
+def _strip_hermes_preamble(stdout: str) -> str:
+    """Remove Hermes CLI preamble (warnings, session_id, banners) from stdout."""
+    lines = stdout.splitlines()
+    cleaned = []
+    skipping_preamble = True
+    for line in lines:
+        if skipping_preamble:
+            stripped = line.strip()
+            if (
+                stripped.startswith("⚠️")
+                or stripped.startswith("session_id:")
+                or stripped == ""
+                or stripped.startswith("Ollama loaded")
+                or stripped.startswith("Increase the Ollama")
+            ):
+                continue
+            skipping_preamble = False
+        cleaned.append(line)
+    return "\n".join(cleaned).strip()
 
 
 def extract_openclaw_response_text(stdout: str) -> str:

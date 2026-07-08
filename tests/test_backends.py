@@ -113,24 +113,23 @@ class BackendTest(unittest.TestCase):
         self.assertIn("--model", argv)
         self.assertIn("ollama/qwen2.5-coder:7b", argv)
 
-    def test_openclaw_native_backend_builds_infer_command(self) -> None:
+    def test_openclaw_native_backend_builds_agent_command(self) -> None:
         calls: list[tuple[list[str], int, Path]] = []
 
         def runner(argv: list[str], timeout: int, cwd: Path) -> CommandResult:
             calls.append((argv, timeout, cwd))
-            return CommandResult(0, json.dumps({"payloads": [{"text": '{"name": "tool_call", "arguments": {"id": "weather"}}'}]}), "")
+            return CommandResult(0, json.dumps({"name": "tool_call", "arguments": {"id": "weather"}}), "")
 
         backend = OpenClawNativeBackend(binary="openclaw", timeout_seconds=30, run_command=runner)
         result = backend.native_turn("ollama/qwen2.5-coder:7b", "How is the weather in Sion now?")
 
-        # native_turn extracts the model text from the JSON envelope
         self.assertIn('"tool_call"', result.stdout)
         argv = calls[0][0]
-        self.assertEqual(argv[:5], ["openclaw", "infer", "model", "run", "--json"])
-        self.assertIn("--local", argv)
+        self.assertEqual(argv[:3], ["openclaw", "agent", "--local"])
+        self.assertIn("--json", argv)
         self.assertIn("--model", argv)
         self.assertIn("ollama/qwen2.5-coder:7b", argv)
-        self.assertIn("--prompt", argv)
+        self.assertIn("--message", argv)
 
     def test_hermes_native_backend_builds_chat_command(self) -> None:
         calls: list[tuple[list[str], int, Path]] = []
@@ -177,6 +176,11 @@ class BackendTest(unittest.TestCase):
         self.assertIn("ollama/mistral:7b", argv)
         # --no-tools should NOT be present (native mode keeps tools active)
         self.assertNotIn("--no-tools", argv)
+
+    def test_strip_hermes_preamble(self) -> None:
+        from local_agent_bench.backends import _strip_hermes_preamble
+        raw = "⚠️  Normalized model 'ollama/mistral:7b' to 'mistral:7b' for custom.\n\nsession_id: 20260708_200454_6512cc\nThe weather is clear."
+        self.assertEqual(_strip_hermes_preamble(raw), "The weather is clear.")
 
     def test_cli_failure_raises_backend_error(self) -> None:
         def runner(argv: list[str], timeout: int, cwd: Path) -> CommandResult:

@@ -111,6 +111,8 @@ python3 -m local_agent_bench run --runtime pi-react --model ollama/qwen3.5:9b --
 
 `run` performs a preflight check before executing benchmark tasks. Use `--skip-preflight` only when intentionally testing degraded configuration behavior.
 
+`--task-timeout` sets a per-task timeout in seconds. Tasks that exceed this threshold are auto-failed with `TIMEOUT` as the failure reason. This is useful for discriminating between models that can complete tasks correctly but too slowly to be usable in interactive agent workflows. A threshold of 30 seconds per task is recommended as a practical usability cutoff. Set to 0 (default) to disable the timeout.
+
 ## Task Schema
 
 New tasks should use explicit tool and assertion fields:

@@ -36,7 +36,7 @@ Do not invent filesystem contents or current weather. If a tool is needed, call 
 """
 
 
-def run_task(backend: ChatBackend, model: str, task: Task, max_steps: int = 5) -> TaskResult:
+def run_task(backend: ChatBackend, model: str, task: Task, max_steps: int = 5, task_timeout: float = 0.0) -> TaskResult:
     start = time.monotonic()
     transcript = [
         {"role": "system", "content": SYSTEM_PROMPT.format(tools=tool_descriptions())},
@@ -47,6 +47,21 @@ def run_task(backend: ChatBackend, model: str, task: Task, max_steps: int = 5) -
     final_answer = ""
 
     for _ in range(max_steps):
+        if task_timeout > 0 and _elapsed_ms(start) >= task_timeout * 1000:
+            return TaskResult(
+                task_id=task.id,
+                category=task.category,
+                runtime=backend.runtime,
+                model=model,
+                score=0.0,
+                failure_reason="TIMEOUT",
+                final_answer=f"Task exceeded the {task_timeout:.0f}s per-task timeout.",
+                tool_calls=calls,
+                latency_ms=_elapsed_ms(start),
+                raw_transcript=transcript,
+                assertion_results=[],
+            )
+
         try:
             content = backend.chat(model, transcript)
         except BackendError as exc:
@@ -91,6 +106,22 @@ def run_task(backend: ChatBackend, model: str, task: Task, max_steps: int = 5) -
     else:
         final_answer = "Task did not finish within max_steps."
 
+    elapsed = _elapsed_ms(start)
+    if task_timeout > 0 and elapsed >= task_timeout * 1000:
+        return TaskResult(
+            task_id=task.id,
+            category=task.category,
+            runtime=backend.runtime,
+            model=model,
+            score=0.0,
+            failure_reason="TIMEOUT",
+            final_answer=f"Task exceeded the {task_timeout:.0f}s per-task timeout.",
+            tool_calls=calls,
+            latency_ms=elapsed,
+            raw_transcript=transcript,
+            assertion_results=[],
+        )
+
     score, reason, assertion_results = score_task(task, final_answer, calls, invalid_tool_syntax)
     return TaskResult(
         task_id=task.id,
@@ -101,7 +132,7 @@ def run_task(backend: ChatBackend, model: str, task: Task, max_steps: int = 5) -
         failure_reason=reason,
         final_answer=final_answer,
         tool_calls=calls,
-        latency_ms=_elapsed_ms(start),
+        latency_ms=elapsed,
         raw_transcript=transcript,
         assertion_results=assertion_results,
     )

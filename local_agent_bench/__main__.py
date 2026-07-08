@@ -43,6 +43,12 @@ def main() -> int:
     run.add_argument("--max-steps", type=int, default=5)
     run.add_argument("--runtime-timeout", dest="command_runtime_timeout", type=int, default=None)
     run.add_argument("--skip-preflight", action="store_true")
+    run.add_argument(
+        "--task-timeout",
+        type=float,
+        default=float(os.environ.get("LOCAL_AGENT_BENCH_TASK_TIMEOUT", "0")),
+        help="Per-task timeout in seconds. Tasks exceeding this are auto-failed with TIMEOUT. 0 = disabled.",
+    )
 
     args = parser.parse_args()
     try:
@@ -63,6 +69,7 @@ def main() -> int:
             args.max_steps,
             args.skip_preflight,
             args.command_runtime_timeout if args.command_runtime_timeout is not None else args.runtime_timeout,
+            args.task_timeout,
         )
     return 2
 
@@ -84,6 +91,7 @@ def _run(
     max_steps: int,
     skip_preflight: bool,
     runtime_timeout: int,
+    task_timeout: float = 0.0,
 ) -> int:
     backend = build_backend(runtime, base_url, timeout_seconds=runtime_timeout)
     tasks = load_tasks(benchmark)
@@ -101,7 +109,7 @@ def _run(
     if backend.runtime in {OPENCLAW_NATIVE, HERMES_NATIVE}:
         results = [run_native_task(backend, model, task) for task in tasks]
     else:
-        results = [run_task(backend, model, task, max_steps=max_steps) for task in tasks]
+        results = [run_task(backend, model, task, max_steps=max_steps, task_timeout=task_timeout) for task in tasks]
     jsonable = {
         "metadata": collect_run_metadata(model, backend.runtime, str(benchmark), backend.metadata(model)),
         "runtime": backend.runtime,

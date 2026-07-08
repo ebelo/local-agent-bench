@@ -42,8 +42,10 @@ class OllamaClient:
             method=method,
             headers={"Content-Type": "application/json"},
         )
+        import os
+        timeout = int(os.getenv("OLLAMA_TIMEOUT", "60"))
         try:
-            with urllib.request.urlopen(request, timeout=60) as response:
+            with urllib.request.urlopen(request, timeout=timeout) as response:
                 return json.loads(response.read().decode("utf-8"))
         except urllib.error.HTTPError as exc:
             body = exc.read().decode("utf-8", errors="replace")

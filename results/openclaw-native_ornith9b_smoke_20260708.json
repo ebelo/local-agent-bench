@@ -9,7 +9,9 @@
     "adapter": "openclaw-native",
     "openclaw_version": "OpenClaw 2026.6.11 (e085fa1)",
     "openclaw_mode": "agent --local --json",
-    "native_platform_tool_score": true
+    "native_platform_tool_score": true,
+    "judge_model": "ollama/glm-5.2:cloud",
+    "judge_total": 0.0
   },
   "runtime": "openclaw-native",
   "model": "ollama/ornith:9b",
@@ -32,7 +34,14 @@
         }
       ],
       "assertion_results": [],
-      "native_platform_tool_score": null
+      "native_platform_tool_score": null,
+      "judge": {
+        "judge_score": 0.0,
+        "judge_verdict": "JUDGE_FAIL",
+        "judge_reasoning": "The agent's response contains only system/plugin warnings and an error message about a model override not being allowed. It did not accomplish the task of providing the absolute path of the current working directory, did not use any tools, and produced no answer.",
+        "judge_raw": "```json\n{\"verdict\": \"FAIL\", \"score\": 0.0, \"reasoning\": \"The agent's response contains only system/plugin warnings and an error message about a model override not being allowed. It did not accomplish the task of providing the absolute path of the current working directory, did not use any tools, and produced no answer.\"}\n```",
+        "judge_model": "ollama/glm-5.2:cloud"
+      }
     },
     {
       "task_id": "fs_list_project",
@@ -51,7 +60,14 @@
         }
       ],
       "assertion_results": [],
-      "native_platform_tool_score": null
+      "native_platform_tool_score": null,
+      "judge": {
+        "judge_score": 0.0,
+        "judge_verdict": "JUDGE_FAIL",
+        "judge_reasoning": "The agent's response contains only platform startup warnings and an error message ('Model override is not allowed'). No tools were executed, no directory listing was performed, and no answer was produced. The agent did not accomplish the task at all.",
+        "judge_raw": "{\"verdict\": \"FAIL\", \"score\": 0.0, \"reasoning\": \"The agent's response contains only platform startup warnings and an error message ('Model override is not allowed'). No tools were executed, no directory listing was performed, and no answer was produced. The agent did not accomplish the task at all.\"}",
+        "judge_model": "ollama/glm-5.2:cloud"
+      }
     },
     {
       "task_id": "fs_read_fixture",
@@ -70,7 +86,14 @@
         }
       ],
       "assertion_results": [],
-      "native_platform_tool_score": null
+      "native_platform_tool_score": null,
+      "judge": {
+        "judge_score": 0.0,
+        "judge_verdict": "JUDGE_FAIL",
+        "judge_reasoning": "The agent's response contains only platform startup and error messages. There is no evidence the agent read any fixture note, used any tools, or produced an answer. The expected codename 'alpine-signal' does not appear anywhere in the response.",
+        "judge_raw": "```json\n{\"verdict\": \"FAIL\", \"score\": 0.0, \"reasoning\": \"The agent's response contains only platform startup and error messages. There is no evidence the agent read any fixture note, used any tools, or produced an answer. The expected codename 'alpine-signal' does not appear anywhere in the response.\"}\n```",
+        "judge_model": "ollama/glm-5.2:cloud"
+      }
     },
     {
       "task_id": "weather_berlin_current",
@@ -89,7 +112,14 @@
         }
       ],
       "assertion_results": [],
-      "native_platform_tool_score": null
+      "native_platform_tool_score": null,
+      "judge": {
+        "judge_score": 0.0,
+        "judge_verdict": "JUDGE_FAIL",
+        "judge_reasoning": "The agent did not accomplish the task at all. The response only contains platform error messages and warnings (state migration, plugin loading, and a model override error). No weather information for Berlin was retrieved or provided. The agent never executed any tools to get weather data and never produced an answer to the question.",
+        "judge_raw": "```json\n{\"verdict\": \"FAIL\", \"score\": 0.0, \"reasoning\": \"The agent did not accomplish the task at all. The response only contains platform error messages and warnings (state migration, plugin loading, and a model override error). No weather information for Berlin was retrieved or provided. The agent never executed any tools to get weather data and never produced an answer to the question.\"}\n```",
+        "judge_model": "ollama/glm-5.2:cloud"
+      }
     },
     {
       "task_id": "multi_step_read_then_weather",
@@ -108,7 +138,14 @@
         }
       ],
       "assertion_results": [],
-      "native_platform_tool_score": null
+      "native_platform_tool_score": null,
+      "judge": {
+        "judge_score": 0.0,
+        "judge_verdict": "JUDGE_FAIL",
+        "judge_reasoning": "The agent's response contains only platform startup warnings and an error about a model override not being allowed. There is no evidence that the agent read any fixture note, identified a location, or retrieved weather data. The agent did not accomplish any part of the task.",
+        "judge_raw": "{\"verdict\": \"FAIL\", \"score\": 0.0, \"reasoning\": \"The agent's response contains only platform startup warnings and an error about a model override not being allowed. There is no evidence that the agent read any fixture note, identified a location, or retrieved weather data. The agent did not accomplish any part of the task.\"}",
+        "judge_model": "ollama/glm-5.2:cloud"
+      }
     }
   ]
 }

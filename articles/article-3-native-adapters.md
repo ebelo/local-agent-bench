@@ -22,7 +22,12 @@ This matters because in production, nobody runs raw ReAct loops. They run OpenCl
 | `hermes-native` | Hermes | `hermes chat --query --quiet --model ... --toolsets safe --max-turns 1 --ignore-rules` | Hermes chat with safe toolset, no user rules |
 | `pi-native` | Pi | `pi --print --no-session --no-context-files --no-skills --no-extensions --offline --mode text --model ...` | Pi with native tools active (bash, read, write, edit), no context files |
 
-All three use the benchmark's smoke tasks (5 tasks: get_cwd, list_directory, read_file, get_weather, multi-step). The scoring checks whether the model emitted native tool-call JSON that matches the benchmark's tool definitions (`get_cwd`, `list_directory`, `read_file`, `get_weather`).
+All three use the benchmark's smoke tasks (5 tasks: get_cwd, list_directory, read_file, get_weather, multi-step). There are now two scoring layers:
+
+1. **Strict native tool-call score**: checks whether the model emitted structured tool-call JSON matching the benchmark's tool definitions (`get_cwd`, `list_directory`, `read_file`, `get_weather`).
+2. **LLM-as-judge task-completion score**: uses OpenClaw `infer` with `ollama/glm-5.2:cloud` to evaluate whether the platform response actually accomplished the task intent, even when it used platform-native tools like Pi's `bash` or `read`.
+
+The second score was added after a manual Pi session with Ornith:9b showed the problem clearly: Ornith used `bash` to fetch live weather from `wttr.in` and answered correctly, but the strict scorer still gave 0/5 because it did not emit benchmark-specific `get_weather` JSON.
 
 ## The Five Models
 
@@ -36,27 +41,43 @@ All three use the benchmark's smoke tasks (5 tasks: get_cwd, list_directory, rea
 
 These are the five models that produced the ReAct rankings in article-2. Testing them natively answers: *do the ReAct rankings predict platform-native performance?*
 
-## Results: 14/15 Cells at 0/5, One Partial Pass
+## Strict Results: 14/15 Cells at 0/5
 
-| Adapter | Model | Score | Root Cause | Avg Latency |
-|---------|-------|:-----:|------------|:-----------:|
+| Adapter | Model | Strict Score | Root Cause | Avg Latency |
+|---------|-------|:------------:|------------|:-----------:|
 | openclaw-native | mistral:7b | 0/5 | Context overflow (56K workspace vs 32K window) | 5.4s |
 | openclaw-native | lfm2.5:latest | 0/5 | Model override rejected by OpenClaw | 2.8s |
 | openclaw-native | qwen3.5:9b | 0/5 | Model override rejected by OpenClaw | 2.7s |
 | openclaw-native | qwen2.5-coder:7b | 0/5 | Context overflow (56K workspace vs 32K window) | 5.3s |
 | openclaw-native | ornith:9b | 0/5 | Model override rejected by OpenClaw | 2.7s |
 | hermes-native | mistral:7b | 0/5 | Hermes silent failure (32K context, session only) | 2.2s |
-| hermes-native | lfm2.5:latest | 0/5 | Tool mismatch (Hermes tools ≠ benchmark tools) | 11.9s |
+| hermes-native | lfm2.5:latest | 0/5 | Tool mismatch (Hermes tools != benchmark tools) | 11.9s |
 | hermes-native | qwen3.5:9b | 0/5 | Tool mismatch (only `vision_analyze` available) | 18.3s |
 | hermes-native | qwen2.5-coder:7b | 0/5 | Hermes silent failure (32K context, session only) | 2.2s |
 | hermes-native | ornith:9b | 0/5 | Tool mismatch (only `vision_analyze` available) | 14.7s |
-| pi-native | mistral:7b | 0/5 | Tool mismatch (Pi tools ≠ benchmark tools) | 5.6s |
-| pi-native | lfm2.5:latest | 0/5 | Tool mismatch (Pi tools ≠ benchmark tools) | 7.7s |
-| pi-native | qwen3.5:9b | 0/5 | Tool mismatch (Pi tools ≠ benchmark tools) | 20.9s |
-| **pi-native** | **qwen2.5-coder:7b** | **1.5/5** | **Partial pass — read_file PASS, 2× partial tool attempts** | **3.8s** |
-| pi-native | ornith:9b | 0/5 | Tool mismatch (Pi tools ≠ benchmark tools) | 17.5s |
+| pi-native | mistral:7b | 0/5 | Tool mismatch (Pi tools != benchmark tools) | 5.6s |
+| pi-native | lfm2.5:latest | 0/5 | Tool mismatch (Pi tools != benchmark tools) | 7.7s |
+| pi-native | qwen3.5:9b | 0/5 | Tool mismatch (Pi tools != benchmark tools) | 20.9s |
+| **pi-native** | **qwen2.5-coder:7b** | **1.5/5** | **Emitted parseable JSON tool calls; one `read` alias matched `read_file`** | **3.8s** |
+| pi-native | ornith:9b | 0/5 | Tool mismatch (Pi tools != benchmark tools) | 17.5s |
 
 Fourteen out of fifteen cells scored 0/5. The one non-zero result — qwen2.5-coder:7b through pi-native — scored 1.5/5: a perfect `read_file` call (1.0), a `bash` call instead of `list_directory` (0.25), and a `bash` call instead of `get_weather` (0.25).
+
+That strict result is useful, but incomplete. It measures benchmark-tool protocol compatibility, not whether the platform session actually helped the user.
+
+## LLM-Judged Task Completion Results
+
+The LLM judge evaluates the final platform response flexibly: did the agent actually accomplish the user's task, using any real platform tool? This flips the Pi results:
+
+| Adapter | mistral:7b | lfm2.5 | qwen3.5:9b | qwen2.5-coder:7b | ornith:9b | Interpretation |
+|---------|:---------:|:------:|:----------:|:----------------:|:--------:|----------------|
+| openclaw-native | 0/5 | 0/5 | 0/5 | 0/5 | 0/5 | Still blocked by context overflow or model override |
+| hermes-native | 0/5 | 0/5 | 0/5 | 0/5 | 0/5 | Still blocked by silent sessions or unavailable tools |
+| pi-native | 1/5 | 1.5/5 | **3/5** | 0/5 | **2/5** | Pi can accomplish tasks with platform tools, but not consistently |
+
+The important correction: **Ornith:9b through Pi is not a real 0/5 user experience.** It listed the project directory and fetched current weather successfully, but strict scoring missed both because they were done through Pi's native `bash`/text flow instead of benchmark `list_directory`/`get_weather` JSON.
+
+qwen3.5:9b was the strongest Pi-native task completer by judge score: it listed files, identified the benchmark codename, and answered current weather. Ornith:9b completed directory listing and weather. lfm2.5 completed directory listing and partially handled the multi-step task. mistral:7b got credit for current weather. qwen2.5-coder:7b is the inverse case: it emitted parseable tool-call JSON, which strict scoring rewarded, but the platform response did not complete the tasks as user-facing answers, so the judge gave it 0/5.
 
 But the 0/5 results are not all the same. There are **four distinct failure modes**, each revealing a different platform constraint.
 
@@ -142,7 +163,7 @@ But it still scored 0/5 because it didn't emit benchmark tool-call JSON. The mod
 
 ### The qwen2.5-coder:7b Exception
 
-qwen2.5-coder:7b through pi-native was the **only model+adapter combination that produced a non-zero native score** across all 15 cells. It scored 1.5/5:
+qwen2.5-coder:7b through pi-native was the **only model+adapter combination that produced a non-zero strict native tool-call score** across all 15 cells. It scored 1.5/5:
 
 | Task | Score | What happened |
 |------|:-----:|---------------|
@@ -174,13 +195,13 @@ This means the native adapters can only test whether the model *attempts* a tool
 
 ## Failure Mode Summary by Model
 
-| Model | openclaw-native | hermes-native | pi-native | Pattern |
-|-------|:-:|:-:|:-:|---------|
-| mistral:7b | Context overflow | Silent session failure | Tool mismatch | Blocked by 32K context in 2/3 platforms |
-| lfm2.5:latest | Model override rejected | Tool mismatch | Tool mismatch | Blocked by OpenClaw policy; runs elsewhere but wrong tools |
-| qwen3.5:9b | Model override rejected | Tool mismatch (only vision_analyze) | Tool mismatch | Blocked by OpenClaw policy; Hermes toolset bug |
-| qwen2.5-coder:7b | Context overflow | Silent session failure | **1.5/5 (partial pass)** | Same 32K issues as mistral, but Pi's `read` alias saved it |
-| ornith:9b | Model override rejected | Tool mismatch (only vision_analyze) | Tool mismatch | Same as qwen3.5:9b — OpenClaw policy + Hermes toolset bug |
+| Model | openclaw-native | hermes-native | pi-native strict | pi-native judge | Pattern |
+|-------|:-:|:-:|:-:|:-:|---------|
+| mistral:7b | Context overflow | Silent session failure | 0/5 | 1/5 | Blocked by 32K context in 2/3 platforms; one Pi weather success |
+| lfm2.5:latest | Model override rejected | Tool mismatch | 0/5 | 1.5/5 | Blocked by OpenClaw policy; can complete some Pi tasks |
+| qwen3.5:9b | Model override rejected | Tool mismatch (only vision_analyze) | 0/5 | **3/5** | Best Pi-native task completion, despite strict 0/5 |
+| qwen2.5-coder:7b | Context overflow | Silent session failure | **1.5/5** | 0/5 | Emits parseable JSON, but did not produce completed Pi answers |
+| ornith:9b | Model override rejected | Tool mismatch (only vision_analyze) | 0/5 | **2/5** | Completes some Pi tasks via platform tools |
 
 The pattern is clear: **32K-context models** (mistral:7b, qwen2.5-coder:7b) are blocked by context limits in OpenClaw and Hermes but can run through Pi. **40K+ context models** (qwen3.5:9b, ornith:9b, lfm2.5) are blocked by OpenClaw's model-override policy and Hermes's toolset configuration, but run through Pi with tool mismatch.
 
@@ -192,9 +213,14 @@ The pattern is clear: **32K-context models** (mistral:7b, qwen2.5-coder:7b) are 
 2. qwen3.5:9b — 4/5 agentic, strongest reasoning
 3. ornith:9b — best grounding, reliable
 
-Through native adapters, all three score 0/5 (with the single exception of qwen2.5-coder:7b's 1.5/5 on pi-native). The ReAct rankings measure the model's ability to follow a text protocol — a skill that doesn't transfer to platform-native tool calling because the platforms don't expose the benchmark's tools.
+Through strict native scoring, all three score 0/5 except qwen2.5-coder:7b's 1.5/5 on pi-native. Through LLM-judged task completion, the picture changes: qwen3.5:9b scores 3/5 on Pi, Ornith:9b scores 2/5, and qwen2.5-coder:7b drops to 0/5.
 
-The one insight from the ReAct rankings that *does* hold: qwen2.5-coder:7b's superior tool discipline shows up in the native results too. It was the only model that emitted structured tool-call JSON matching a benchmark tool name (via the `read` alias), and it did so on the first task that had an overlapping tool. Its ReAct training (Qwen2.5-Coder was fine-tuned for code generation and tool use) gives it an edge in format compliance that survives across protocols.
+So the answer depends on which native question you ask:
+
+- **Protocol compatibility:** qwen2.5-coder:7b transfers best. It emits parseable JSON tool calls, even when Pi has not executed them into final answers.
+- **User-visible task completion:** qwen3.5:9b and Ornith:9b transfer better through Pi. They use platform tools or platform-derived context to answer real tasks, even when strict JSON parsing misses that.
+
+The ReAct rankings still do not predict OpenClaw-native or Hermes-native performance, because those runs are dominated by platform configuration failures. But they do partially predict Pi-native task quality: the stronger ReAct models are the ones that can turn Pi's general tools into useful answers.
 
 ## Two Layers of Native Testing
 
@@ -243,12 +269,12 @@ Pi is the most context-efficient of the three platforms. With `--no-context-file
 
 Pi's native tools (bash, read, write, edit) are general-purpose, not benchmark-specific. The model correctly identifies that it needs to list files or read a file, and it attempts to use Pi's tools to do so — but the benchmark scorer doesn't recognize Pi's tool-call format as a benchmark tool call, unless the tool name happens to alias (Pi's `read` → benchmark's `read_file`).
 
-The qwen2.5-coder:7b partial pass through pi-native is the most interesting result in the entire native adapter matrix. It shows that:
-1. The model can emit structured tool-call JSON in the correct format.
-2. The model can select the semantically correct tool when the platform has one that matches.
-3. The benchmark can score it — but only because of a coincidental name alias.
+The strict qwen2.5-coder:7b partial pass and the LLM-judged qwen3.5/Ornith wins show two different Pi-native skills:
 
-No other model achieved this through any native adapter. mistral:7b, which scores 5/5 on smoke through raw-ollama-react, scored 0/5 through pi-native because it emitted Pi's tool calls in a format the scorer didn't recognize (bash JSON with a `command` field, not a `name`/`arguments` structure). qwen2.5-coder:7b's code-generation fine-tuning gives it an edge in producing clean, structured JSON that the scorer can parse.
+1. **Tool-call syntax skill**: qwen2.5-coder emits clean JSON that a parser can recognize. That matters for integration work, but it is not the same as completing the task.
+2. **Task-completion skill**: qwen3.5:9b and Ornith:9b produce useful final answers through Pi's tool environment. The manual Ornith session made this obvious: when asked for Paris weather, Ornith first declined, then used `bash` with `curl wttr.in/Paris` when prompted, and returned current weather.
+
+This means Pi-native should be evaluated with two metrics. The strict score catches protocol interoperability. The judge score catches whether the user got a useful result.
 
 ## Conclusion
 
@@ -258,15 +284,15 @@ The native adapter results are not a failure of the benchmark or the adapters. T
 
 2. **Hermes** has a hard 64K context minimum for tool-using models. Models with 32K context produce empty sessions silently in v0.18.2. Models with sufficient context still fail because the benchmark tools aren't registered — and Hermes v0.18.2 may not correctly register even its own safe toolset.
 
-3. **Pi** has the best context isolation but its native tools (bash, read, write, edit) don't include benchmark-specific tools. The model can use Pi's tools to accomplish tasks, but the benchmark can only score platform-specific tool calls when a tool name happens to alias (Pi's `read` → benchmark's `read_file`).
+3. **Pi** has the best context isolation and actually lets models complete tasks. Strict benchmark-tool scoring misses most of that, because Pi's tools (bash, read, write, edit) don't include benchmark-specific tools. LLM-judged scoring gives Pi-native qwen3.5:9b 3/5 and Ornith:9b 2/5.
 
 4. **No platform registers the benchmark's tools** (`get_cwd`, `list_directory`, `read_file`, `get_weather`). To properly test platform-native tool calling, the benchmark tools would need to be registered as platform extensions.
 
-5. **ReAct rankings do not predict native performance.** The top three ReAct models (qwen2.5-coder:7b, qwen3.5:9b, ornith:9b) all score 0/5 through native adapters — with the single exception of qwen2.5-coder:7b's 1.5/5 on pi-native, driven by a coincidental tool-name alias.
+5. **ReAct rankings do not predict strict native performance, but they partly predict Pi task completion.** qwen3.5:9b and Ornith:9b are useful through Pi when judged flexibly. qwen2.5-coder:7b is best at parseable tool-call syntax but did not produce completed Pi answers in this run.
 
-6. **qwen2.5-coder:7b's code-generation fine-tuning provides a cross-protocol advantage.** It was the only model that produced clean, structured tool-call JSON that the native scorer could parse. This suggests that code-generation training transfers to tool-call format compliance across different protocols.
+6. **Native scoring needs both strict and flexible layers.** Strict parsing diagnoses tool-registration and protocol compatibility. LLM-as-judge scoring diagnoses whether the platform response actually helped the user.
 
-These findings are the value of the native adapters. They don't produce a score — they produce a diagnosis. And the diagnosis is clear: **the platforms are not ready for 7B models with default context, the benchmark tools are not registered with any platform, and ReAct rankings don't predict native platform performance.**
+These findings are the value of the native adapters. They do not produce a single simple score; they produce a diagnosis. And the diagnosis is clear: **OpenClaw and Hermes are blocked by platform configuration for these local models, Pi is the only native path that currently completes tasks, and strict benchmark-tool parsing undercounts real Pi usefulness.**
 
 The next step is either registering benchmark tools as platform extensions (Option A) or accepting these as real platform constraints and focusing the benchmark on the ReAct adapters, which already provide fair cross-runtime comparison (article-2).
 

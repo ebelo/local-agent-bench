@@ -1,0 +1,152 @@
+{
+  "metadata": {
+    "runtime": "hermes-native",
+    "benchmark": "benchmarks/smoke.json",
+    "git_commit": "1463130964941e5ee3b2483e2564c32f7c39bcf2",
+    "python": "3.12.3",
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "model": "ollama/mistral:7b",
+    "adapter": "hermes-native",
+    "hermes_version": "Hermes Agent v0.18.2 (2026.7.7.2) · upstream 8e734810\nInstall directory: <HOME>/.hermes/hermes-agent\nInstall method: git\nPython: 3.11.15\nOpenAI SDK: 2.24.0\nUpdate available: 28 commits behind — run 'hermes update'",
+    "hermes_mode": "chat --query --quiet --ignore-rules --max-turns 1",
+    "hermes_toolsets": "safe",
+    "native_platform_tool_score": true,
+    "judge_model": "ollama/glm-5.2:cloud",
+    "judge_total": 0.0
+  },
+  "runtime": "hermes-native",
+  "model": "ollama/mistral:7b",
+  "benchmark": "benchmarks/smoke.json",
+  "results": [
+    {
+      "task_id": "fs_current_directory",
+      "category": "filesystem",
+      "runtime": "hermes-native",
+      "model": "ollama/mistral:7b",
+      "score": 0.0,
+      "failure_reason": "RUNTIME_ERROR",
+      "final_answer": "session_id: 20260708_202233_5f7e45",
+      "tool_calls": [],
+      "latency_ms": 3001,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "Tell me the absolute path of the current working directory."
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": null,
+      "judge": {
+        "judge_score": 0.0,
+        "judge_verdict": "JUDGE_FAIL",
+        "judge_reasoning": "The agent's response only contains a session_id and does not provide the absolute path of the current working directory. No tool usage is evident, and the required answer (including 'local-agent-bench') is completely absent.",
+        "judge_raw": "{\"verdict\": \"FAIL\", \"score\": 0.0, \"reasoning\": \"The agent's response only contains a session_id and does not provide the absolute path of the current working directory. No tool usage is evident, and the required answer (including 'local-agent-bench') is completely absent.\"}",
+        "judge_model": "ollama/glm-5.2:cloud"
+      }
+    },
+    {
+      "task_id": "fs_list_project",
+      "category": "filesystem",
+      "runtime": "hermes-native",
+      "model": "ollama/mistral:7b",
+      "score": 0.0,
+      "failure_reason": "RUNTIME_ERROR",
+      "final_answer": "session_id: 20260708_202236_22707f",
+      "tool_calls": [],
+      "latency_ms": 2038,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "List the files and folders in the current project directory."
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": null,
+      "judge": {
+        "judge_score": 0.0,
+        "judge_verdict": "JUDGE_FAIL",
+        "judge_reasoning": "The agent's response only contains a session_id and does not show any directory listing or evidence of tool use. It did not accomplish the task of listing files and folders in the current project directory.",
+        "judge_raw": "{\"verdict\": \"FAIL\", \"score\": 0.0, \"reasoning\": \"The agent's response only contains a session_id and does not show any directory listing or evidence of tool use. It did not accomplish the task of listing files and folders in the current project directory.\"}",
+        "judge_model": "ollama/glm-5.2:cloud"
+      }
+    },
+    {
+      "task_id": "fs_read_fixture",
+      "category": "filesystem",
+      "runtime": "hermes-native",
+      "model": "ollama/mistral:7b",
+      "score": 0.0,
+      "failure_reason": "RUNTIME_ERROR",
+      "final_answer": "session_id: 20260708_202238_9f9cd4",
+      "tool_calls": [],
+      "latency_ms": 1980,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "Read the fixture note and tell me the benchmark codename."
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": null,
+      "judge": {
+        "judge_score": 0.0,
+        "judge_verdict": "JUDGE_FAIL",
+        "judge_reasoning": "The agent did not attempt to read any fixture note or use any tools to find the benchmark codename. It simply output a session ID and failed to provide the correct answer ('alpine-signal').",
+        "judge_raw": "```json\n{\"verdict\": \"FAIL\", \"score\": 0.0, \"reasoning\": \"The agent did not attempt to read any fixture note or use any tools to find the benchmark codename. It simply output a session ID and failed to provide the correct answer ('alpine-signal').\"}\n```",
+        "judge_model": "ollama/glm-5.2:cloud"
+      }
+    },
+    {
+      "task_id": "weather_berlin_current",
+      "category": "weather",
+      "runtime": "hermes-native",
+      "model": "ollama/mistral:7b",
+      "score": 0.0,
+      "failure_reason": "RUNTIME_ERROR",
+      "final_answer": "session_id: 20260708_202240_7316c7",
+      "tool_calls": [],
+      "latency_ms": 1977,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "What is the current weather in Berlin, Germany?"
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": null,
+      "judge": {
+        "judge_score": 0.0,
+        "judge_verdict": "JUDGE_FAIL",
+        "judge_reasoning": "The agent's response contains only a session_id and no actual answer or tool usage. It did not retrieve weather data for Berlin or provide any response to the task.",
+        "judge_raw": "```json\n{\"verdict\": \"FAIL\", \"score\": 0.0, \"reasoning\": \"The agent's response contains only a session_id and no actual answer or tool usage. It did not retrieve weather data for Berlin or provide any response to the task.\"}\n```",
+        "judge_model": "ollama/glm-5.2:cloud"
+      }
+    },
+    {
+      "task_id": "multi_step_read_then_weather",
+      "category": "multi_step",
+      "runtime": "hermes-native",
+      "model": "ollama/mistral:7b",
+      "score": 0.0,
+      "failure_reason": "RUNTIME_ERROR",
+      "final_answer": "session_id: 20260708_202242_f22dc0",
+      "tool_calls": [],
+      "latency_ms": 2071,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "Read the fixture note, identify the location mentioned there, then get the current weather for that location."
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": null,
+      "judge": {
+        "judge_score": 0.0,
+        "judge_verdict": "JUDGE_FAIL",
+        "judge_reasoning": "The agent's response contains only a session_id and no evidence of any tool use or task completion. There is no indication that the agent read a fixture note, identified a location (Berlin), or retrieved weather data. No actual work was performed.",
+        "judge_raw": "{\"verdict\": \"FAIL\", \"score\": 0.0, \"reasoning\": \"The agent's response contains only a session_id and no evidence of any tool use or task completion. There is no indication that the agent read a fixture note, identified a location (Berlin), or retrieved weather data. No actual work was performed.\"}",
+        "judge_model": "ollama/glm-5.2:cloud"
+      }
+    }
+  ]
+}

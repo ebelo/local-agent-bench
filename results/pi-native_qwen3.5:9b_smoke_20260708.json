@@ -10,7 +10,9 @@
     "pi_version": "0.80.3",
     "pi_mode": "--print --no-session --no-context-files --mode text (native tools active)",
     "pi_command": "npx -y @earendil-works/pi-coding-agent",
-    "native_platform_tool_score": true
+    "native_platform_tool_score": true,
+    "judge_model": "ollama/glm-5.2:cloud",
+    "judge_total": 3.0
   },
   "runtime": "pi-native",
   "model": "ollama/qwen3.5:9b",
@@ -45,6 +47,13 @@
         "missing_required_tools": [
           "get_cwd"
         ]
+      },
+      "judge": {
+        "judge_score": 0.0,
+        "judge_verdict": "JUDGE_FAIL",
+        "judge_reasoning": "The agent did not use any tools to determine the current working directory. It responded with the placeholder '<PROJECT_ROOT>' instead of the actual absolute path containing 'local-agent-bench'. This is essentially a hallucinated/placeholder answer with no real tool execution.",
+        "judge_raw": "{\"verdict\": \"FAIL\", \"score\": 0.0, \"reasoning\": \"The agent did not use any tools to determine the current working directory. It responded with the placeholder '<PROJECT_ROOT>' instead of the actual absolute path containing 'local-agent-bench'. This is essentially a hallucinated/placeholder answer with no real tool execution.\"}",
+        "judge_model": "ollama/glm-5.2:cloud"
       }
     },
     {
@@ -76,6 +85,13 @@
         "missing_required_tools": [
           "list_directory"
         ]
+      },
+      "judge": {
+        "judge_score": 1.0,
+        "judge_verdict": "JUDGE_PASS",
+        "judge_reasoning": "The agent's response contains all three required items: README.md, benchmarks, and local_agent_bench. The response also includes specific details such as file sizes (e.g., '20 KB' for local_agent_bench, '~17MB' for results) and specific shell script names, which strongly suggests the agent used real tools (like bash/ls) to explore the directory rather than guessing from memory. The answer is comprehensive and correct.",
+        "judge_raw": "{\"verdict\": \"PASS\", \"score\": 1.0, \"reasoning\": \"The agent's response contains all three required items: README.md, benchmarks, and local_agent_bench. The response also includes specific details such as file sizes (e.g., '20 KB' for local_agent_bench, '~17MB' for results) and specific shell script names, which strongly suggests the agent used real tools (like bash/ls) to explore the directory rather than guessing from memory. The answer is comprehensive and correct.\"}",
+        "judge_model": "ollama/glm-5.2:cloud"
       }
     },
     {
@@ -107,6 +123,13 @@
         "missing_required_tools": [
           "read_file"
         ]
+      },
+      "judge": {
+        "judge_score": 1.0,
+        "judge_verdict": "JUDGE_PASS",
+        "judge_reasoning": "The agent correctly identified the benchmark codename as 'alpine-signal', matching the expected assertion. The response includes specific details about the fixture note's location and additional content (Berlin, Germany for multi-step weather tasks), which strongly indicates the agent actually read the fixture file using tools rather than hallucinating the answer.",
+        "judge_raw": "{\"verdict\": \"PASS\", \"score\": 1.0, \"reasoning\": \"The agent correctly identified the benchmark codename as 'alpine-signal', matching the expected assertion. The response includes specific details about the fixture note's location and additional content (Berlin, Germany for multi-step weather tasks), which strongly indicates the agent actually read the fixture file using tools rather than hallucinating the answer.\"}",
+        "judge_model": "ollama/glm-5.2:cloud"
       }
     },
     {
@@ -138,6 +161,13 @@
         "missing_required_tools": [
           "get_weather"
         ]
+      },
+      "judge": {
+        "judge_score": 1.0,
+        "judge_verdict": "JUDGE_PASS",
+        "judge_reasoning": "The agent successfully provided the current weather for Berlin, Germany, including the temperature in Celsius (20.9°C). It mentions fetching the data from the Open-Meteo API, indicating it used real tool execution (like curl or a native fetch tool) to get the weather data rather than hallucinating the answer. The response includes the required location 'Berlin' and the temperature.",
+        "judge_raw": "{\"verdict\": \"PASS\", \"score\": 1.0, \"reasoning\": \"The agent successfully provided the current weather for Berlin, Germany, including the temperature in Celsius (20.9°C). It mentions fetching the data from the Open-Meteo API, indicating it used real tool execution (like curl or a native fetch tool) to get the weather data rather than hallucinating the answer. The response includes the required location 'Berlin' and the temperature.\"}",
+        "judge_model": "ollama/glm-5.2:cloud"
       }
     },
     {
@@ -170,6 +200,12 @@
           "get_weather",
           "read_file"
         ]
+      },
+      "judge": {
+        "judge_score": 0.0,
+        "judge_verdict": "JUDGE_FAIL",
+        "judge_reasoning": "No meaningful response to evaluate.",
+        "judge_model": "ollama/glm-5.2:cloud"
       }
     }
   ]

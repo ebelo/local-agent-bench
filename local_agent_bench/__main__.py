@@ -8,6 +8,7 @@ from pathlib import Path
 
 from local_agent_bench.backends import HERMES_NATIVE, OPENCLAW_NATIVE, PI_NATIVE, RAW_OLLAMA_REACT, build_backend, normalize_runtime
 from local_agent_bench.diagnostics import run_diagnostics
+from local_agent_bench.judge import judge_native_result
 from local_agent_bench.metadata import collect_run_metadata
 from local_agent_bench.native import run_native_task
 from local_agent_bench.react import result_to_jsonable, run_task
@@ -50,7 +51,17 @@ def main() -> int:
         help="Per-task timeout in seconds. Tasks exceeding this are auto-failed with TIMEOUT. 0 = disabled.",
     )
 
+    rejudge = subparsers.add_parser("rejudge", help="Re-score native adapter results with an LLM judge.")
+    rejudge.add_argument("input", type=Path, help="JSON result file to re-score.")
+    rejudge.add_argument("--benchmark", type=Path, default=DEFAULT_BENCHMARK)
+    rejudge.add_argument("--output", type=Path, help="Output file (default: overwrite input).")
+    rejudge.add_argument("--judge-model", default=os.environ.get("LOCAL_AGENT_BENCH_JUDGE_MODEL", "ollama/glm-5.2:cloud"))
+    rejudge.add_argument("--timeout", type=int, default=60)
+
+
     args = parser.parse_args()
+    if args.command == "rejudge":
+        return _rejudge(args.input, args.benchmark, args.output, args.judge_model, args.timeout)
     try:
         runtime = normalize_runtime(args.command_runtime or args.runtime)
     except ValueError as exc:
@@ -129,6 +140,67 @@ def _run(
     passed = sum(1 for result in results if result.score == 1.0)
     print(f"Summary: {passed}/{len(results)} passed", file=sys.stderr)
     return 0 if passed == len(results) else 1
+
+
+def _rejudge(input_file: Path, benchmark: Path, output: Path | None, judge_model: str, timeout: int) -> int:
+    """Re-score existing native adapter results with an LLM judge."""
+    data = json.loads(input_file.read_text(encoding="utf-8"))
+    tasks = {task.id: task for task in load_tasks(benchmark)}
+    results = data.get("results", [])
+
+    print(f"Re-judging {len(results)} results from {input_file} with {judge_model}...", file=sys.stderr)
+
+    for i, result in enumerate(results):
+        task_id = result.get("task_id", "")
+        task = tasks.get(task_id)
+        if not task:
+            print(f"  [{i+1}/{len(results)}] SKIP - task '{task_id}' not found in benchmark", file=sys.stderr)
+            continue
+
+        final_answer = result.get("final_answer", "")
+        if not final_answer or len(final_answer) < 10:
+            result["judge"] = {
+                "judge_score": 0.0,
+                "judge_verdict": "JUDGE_FAIL",
+                "judge_reasoning": "No meaningful response to evaluate.",
+                "judge_model": judge_model,
+            }
+            print(f"  [{i+1}/{len(results)}] {task_id}: SKIP (empty response)", file=sys.stderr)
+            continue
+
+        # Skip if it's a runtime error with no model output
+        reason = result.get("failure_reason", "")
+        if reason == "RUNTIME_ERROR" and not any(c.isalpha() and c.islower() for c in final_answer[:200] if c.isalpha()):
+            result["judge"] = {
+                "judge_score": 0.0,
+                "judge_verdict": "JUDGE_FAIL",
+                "judge_reasoning": "Runtime error - no model output.",
+                "judge_model": judge_model,
+            }
+            print(f"  [{i+1}/{len(results)}] {task_id}: SKIP (runtime error)", file=sys.stderr)
+            continue
+
+        verdict = judge_native_result(task, final_answer, judge_model=judge_model, timeout=timeout)
+        result["judge"] = verdict
+        score = verdict.get("judge_score", 0.0)
+        v = verdict.get("judge_verdict", "?")
+        reasoning = verdict.get("judge_reasoning", "")[:120]
+        print(f"  [{i+1}/{len(results)}] {task_id}: {v} ({score:.2f}) - {reasoning}", file=sys.stderr)
+
+    # Compute judge summary
+    judge_scores = [r.get("judge", {}).get("judge_score", 0.0) for r in results]
+    total = sum(judge_scores)
+    print(f"Judge total: {total:.1f}/{len(results)} ", file=sys.stderr)
+
+    # Update metadata
+    data.setdefault("metadata", {})["judge_model"] = judge_model
+    data["metadata"]["judge_total"] = total
+
+    out_path = output or input_file
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    print(f"Written to {out_path}", file=sys.stderr)
+    return 0
 
 
 if __name__ == "__main__":

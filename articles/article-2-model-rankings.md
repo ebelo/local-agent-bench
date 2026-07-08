@@ -276,13 +276,13 @@ Only qwen2.5-coder and qwen3.5:9b can recover from errors on their own (through 
 
 ## Native Adapter Findings
 
-The three native adapters — `openclaw-native`, `hermes-native`, and `pi-native` — test the real platform agent loops instead of the benchmark-owned ReAct protocol. Testing covered all five benchmark models across all three native adapters (75 runs total: 5 models × 3 adapters × 5 tasks). 14 of 15 cells scored 0/5; the one exception was qwen2.5-coder:7b through pi-native at 1.5/5. Full analysis in [article-3](article-3-native-adapters.md).
+The three native adapters — `openclaw-native`, `hermes-native`, and `pi-native` — test the real platform agent loops instead of the benchmark-owned ReAct protocol. Testing covered all five benchmark models across all three native adapters (75 runs total: 5 models × 3 adapters × 5 tasks). Native results now have two scores: a strict benchmark-tool score and an LLM-as-judge task-completion score using OpenClaw + `ollama/glm-5.2:cloud`. Full analysis in [article-3](article-3-native-adapters.md).
 
-| Adapter | mistral:7b | lfm2.5 | qwen3.5:9b | qwen2.5-coder:7b | ornith:9b | Root Cause |
-|---------|:---------:|:------:|:----------:|:----------------:|:--------:|------------|
-| openclaw-native | 0/5 | 0/5 | 0/5 | 0/5 | 0/5 | Context overflow (32K models) or model-override rejected (40K+ models) |
-| hermes-native | 0/5 | 0/5 | 0/5 | 0/5 | 0/5 | Silent session failure (32K models) or toolset mismatch (40K+ models) |
-| pi-native | 0/5 | 0/5 | 0/5 | **1.5/5** | 0/5 | Tool mismatch — Pi's tools ≠ benchmark tools (one partial pass via `read` alias) |
+| Adapter | Strict Result | Judge Result | Root Cause |
+|---------|---------------|--------------|------------|
+| openclaw-native | 0/5 for all models | 0/5 for all models | Context overflow (32K models) or model-override rejected (40K+ models) |
+| hermes-native | 0/5 for all models | 0/5 for all models | Silent session failure (32K models) or toolset mismatch (40K+ models) |
+| pi-native | qwen2.5-coder:7b 1.5/5; others 0/5 | qwen3.5:9b 3/5; ornith:9b 2/5; lfm2.5 1.5/5; mistral 1/5; qwen2.5-coder 0/5 | Pi tools work, but strict benchmark-tool parsing misses platform-native task completion |
 
 **Key findings:**
 
@@ -290,11 +290,11 @@ The three native adapters — `openclaw-native`, `hermes-native`, and `pi-native
 
 2. **Hermes** has a hard 64K context floor. Models with 32K context (mistral:7b, qwen2.5-coder:7b) produce silent empty sessions in v0.18.2. Models with sufficient context (qwen3.5:9b, ornith:9b, lfm2.5) run but report only `vision_analyze` as available — the safe toolset may not be correctly registered.
 
-3. **Pi** has the best context isolation and is the only platform where any model scored non-zero. qwen2.5-coder:7b scored 1.5/5 through pi-native — the only model that emitted structured tool-call JSON matching a benchmark tool (Pi's `read` → benchmark's `read_file` via alias map).
+3. **Pi** has the best context isolation and is the only platform where models completed tasks. Strict scoring only credited qwen2.5-coder:7b's JSON-like tool calls (1.5/5), but LLM judging credited qwen3.5:9b (3/5) and Ornith:9b (2/5) for real task completion through Pi's native tools.
 
 4. **No platform registers the benchmark's tools** (`get_cwd`, `list_directory`, `read_file`, `get_weather`). The native adapters reveal a tool registration gap: benchmark tools exist only in the benchmark's own prompt, not in any platform's tool registry.
 
-5. **ReAct rankings do not predict native performance.** The top three ReAct models all scored 0/5 through native adapters (with the single qwen2.5-coder:7b pi-native exception). Native adapters serve as platform diagnostics, not model rankings.
+5. **ReAct rankings do not predict strict native performance, but they partly predict Pi task completion.** Native adapters serve primarily as platform diagnostics; when judged flexibly, Pi-native qwen3.5:9b and Ornith:9b are genuinely useful despite strict 0/5 parser scores.
 
 These findings are real platform constraints that would affect any user trying to deploy small models through these runtimes. The ReAct adapters, which use a benchmark-owned prompt and parser, remain the fair cross-runtime comparison method.
 

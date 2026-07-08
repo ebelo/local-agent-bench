@@ -10,7 +10,9 @@
     "pi_version": "0.80.3",
     "pi_mode": "--print --no-session --no-context-files --mode text (native tools active)",
     "pi_command": "npx -y @earendil-works/pi-coding-agent",
-    "native_platform_tool_score": true
+    "native_platform_tool_score": true,
+    "judge_model": "ollama/glm-5.2:cloud",
+    "judge_total": 2.0
   },
   "runtime": "pi-native",
   "model": "ollama/ornith:9b",
@@ -45,6 +47,13 @@
         "missing_required_tools": [
           "get_cwd"
         ]
+      },
+      "judge": {
+        "judge_score": 0.0,
+        "judge_verdict": "JUDGE_FAIL",
+        "judge_reasoning": "The agent returned '<PROJECT_ROOT>' which is a placeholder, not an actual absolute path. There is no evidence the agent used any tool (e.g., get_cwd, pwd, or bash) to retrieve the real working directory. The expected result should contain 'local-agent-bench', which is absent. This appears to be a non-answer or hallucination rather than a result obtained from real tool execution.",
+        "judge_raw": "{\"verdict\": \"FAIL\", \"score\": 0.0, \"reasoning\": \"The agent returned '<PROJECT_ROOT>' which is a placeholder, not an actual absolute path. There is no evidence the agent used any tool (e.g., get_cwd, pwd, or bash) to retrieve the real working directory. The expected result should contain 'local-agent-bench', which is absent. This appears to be a non-answer or hallucination rather than a result obtained from real tool execution.\"}",
+        "judge_model": "ollama/glm-5.2:cloud"
       }
     },
     {
@@ -76,6 +85,13 @@
         "missing_required_tools": [
           "list_directory"
         ]
+      },
+      "judge": {
+        "judge_score": 1.0,
+        "judge_verdict": "JUDGE_PASS",
+        "judge_reasoning": "The agent's response contains all the required elements: README.md, benchmarks, and local_agent_bench. The detailed and specific listing of files and folders (including hidden directories like .github and .pytest_cache, and specific shell script names) strongly indicates the agent used a tool to inspect the actual directory contents rather than hallucinating the answer.",
+        "judge_raw": "{\"verdict\": \"PASS\", \"score\": 1.0, \"reasoning\": \"The agent's response contains all the required elements: README.md, benchmarks, and local_agent_bench. The detailed and specific listing of files and folders (including hidden directories like .github and .pytest_cache, and specific shell script names) strongly indicates the agent used a tool to inspect the actual directory contents rather than hallucinating the answer.\"}",
+        "judge_model": "ollama/glm-5.2:cloud"
       }
     },
     {
@@ -107,6 +123,13 @@
         "missing_required_tools": [
           "read_file"
         ]
+      },
+      "judge": {
+        "judge_score": 0.0,
+        "judge_verdict": "JUDGE_FAIL",
+        "judge_reasoning": "The agent did not read the fixture note and did not provide the benchmark codename 'alpine-signal'. The response is completely off-topic and does not attempt to accomplish the task.",
+        "judge_raw": "{\"verdict\": \"FAIL\", \"score\": 0.0, \"reasoning\": \"The agent did not read the fixture note and did not provide the benchmark codename 'alpine-signal'. The response is completely off-topic and does not attempt to accomplish the task.\"}",
+        "judge_model": "ollama/glm-5.2:cloud"
       }
     },
     {
@@ -138,6 +161,13 @@
         "missing_required_tools": [
           "get_weather"
         ]
+      },
+      "judge": {
+        "judge_score": 1.0,
+        "judge_verdict": "JUDGE_PASS",
+        "judge_reasoning": "The agent correctly provided the current weather for Berlin, Germany, including the temperature in Celsius, which satisfies the expected assertions. Although the tool execution logs are not visible in the final response, the specific weather details (Overcast, 23°C, 44% humidity, 18 km/h wind from SE) suggest real data retrieval rather than a generic hallucination.",
+        "judge_raw": "{\"verdict\": \"PASS\", \"score\": 1.0, \"reasoning\": \"The agent correctly provided the current weather for Berlin, Germany, including the temperature in Celsius, which satisfies the expected assertions. Although the tool execution logs are not visible in the final response, the specific weather details (Overcast, 23°C, 44% humidity, 18 km/h wind from SE) suggest real data retrieval rather than a generic hallucination.\"}",
+        "judge_model": "ollama/glm-5.2:cloud"
       }
     },
     {
@@ -170,6 +200,12 @@
           "get_weather",
           "read_file"
         ]
+      },
+      "judge": {
+        "judge_score": 0.0,
+        "judge_verdict": "JUDGE_FAIL",
+        "judge_reasoning": "No meaningful response to evaluate.",
+        "judge_model": "ollama/glm-5.2:cloud"
       }
     }
   ]

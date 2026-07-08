@@ -1,0 +1,151 @@
+{
+  "metadata": {
+    "runtime": "openclaw-native",
+    "benchmark": "benchmarks/smoke.json",
+    "git_commit": "1463130964941e5ee3b2483e2564c32f7c39bcf2",
+    "python": "3.12.3",
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "model": "ollama/lfm2.5:latest",
+    "adapter": "openclaw-native",
+    "openclaw_version": "OpenClaw 2026.6.11 (e085fa1)",
+    "openclaw_mode": "agent --local --json",
+    "native_platform_tool_score": true,
+    "judge_model": "ollama/glm-5.2:cloud",
+    "judge_total": 0.0
+  },
+  "runtime": "openclaw-native",
+  "model": "ollama/lfm2.5:latest",
+  "benchmark": "benchmarks/smoke.json",
+  "results": [
+    {
+      "task_id": "fs_current_directory",
+      "category": "filesystem",
+      "runtime": "openclaw-native",
+      "model": "ollama/lfm2.5:latest",
+      "score": 0.0,
+      "failure_reason": "RUNTIME_ERROR",
+      "final_answer": "\u001b[32m[state-migrations]\u001b[39m \u001b[33mLegacy state migration warnings:\u001b[39m\n\u001b[33m- Left migrated task registry sidecar in place because archive already exists: <HOME>/.openclaw/tasks/runs.sqlite.migrated\u001b[39m\n\u001b[35m[plugins]\u001b[39m \u001b[33mplugins.allow is empty; discovered non-bundled plugins may auto-load: codex (<HOME>/.openclaw/npm/projects/openclaw-codex-8902d781d4__openclaw-generation__openclaw-codex-2026.6.11-openclaw-codex-2026.6.11--f9c66713f5/node_modules/@openclaw/codex/dist/index.js). To trust them explicitly, set plugins.allow in openclaw.json (e.g. \"plugins\": { \"allow\": [\"codex\"] }). Run 'openclaw plugins list --enabled --verbose' or 'openclaw plugins inspect codex' to confirm plugin ids.\u001b[39m\n\u001b[35m[plugins]\u001b[39m \u001b[33m[ollama] WSL2 crash-loop risk: ollama.service is enabled with Restart=always and CUDA is visible.\u001b[39m\n\u001b[33mOn WSL2, GPU-backed Ollama can pin host memory while loading a model.\u001b[39m\n\u001b[33mHyper-V memory reclaim cannot always reclaim those pinned pages, so Windows can terminate and restart the WSL2 VM.\u001b[39m\n\u001b[33m\u001b[39m\n\u001b[33mCommon evidence: repeated WSL2 reboots, high CPU in app.slice at startup, and SIGTERM from systemd rather than the Linux OOM killer.\u001b[39m\n\u001b[33mSee: https://github.com/ollama/ollama/issues/11317\u001b[39m\n\u001b[33m\u001b[39m\n\u001b[33mMitigation:\u001b[39m\n\u001b[33m  1. Disable autostart: sudo systemctl disable ollama\u001b[39m\n\u001b[33m  2. Add [experimental] autoMemoryReclaim=disabled to %USERPROFILE%\\.wslconfig on Windows, then run wsl --shutdown\u001b[39m\n\u001b[33m  3. Set OLLAMA_KEEP_ALIVE=5m in the Ollama service environment or start ollama serve manually when needed\u001b[39m\nError: Model override \"ollama/lfm2.5:latest\" is not allowed for agent \"main\".",
+      "tool_calls": [],
+      "latency_ms": 2821,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "Tell me the absolute path of the current working directory."
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": null,
+      "judge": {
+        "judge_score": 0.0,
+        "judge_verdict": "JUDGE_FAIL",
+        "judge_reasoning": "The agent's response contains only platform startup warnings and an error message about a model override not being allowed. The agent never attempted to use any tools, never determined the current working directory, and provided no answer to the task. The task was not accomplished.",
+        "judge_raw": "{\"verdict\": \"FAIL\", \"score\": 0.0, \"reasoning\": \"The agent's response contains only platform startup warnings and an error message about a model override not being allowed. The agent never attempted to use any tools, never determined the current working directory, and provided no answer to the task. The task was not accomplished.\"}",
+        "judge_model": "ollama/glm-5.2:cloud"
+      }
+    },
+    {
+      "task_id": "fs_list_project",
+      "category": "filesystem",
+      "runtime": "openclaw-native",
+      "model": "ollama/lfm2.5:latest",
+      "score": 0.0,
+      "failure_reason": "RUNTIME_ERROR",
+      "final_answer": "\u001b[32m[state-migrations]\u001b[39m \u001b[33mLegacy state migration warnings:\u001b[39m\n\u001b[33m- Left migrated task registry sidecar in place because archive already exists: <HOME>/.openclaw/tasks/runs.sqlite.migrated\u001b[39m\n\u001b[35m[plugins]\u001b[39m \u001b[33mplugins.allow is empty; discovered non-bundled plugins may auto-load: codex (<HOME>/.openclaw/npm/projects/openclaw-codex-8902d781d4__openclaw-generation__openclaw-codex-2026.6.11-openclaw-codex-2026.6.11--f9c66713f5/node_modules/@openclaw/codex/dist/index.js). To trust them explicitly, set plugins.allow in openclaw.json (e.g. \"plugins\": { \"allow\": [\"codex\"] }). Run 'openclaw plugins list --enabled --verbose' or 'openclaw plugins inspect codex' to confirm plugin ids.\u001b[39m\n\u001b[35m[plugins]\u001b[39m \u001b[33m[ollama] WSL2 crash-loop risk: ollama.service is enabled with Restart=always and CUDA is visible.\u001b[39m\n\u001b[33mOn WSL2, GPU-backed Ollama can pin host memory while loading a model.\u001b[39m\n\u001b[33mHyper-V memory reclaim cannot always reclaim those pinned pages, so Windows can terminate and restart the WSL2 VM.\u001b[39m\n\u001b[33m\u001b[39m\n\u001b[33mCommon evidence: repeated WSL2 reboots, high CPU in app.slice at startup, and SIGTERM from systemd rather than the Linux OOM killer.\u001b[39m\n\u001b[33mSee: https://github.com/ollama/ollama/issues/11317\u001b[39m\n\u001b[33m\u001b[39m\n\u001b[33mMitigation:\u001b[39m\n\u001b[33m  1. Disable autostart: sudo systemctl disable ollama\u001b[39m\n\u001b[33m  2. Add [experimental] autoMemoryReclaim=disabled to %USERPROFILE%\\.wslconfig on Windows, then run wsl --shutdown\u001b[39m\n\u001b[33m  3. Set OLLAMA_KEEP_ALIVE=5m in the Ollama service environment or start ollama serve manually when needed\u001b[39m\nError: Model override \"ollama/lfm2.5:latest\" is not allowed for agent \"main\".",
+      "tool_calls": [],
+      "latency_ms": 2748,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "List the files and folders in the current project directory."
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": null,
+      "judge": {
+        "judge_score": 0.0,
+        "judge_verdict": "JUDGE_ERROR",
+        "judge_reasoning": "Judge inference failed: openclaw infer exited 1: \u001b[32m[state-migrations]\u001b[39m \u001b[33mLegacy state migration warnings:\u001b[39m\n\u001b[33m- Left migrated task registry sidecar in place because archive already exists: /home/ebelo/.openclaw/tasks/runs.sqlite.migrated\u001b[39m\nError: No text output returned for provider \"ollama\" model \"glm-5.2:cloud\".\n",
+        "judge_model": "ollama/glm-5.2:cloud",
+        "judge_raw": "openclaw infer exited 1: \u001b[32m[state-migrations]\u001b[39m \u001b[33mLegacy state migration warnings:\u001b[39m\n\u001b[33m- Left migrated task registry sidecar in place because archive already exists: /home/ebelo/.openclaw/tasks/runs.sqlite.migrated\u001b[39m\nError: No text output returned for provider \"ollama\" model \"glm-5.2:cloud\".\n"
+      }
+    },
+    {
+      "task_id": "fs_read_fixture",
+      "category": "filesystem",
+      "runtime": "openclaw-native",
+      "model": "ollama/lfm2.5:latest",
+      "score": 0.0,
+      "failure_reason": "RUNTIME_ERROR",
+      "final_answer": "\u001b[32m[state-migrations]\u001b[39m \u001b[33mLegacy state migration warnings:\u001b[39m\n\u001b[33m- Left migrated task registry sidecar in place because archive already exists: <HOME>/.openclaw/tasks/runs.sqlite.migrated\u001b[39m\n\u001b[35m[plugins]\u001b[39m \u001b[33mplugins.allow is empty; discovered non-bundled plugins may auto-load: codex (<HOME>/.openclaw/npm/projects/openclaw-codex-8902d781d4__openclaw-generation__openclaw-codex-2026.6.11-openclaw-codex-2026.6.11--f9c66713f5/node_modules/@openclaw/codex/dist/index.js). To trust them explicitly, set plugins.allow in openclaw.json (e.g. \"plugins\": { \"allow\": [\"codex\"] }). Run 'openclaw plugins list --enabled --verbose' or 'openclaw plugins inspect codex' to confirm plugin ids.\u001b[39m\n\u001b[35m[plugins]\u001b[39m \u001b[33m[ollama] WSL2 crash-loop risk: ollama.service is enabled with Restart=always and CUDA is visible.\u001b[39m\n\u001b[33mOn WSL2, GPU-backed Ollama can pin host memory while loading a model.\u001b[39m\n\u001b[33mHyper-V memory reclaim cannot always reclaim those pinned pages, so Windows can terminate and restart the WSL2 VM.\u001b[39m\n\u001b[33m\u001b[39m\n\u001b[33mCommon evidence: repeated WSL2 reboots, high CPU in app.slice at startup, and SIGTERM from systemd rather than the Linux OOM killer.\u001b[39m\n\u001b[33mSee: https://github.com/ollama/ollama/issues/11317\u001b[39m\n\u001b[33m\u001b[39m\n\u001b[33mMitigation:\u001b[39m\n\u001b[33m  1. Disable autostart: sudo systemctl disable ollama\u001b[39m\n\u001b[33m  2. Add [experimental] autoMemoryReclaim=disabled to %USERPROFILE%\\.wslconfig on Windows, then run wsl --shutdown\u001b[39m\n\u001b[33m  3. Set OLLAMA_KEEP_ALIVE=5m in the Ollama service environment or start ollama serve manually when needed\u001b[39m\nError: Model override \"ollama/lfm2.5:latest\" is not allowed for agent \"main\".",
+      "tool_calls": [],
+      "latency_ms": 2756,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "Read the fixture note and tell me the benchmark codename."
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": null,
+      "judge": {
+        "judge_score": 0.0,
+        "judge_verdict": "JUDGE_FAIL",
+        "judge_reasoning": "The agent's response only contains platform initialization errors and warnings, with no attempt to read a fixture note or identify the benchmark codename. The required answer 'alpine-signal' was never provided, and no tools were used to accomplish the task.",
+        "judge_raw": "```json\n{\"verdict\": \"FAIL\", \"score\": 0.0, \"reasoning\": \"The agent's response only contains platform initialization errors and warnings, with no attempt to read a fixture note or identify the benchmark codename. The required answer 'alpine-signal' was never provided, and no tools were used to accomplish the task.\"}\n```",
+        "judge_model": "ollama/glm-5.2:cloud"
+      }
+    },
+    {
+      "task_id": "weather_berlin_current",
+      "category": "weather",
+      "runtime": "openclaw-native",
+      "model": "ollama/lfm2.5:latest",
+      "score": 0.0,
+      "failure_reason": "RUNTIME_ERROR",
+      "final_answer": "\u001b[32m[state-migrations]\u001b[39m \u001b[33mLegacy state migration warnings:\u001b[39m\n\u001b[33m- Left migrated task registry sidecar in place because archive already exists: <HOME>/.openclaw/tasks/runs.sqlite.migrated\u001b[39m\n\u001b[35m[plugins]\u001b[39m \u001b[33mplugins.allow is empty; discovered non-bundled plugins may auto-load: codex (<HOME>/.openclaw/npm/projects/openclaw-codex-8902d781d4__openclaw-generation__openclaw-codex-2026.6.11-openclaw-codex-2026.6.11--f9c66713f5/node_modules/@openclaw/codex/dist/index.js). To trust them explicitly, set plugins.allow in openclaw.json (e.g. \"plugins\": { \"allow\": [\"codex\"] }). Run 'openclaw plugins list --enabled --verbose' or 'openclaw plugins inspect codex' to confirm plugin ids.\u001b[39m\n\u001b[35m[plugins]\u001b[39m \u001b[33m[ollama] WSL2 crash-loop risk: ollama.service is enabled with Restart=always and CUDA is visible.\u001b[39m\n\u001b[33mOn WSL2, GPU-backed Ollama can pin host memory while loading a model.\u001b[39m\n\u001b[33mHyper-V memory reclaim cannot always reclaim those pinned pages, so Windows can terminate and restart the WSL2 VM.\u001b[39m\n\u001b[33m\u001b[39m\n\u001b[33mCommon evidence: repeated WSL2 reboots, high CPU in app.slice at startup, and SIGTERM from systemd rather than the Linux OOM killer.\u001b[39m\n\u001b[33mSee: https://github.com/ollama/ollama/issues/11317\u001b[39m\n\u001b[33m\u001b[39m\n\u001b[33mMitigation:\u001b[39m\n\u001b[33m  1. Disable autostart: sudo systemctl disable ollama\u001b[39m\n\u001b[33m  2. Add [experimental] autoMemoryReclaim=disabled to %USERPROFILE%\\.wslconfig on Windows, then run wsl --shutdown\u001b[39m\n\u001b[33m  3. Set OLLAMA_KEEP_ALIVE=5m in the Ollama service environment or start ollama serve manually when needed\u001b[39m\nError: Model override \"ollama/lfm2.5:latest\" is not allowed for agent \"main\".",
+      "tool_calls": [],
+      "latency_ms": 2755,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "What is the current weather in Berlin, Germany?"
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": null,
+      "judge": {
+        "judge_score": 0.0,
+        "judge_verdict": "JUDGE_FAIL",
+        "judge_reasoning": "The agent's response contains only system warnings and an error about a model override not being allowed. There is no attempt to use tools, no weather data retrieved, and no answer about the weather in Berlin. The agent completely failed to accomplish the task.",
+        "judge_raw": "{\"verdict\": \"FAIL\", \"score\": 0.0, \"reasoning\": \"The agent's response contains only system warnings and an error about a model override not being allowed. There is no attempt to use tools, no weather data retrieved, and no answer about the weather in Berlin. The agent completely failed to accomplish the task.\"}",
+        "judge_model": "ollama/glm-5.2:cloud"
+      }
+    },
+    {
+      "task_id": "multi_step_read_then_weather",
+      "category": "multi_step",
+      "runtime": "openclaw-native",
+      "model": "ollama/lfm2.5:latest",
+      "score": 0.0,
+      "failure_reason": "RUNTIME_ERROR",
+      "final_answer": "\u001b[32m[state-migrations]\u001b[39m \u001b[33mLegacy state migration warnings:\u001b[39m\n\u001b[33m- Left migrated task registry sidecar in place because archive already exists: <HOME>/.openclaw/tasks/runs.sqlite.migrated\u001b[39m\n\u001b[35m[plugins]\u001b[39m \u001b[33mplugins.allow is empty; discovered non-bundled plugins may auto-load: codex (<HOME>/.openclaw/npm/projects/openclaw-codex-8902d781d4__openclaw-generation__openclaw-codex-2026.6.11-openclaw-codex-2026.6.11--f9c66713f5/node_modules/@openclaw/codex/dist/index.js). To trust them explicitly, set plugins.allow in openclaw.json (e.g. \"plugins\": { \"allow\": [\"codex\"] }). Run 'openclaw plugins list --enabled --verbose' or 'openclaw plugins inspect codex' to confirm plugin ids.\u001b[39m\n\u001b[35m[plugins]\u001b[39m \u001b[33m[ollama] WSL2 crash-loop risk: ollama.service is enabled with Restart=always and CUDA is visible.\u001b[39m\n\u001b[33mOn WSL2, GPU-backed Ollama can pin host memory while loading a model.\u001b[39m\n\u001b[33mHyper-V memory reclaim cannot always reclaim those pinned pages, so Windows can terminate and restart the WSL2 VM.\u001b[39m\n\u001b[33m\u001b[39m\n\u001b[33mCommon evidence: repeated WSL2 reboots, high CPU in app.slice at startup, and SIGTERM from systemd rather than the Linux OOM killer.\u001b[39m\n\u001b[33mSee: https://github.com/ollama/ollama/issues/11317\u001b[39m\n\u001b[33m\u001b[39m\n\u001b[33mMitigation:\u001b[39m\n\u001b[33m  1. Disable autostart: sudo systemctl disable ollama\u001b[39m\n\u001b[33m  2. Add [experimental] autoMemoryReclaim=disabled to %USERPROFILE%\\.wslconfig on Windows, then run wsl --shutdown\u001b[39m\n\u001b[33m  3. Set OLLAMA_KEEP_ALIVE=5m in the Ollama service environment or start ollama serve manually when needed\u001b[39m\nError: Model override \"ollama/lfm2.5:latest\" is not allowed for agent \"main\".",
+      "tool_calls": [],
+      "latency_ms": 2681,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "Read the fixture note, identify the location mentioned there, then get the current weather for that location."
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": null,
+      "judge": {
+        "judge_score": 0.0,
+        "judge_verdict": "JUDGE_FAIL",
+        "judge_reasoning": "The agent did not accomplish the task at all. The response only contains platform startup/warning logs and a configuration error ('Model override is not allowed'). The agent never read a fixture note, never identified a location, and never retrieved weather data. There is no evidence of any tool use or task progression.",
+        "judge_raw": "{\"verdict\": \"FAIL\", \"score\": 0.0, \"reasoning\": \"The agent did not accomplish the task at all. The response only contains platform startup/warning logs and a configuration error ('Model override is not allowed'). The agent never read a fixture note, never identified a location, and never retrieved weather data. There is no evidence of any tool use or task progression.\"}",
+        "judge_model": "ollama/glm-5.2:cloud"
+      }
+    }
+  ]
+}

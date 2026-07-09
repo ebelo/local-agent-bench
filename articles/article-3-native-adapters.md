@@ -1,6 +1,6 @@
 # Native Adapters and Platform-Native Use Cases
 
-*Two native topics, three runtimes, five models: strict tool compatibility says almost everything fails, while platform-native use cases show Pi + Ornith can actually get work done.*
+*Two native topics, three runtimes, six models: strict tool compatibility still mostly fails, while platform-native use cases show where each runtime actually becomes useful.*
 
 ---
 
@@ -36,27 +36,29 @@ Use-case completion is scored by an LLM judge (`ollama/glm-5.2:cloud` through Op
 
 After Ornith passed all five platform-native use cases through Pi, a harder follow-up suite, `benchmarks/platform_native_ladder.json`, was added to probe levels 6-8: live web/API grounding, local HTML/Markdown navigation, and end-to-end project-health or release-readiness work.
 
-## The Five Models
+## The Six Models
 
-| Model | Family | Size | Context (default) | ReAct ranking |
+| Model | Family | Size | Ollama Context | ReAct ranking |
 |-------|--------|------|:-:|--------|
 | qwen2.5-coder:7b | Qwen2.5 | 7.6B | 32K | #1 overall (5/5 smoke, perfect speed) |
-| qwen3.5:9b | Qwen3.5 | 9.0B | 40K | #2 (4/5 agentic, strongest reasoning) |
-| Ornith:9b | Qwen3.5 (Ornith-1.0) | 9.0B | 40K | #3 (best grounding, reliable) |
+| qwen3.5:9b | Qwen3.5 | 9.7B | 262K | #2 (4/5 agentic, strongest reasoning) |
+| Ornith:9b | Qwen3.5 (Ornith-1.0) | 9.0B | 262K | #3 (best grounding, reliable) |
 | mistral:7b | Mistral | 7.2B | 32K | #4 (protocol-compliant, fast on raw) |
-| lfm2.5:latest | Jamba (MoE) | 8.5B | 256K | #5 (fast but poor ReAct compliance) |
+| lfm2.5:latest | LFM2 MoE | 8.5B | 128K | #5 (fast but prompt-format sensitive) |
+| ibm/granite4.1:8b | Granite | 8.8B | 131K | #6 (fast but low capability) |
 
-These are the five models that produced the ReAct rankings in article-2. Testing them natively answers: *do the ReAct rankings predict platform-native performance?*
+These are the six models that produced the ReAct rankings in article-2. Testing them natively answers: *do the ReAct rankings predict platform-native performance?*
 
-## Strict Results: 14/15 Cells at 0/5
+## Strict Results: Post-Config OpenClaw Still Scores 0/5
 
 | Adapter | Model | Strict Score | Root Cause | Avg Latency |
 |---------|-------|:------------:|------------|:-----------:|
-| openclaw-native | mistral:7b | 0/5 | Context overflow (56K workspace vs 32K window) | 5.4s |
-| openclaw-native | lfm2.5:latest | 0/5 | Model override rejected by OpenClaw | 2.8s |
-| openclaw-native | qwen3.5:9b | 0/5 | Model override rejected by OpenClaw | 2.7s |
-| openclaw-native | qwen2.5-coder:7b | 0/5 | Context overflow (56K workspace vs 32K window) | 5.3s |
-| openclaw-native | ornith:9b | 0/5 | Model override rejected by OpenClaw | 2.7s |
+| openclaw-native | mistral:7b | 0/5 | Context overflow (full OpenClaw workspace vs 32K window) | 5.1s |
+| openclaw-native | qwen2.5-coder:7b | 0/5 | Context overflow (full OpenClaw workspace vs 32K window) | 5.1s |
+| openclaw-native | qwen3.5:9b | 0/5 | Config fixed; one direct answer, four 180s timeouts | 165.9s |
+| openclaw-native | ornith:9b | 0/5 | Config fixed; five 180s timeouts | 180.1s |
+| openclaw-native | lfm2.5:latest | 0/5 | Config fixed; four 180s timeouts, one unsupported no-tool answer | 154.6s |
+| openclaw-native | ibm/granite4.1:8b | 0/5 | Config fixed; five 180s timeouts | 180.1s |
 | hermes-native | mistral:7b | 0/5 | Hermes silent failure (32K context, session only) | 2.2s |
 | hermes-native | lfm2.5:latest | 0/5 | Tool mismatch (Hermes tools != benchmark tools) | 11.9s |
 | hermes-native | qwen3.5:9b | 0/5 | Tool mismatch (only `vision_analyze` available) | 18.3s |
@@ -68,7 +70,9 @@ These are the five models that produced the ReAct rankings in article-2. Testing
 | **pi-native** | **qwen2.5-coder:7b** | **1.5/5** | **Emitted parseable JSON tool calls; one `read` alias matched `read_file`** | **3.8s** |
 | pi-native | ornith:9b | 0/5 | Tool mismatch (Pi tools != benchmark tools) | 17.5s |
 
-Fourteen out of fifteen cells scored 0/5. The one non-zero result — qwen2.5-coder:7b through pi-native — scored 1.5/5: a perfect `read_file` call (1.0), a `bash` call instead of `list_directory` (0.25), and a `bash` call instead of `get_weather` (0.25).
+After fixing OpenClaw's local model configuration, qwen3.5, Ornith, LFM2.5, and Granite are no longer rejected by the model-override policy. They are now configured, available, and above the context minimum. The post-config result is still 0/5 on strict smoke, but for a different reason: full OpenClaw-native agent turns are too slow or do not emit benchmark-compatible tool calls under the loaded workspace/tool context.
+
+The one non-zero strict native result remains qwen2.5-coder:7b through pi-native. It scored 1.5/5: a perfect `read_file` call (1.0), a `bash` call instead of `list_directory` (0.25), and a `bash` call instead of `get_weather` (0.25).
 
 That strict result is useful, but incomplete. It measures benchmark-tool protocol compatibility, not whether the platform session actually helped the user.
 
@@ -78,13 +82,13 @@ The platform-native suite evaluates a more practical question: did the runtime/m
 
 | Adapter | mistral:7b | lfm2.5 | qwen3.5:9b | qwen2.5-coder:7b | ornith:9b | Interpretation |
 |---------|:---------:|:------:|:----------:|:----------------:|:--------:|----------------|
-| openclaw-native | 0/5 | 0/5 | 0/5 | 0/5 | 0/5 | Still blocked by context overflow or model override |
+| openclaw-native | 0/5 | 1/5 | 0/5 | 0/5 | 0/5 | Config fixed; mostly blocked by full-agent timeout/latency |
 | hermes-native | 0/5 | 0/5 | 0/5 | 0/5 | 0.5/5 | Mostly blocked by silent sessions or unavailable tools |
 | pi-native | 1/5 | 3/5 | 3/5 | 1/5 | **5/5** | Pi can complete real tasks when prompted for evidence |
 
 The important correction: **Ornith:9b through Pi is not a real 0/5 user experience.** In the platform-native suite it passed all five use cases: current directory, project listing, fixture read, current weather, and missing-path recovery. Strict scoring missed this because the work was done through Pi-native `bash`/`read` style behavior rather than benchmark `list_directory`/`get_weather` JSON.
 
-qwen3.5:9b and lfm2.5 both scored 3/5 through Pi. qwen2.5-coder:7b and mistral:7b scored 1/5. Hermes produced only one partial result: Ornith got 0.5/5 for identifying the current directory from context, but it still lacked usable file/weather tools. OpenClaw-native remained blocked entirely by context overflow or model-override policy.
+qwen3.5:9b and lfm2.5 both scored 3/5 through Pi. qwen2.5-coder:7b and mistral:7b scored 1/5. Hermes produced only one partial result: Ornith got 0.5/5 for identifying the current directory from context, but it still lacked usable file/weather tools. OpenClaw-native improved from a configuration standpoint, but not from a benchmark standpoint: after adding the models to OpenClaw config, only LFM2.5 got a non-zero platform-native result, passing the weather use case while most other tasks timed out.
 
 ### Per-Task Pi Results
 
@@ -151,19 +155,21 @@ Total: ~56K chars of system context. For mistral:7b and qwen2.5-coder:7b, both w
 
 **Contrast with openclaw-react:** The ReAct adapter uses `openclaw infer model run --local --json` — a stateless inference path that doesn't load workspace context. It passes only the benchmark's ReAct system prompt (~1K chars) and the task. This works fine with both models (mistral:7b scores 5/5 on smoke, qwen2.5-coder:7b scores 5/5).
 
-### 1b: Model Override Rejected (lfm2.5, qwen3.5:9b, ornith:9b)
+### 1b: Config Fixed, Full-Agent Timeout Remains (lfm2.5, qwen3.5:9b, ornith:9b, Granite)
 
-**What happened:** For lfm2.5:latest, qwen3.5:9b, and ornith:9b, OpenClaw rejected the `--model` flag entirely:
+**What happened:** The first native matrix found a configuration problem: lfm2.5:latest, qwen3.5:9b, and ornith:9b were not allowed as `--model` overrides for agent `main`:
 
 > `Error: Model override "ollama/qwen3.5:9b" is not allowed for agent "main".`
 
-This is a **security policy**, not a context issue. OpenClaw's agent configuration restricts which models can be used for a given agent. The `main` agent is configured with a specific model, and the benchmark's `--model` override is blocked.
+That was a **configuration gate**, not a context issue. OpenClaw's agent configuration restricts which models can be used for a given agent. After adding qwen3.5, Ornith, LFM2.5, and Granite to `agents.defaults.models` and the Ollama provider catalog in `/home/ebelo/.openclaw/openclaw.json`, OpenClaw reported all four as configured and available.
 
-This is a different problem from the context overflow: the model never gets a chance to fail on context because OpenClaw refuses to switch to it in the first place. The fix is either allowing the model override in OpenClaw config or creating a dedicated benchmark agent that permits these models.
+Fresh one-turn checks then succeeded: Ornith returned `OK` in about 30 seconds and qwen3.5 returned `OK` in about 106 seconds, both with `contextTokens: 262144`.
 
-**Real-world implication:** OpenClaw's agent mode has a de facto minimum context requirement of ~56K tokens (excluding the model-override-gated models), which excludes most 7B models with default Ollama settings (32K). Additionally, the model-override security gate means that even models with sufficient context (like qwen3.5:9b at 40K or lfm2.5 at 256K) cannot be tested without configuration changes.
+The post-config benchmark still failed. qwen3.5, Ornith, Granite, and most LFM2.5 tasks timed out at 180 seconds per task under full OpenClaw-native agent mode. LFM2.5 produced the only non-zero OpenClaw-native use-case result: 1/5 on the Berlin weather task.
 
-**Potential OpenClaw improvement:** Add a `--no-context-files` or `--bare` flag to `openclaw agent` that skips loading AGENTS.md, MEMORY.md, skills, and tool schemas — similar to Pi's `--no-context-files --no-skills` flags. This would allow agent mode to work with small models for lightweight tasks. Additionally, document the model-override policy and provide a way to whitelist benchmark models.
+**Real-world implication:** OpenClaw's agent mode has a de facto minimum context requirement and a high prompt/tool-schema cost. Fixing model allowlisting is necessary, but not sufficient. On this local 8GB VRAM setup, full OpenClaw-native agent mode remains too heavy for these small local models unless the injected workspace/tool context is reduced.
+
+**Potential OpenClaw improvement:** Add a `--no-context-files` or `--bare` flag to `openclaw agent` that skips loading AGENTS.md, MEMORY.md, skills, and tool schemas — similar to Pi's `--no-context-files --no-skills` flags. This would allow agent mode to work with small models for lightweight tasks. Also keep the model allowlist explicit and documented so benchmark or local-model agents can be configured without ambiguity.
 
 ## Finding 2: Hermes Has Two Failure Modes for 32K Models
 
@@ -183,7 +189,7 @@ Hermes v0.18.2 no longer emits this message. The 64K requirement still exists bu
 
 ### 2b: Tool Mismatch (lfm2.5:latest, qwen3.5:9b, ornith:9b)
 
-**What happened:** These three models have sufficient context to run through Hermes (lfm2.5 has 256K, qwen3.5:9b and ornith:9b have 40K). Hermes runs and the model responds — but it can't find the benchmark tools.
+**What happened:** These three models have enough context to run through Hermes (local Ollama reports LFM2.5 at 128K and qwen3.5/Ornith at 262K). Hermes runs and the model responds — but it can't find the benchmark tools.
 
 For qwen3.5:9b, the model reported:
 > "I'm unable to list the directory contents because my available tools don't include `terminal` or file listing capabilities — only `vision_analyze`."
@@ -250,12 +256,13 @@ This means the native adapters can only test whether the model *attempts* a tool
 | Model | openclaw-native | hermes-native | pi-native strict | pi-native judge | Pattern |
 |-------|:-:|:-:|:-:|:-:|---------|
 | mistral:7b | Context overflow | Silent session failure | 0/5 | 1/5 | Blocked by 32K context in 2/3 platforms; one Pi weather success |
-| lfm2.5:latest | Model override rejected | Tool mismatch | 0/5 | 3/5 | Blocked by OpenClaw policy; can complete some Pi tasks |
-| qwen3.5:9b | Model override rejected | Tool mismatch (only vision_analyze) | 0/5 | **3/5** | Strong Pi-native task completion, despite strict 0/5 |
+| lfm2.5:latest | 0/5 strict; 1/5 use-case, mostly timeouts | Tool mismatch | 0/5 | 3/5 | OpenClaw config fixed but too slow; can complete some Pi tasks |
+| qwen3.5:9b | Config fixed, but mostly 180s timeouts | Tool mismatch (only vision_analyze) | 0/5 | **3/5** | Strong Pi-native task completion, despite strict 0/5 |
 | qwen2.5-coder:7b | Context overflow | Silent session failure | **1.5/5** | 1/5 | Emits parseable JSON, but mostly did not produce completed Pi answers |
-| ornith:9b | Model override rejected | Tool mismatch (only vision_analyze) | 0/5 | **5/5** | Best platform-native result through Pi |
+| ornith:9b | Config fixed, but five 180s timeouts | Tool mismatch (only vision_analyze) | 0/5 | **5/5** | Best platform-native result through Pi |
+| ibm/granite4.1:8b | Config fixed, but five 180s timeouts | Not tested in first native matrix | — | — | Long context is not enough if native full-agent turns stall |
 
-The pattern is clear: **32K-context models** (mistral:7b, qwen2.5-coder:7b) are blocked by context limits in OpenClaw and Hermes but can run through Pi. **40K+ context models** (qwen3.5:9b, ornith:9b, lfm2.5) are blocked by OpenClaw's model-override policy and Hermes's toolset configuration, but run through Pi with tool mismatch.
+The pattern is clear: **32K-context models** (mistral:7b, qwen2.5-coder:7b) are blocked by context limits in OpenClaw and Hermes but can run through Pi. **Long-context local models** (qwen3.5:9b, ornith:9b, lfm2.5, Granite) now pass OpenClaw's model-configuration gate, but the full native agent turn is too slow for this benchmark on the local 8GB GPU setup. In Hermes, the same long-context models still hit toolset mismatch. In Pi, the benchmark tools are absent but the native tool ecosystem is usable enough for task completion.
 
 ## Do ReAct Rankings Predict Native Performance?
 
@@ -272,7 +279,7 @@ So the answer depends on which native question you ask:
 - **Protocol compatibility:** qwen2.5-coder:7b transfers best. It emits parseable JSON tool calls, even when Pi has not executed them into final answers.
 - **User-visible task completion:** Ornith:9b transfers best through Pi. qwen3.5:9b and lfm2.5 are useful but incomplete. qwen2.5-coder's ReAct strength does not translate to platform-native completion in this run.
 
-The ReAct rankings still do not predict OpenClaw-native or Hermes-native performance, because those runs are dominated by platform configuration failures. They only partly predict Pi-native task quality: Ornith's grounding and pragmatic behavior matter more than qwen2.5-coder's strict protocol discipline.
+The ReAct rankings still do not predict OpenClaw-native or Hermes-native performance, because those runs are dominated by platform/runtime integration costs rather than pure model capability. OpenClaw-native moved from "configuration rejected" to "configured but too slow"; Hermes remains dominated by toolset exposure; Pi-native is the only layer where user-visible task completion separates models.
 
 ## Two Layers of Native Testing
 
@@ -292,7 +299,7 @@ To properly test platform integration, the native adapters would need to:
 
 **Option B: Use platform-native use cases.** Instead of testing whether the model calls `list_directory`, ask it to list the project and let it choose `bash`, `read`, or any other platform tool. This is now implemented as `benchmarks/platform_native.json`. It tests real platform usefulness but makes cross-runtime comparison less controlled — you're comparing different tool ecosystems and relying on evidence plus LLM judging.
 
-**Option C: Register benchmark tools with each platform later.** The context overflow (OpenClaw), model-override rejection (OpenClaw), silent session failure (Hermes), toolset misconfiguration (Hermes), and tool mismatch (Pi) are all real findings. A future stricter native suite could still register identical benchmark tools as platform extensions once each platform exposes a clean extension path.
+**Option C: Register benchmark tools with each platform later.** The context overflow (OpenClaw), full-agent timeout/latency (OpenClaw), silent session failure (Hermes), toolset misconfiguration (Hermes), and tool mismatch (Pi) are all real findings. A future stricter native suite could still register identical benchmark tools as platform extensions once each platform exposes a clean extension path.
 
 ## The OpenClaw Context Isolation Finding
 
@@ -300,9 +307,9 @@ OpenClaw's `infer model run` path (used by openclaw-react) works perfectly with 
 
 This is by design — OpenClaw agent mode is meant to be a full agent with access to its workspace, memory, and tools. But it means agent mode has a de facto minimum context requirement of ~56K tokens, which excludes most 7B models with default Ollama settings (32K).
 
-Additionally, OpenClaw's model-override security policy means that even models with sufficient context (qwen3.5:9b at 40K, lfm2.5 at 256K) cannot be tested through `openclaw agent --model ...` without first allowing the override in the agent configuration. This is a security feature, not a bug — but it's a barrier for benchmarking.
+The initial native matrix also exposed an OpenClaw configuration issue: qwen3.5:9b, Ornith:9b, LFM2.5, and Granite were not present in the agent's configured Ollama model catalog. After adding them to `/home/ebelo/.openclaw/openclaw.json`, fresh one-turn native checks succeeded: Ornith returned `OK` in about 30 seconds, and qwen3.5 returned `OK` in about 106 seconds, both with `contextTokens: 262144`.
 
-The fix for production use is straightforward: either use a model with 65K+ context (e.g., qwen3.5:9b with `num_ctx 65536`) and allow the model override in OpenClaw config, or use the `infer` path for lightweight tasks. For the benchmark, the finding is that **OpenClaw agent mode and small models are incompatible without configuration changes — both context and model-override policy must be adjusted**.
+But the post-config benchmark still failed: strict smoke remained 0/5 for every OpenClaw-native model, and platform-native use cases were 0/5 except LFM2.5 at 1/5 on weather. The finding is therefore sharper now: **OpenClaw-native can be configured to accept these local long-context models, but full agent mode is still too heavy and slow for this local 8GB GPU benchmark path.** Use `infer` for lightweight local tasks, or reduce injected workspace/tool context before expecting small local models to behave like practical full OpenClaw agents.
 
 ## The Hermes Context and Toolset Findings
 
@@ -332,7 +339,7 @@ This means Pi-native should be evaluated with two metrics. The strict score catc
 
 The native adapter results are not a failure of the benchmark or the adapters. They are **real findings about platform compatibility with small models**:
 
-1. **OpenClaw agent mode** requires ~56K tokens of workspace context, overflowing 32K-context models. Additionally, the model-override security policy blocks testing of 40K+ context models without configuration changes. Use `infer` for lightweight tasks or increase `num_ctx` and allow model overrides.
+1. **OpenClaw agent mode** requires a large injected workspace/tool context, overflowing 32K-context models. After adding qwen3.5, Ornith, LFM2.5, and Granite to the OpenClaw model config, model override is no longer the blocker; native full-agent turns are now dominated by 180s timeouts and high latency. Use `infer` for lightweight tasks or reduce agent context before expecting local 8GB-GPU models to run full OpenClaw agent workflows.
 
 2. **Hermes** has a hard 64K context minimum for tool-using models. Models with 32K context produce empty sessions silently in v0.18.2. Models with sufficient context still fail because the benchmark tools aren't registered — and Hermes v0.18.2 may not correctly register even its own safe toolset.
 

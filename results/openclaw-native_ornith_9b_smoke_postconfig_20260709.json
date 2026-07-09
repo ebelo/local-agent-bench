@@ -1,0 +1,114 @@
+{
+  "metadata": {
+    "runtime": "openclaw-native",
+    "benchmark": "benchmarks/smoke.json",
+    "git_commit": "36d741073cd4d9fcc63a01034300538b48ca32de",
+    "python": "3.12.3",
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "model": "ollama/ornith:9b",
+    "adapter": "openclaw-native",
+    "openclaw_version": "OpenClaw 2026.6.11 (e085fa1)",
+    "openclaw_mode": "agent --local --json",
+    "native_platform_tool_score": true
+  },
+  "runtime": "openclaw-native",
+  "model": "ollama/ornith:9b",
+  "benchmark": "benchmarks/smoke.json",
+  "results": [
+    {
+      "task_id": "fs_current_directory",
+      "category": "filesystem",
+      "runtime": "openclaw-native",
+      "model": "ollama/ornith:9b",
+      "score": 0.0,
+      "failure_reason": "TIMEOUT",
+      "final_answer": "runtime timed out after 180s: openclaw",
+      "tool_calls": [],
+      "latency_ms": 180075,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "Tell me the absolute path of the current working directory."
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": null
+    },
+    {
+      "task_id": "fs_list_project",
+      "category": "filesystem",
+      "runtime": "openclaw-native",
+      "model": "ollama/ornith:9b",
+      "score": 0.0,
+      "failure_reason": "TIMEOUT",
+      "final_answer": "runtime timed out after 180s: openclaw",
+      "tool_calls": [],
+      "latency_ms": 180113,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "List the files and folders in the current project directory."
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": null
+    },
+    {
+      "task_id": "fs_read_fixture",
+      "category": "filesystem",
+      "runtime": "openclaw-native",
+      "model": "ollama/ornith:9b",
+      "score": 0.0,
+      "failure_reason": "TIMEOUT",
+      "final_answer": "runtime timed out after 180s: openclaw",
+      "tool_calls": [],
+      "latency_ms": 180022,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "Read the fixture note and tell me the benchmark codename."
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": null
+    },
+    {
+      "task_id": "weather_berlin_current",
+      "category": "weather",
+      "runtime": "openclaw-native",
+      "model": "ollama/ornith:9b",
+      "score": 0.0,
+      "failure_reason": "TIMEOUT",
+      "final_answer": "runtime timed out after 180s: openclaw",
+      "tool_calls": [],
+      "latency_ms": 180116,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "What is the current weather in Berlin, Germany?"
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": null
+    },
+    {
+      "task_id": "multi_step_read_then_weather",
+      "category": "multi_step",
+      "runtime": "openclaw-native",
+      "model": "ollama/ornith:9b",
+      "score": 0.0,
+      "failure_reason": "TIMEOUT",
+      "final_answer": "runtime timed out after 180s: openclaw",
+      "tool_calls": [],
+      "latency_ms": 180106,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "Read the fixture note, identify the location mentioned there, then get the current weather for that location."
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": null
+    }
+  ]
+}

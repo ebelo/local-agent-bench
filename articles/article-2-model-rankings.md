@@ -16,21 +16,23 @@ This report presents results from Local Agent Bench, an open-source diagnostic b
 
 - **Machine:** Lenovo ThinkPad P14s Gen 6
 - **CPU:** Intel Core Ultra 7 265H
-- **RAM:** 32 GB
-- **GPU:** NVIDIA RTX PRO 1000 Blackwell, 8 GB VRAM
+- **RAM:** 64 GB
+- **GPU:** NVIDIA RTX PRO 1000 Blackwell Laptop GPU, 8 GB VRAM
 - **OS:** WSL2 Ubuntu 24.04
 - **Ollama:** 0.30.7–0.31.1
 
 ### Models Tested
 
-| Model | Family | Parameters | Quantization | Size on Disk | Architecture |
-|-------|--------|-----------|-------------|-------------|-------------|
-| qwen3.5:9b | qwen35 | 9.0B | Q4_K_M | 6.6 GB | Dense (Qwen3.5) |
-| Ornith:9b | qwen35 | 9.0B | Q4_K_M | 5.6 GB | Dense (Qwen3.5, Ornith-1.0) |
-| qwen2.5-coder:7b | qwen2 | 7.6B | Q4_K_M | 4.7 GB | Dense (Qwen2.5) |
-| mistral:7b | llama | 7.2B | Q4_K_M | 4.4 GB | Dense (Llama) |
-| ibm/granite4.1:8b | granite | 8.8B | Q4_K_M | 5.4 GB | Dense (Granite 4.1) |
-| lfm2.5:latest | lfm2moe | 8.5B | Q4_K_M | 5.2 GB | MoE (32 experts, 4 active) |
+| Model | Release Date | Family | Parameters | Ollama Context | Quantization | Size on Disk | Architecture |
+|-------|--------------|--------|-----------|---------------|-------------|-------------|-------------|
+| qwen3.5:9b | Jun 2026 (Ollama) | qwen35 | 9.7B | 262,144 | Q4_K_M | 6.6 GB | Dense (Qwen3.5) |
+| Ornith:9b | Jul 2026 (Ollama) | qwen35 | 9.0B | 262,144 | Q4_K_M | 5.6 GB | Dense (Qwen3.5, Ornith-1.0) |
+| qwen2.5-coder:7b | 2024-11-12 | qwen2 | 7.6B | 32,768 | Q4_K_M | 4.7 GB | Dense (Qwen2.5) |
+| mistral:7b | 2024-05-22 (v0.3) | llama | 7.2B | 32,768 | Q4_K_M | 4.4 GB | Dense (Llama) |
+| ibm/granite4.1:8b | 2026-04-28 | granite | 8.8B | 131,072 | Q4_K_M | 5.3 GB | Dense (Granite 4.1) |
+| lfm2.5:latest | Jun 2026 (Ollama) | lfm2moe | 8.5B | 128,000 | Q4_K_M | 5.2 GB | MoE (32 experts, 4 active) |
+
+Release dates are upstream release dates where available. For qwen3.5, Ornith, and lfm2.5, Ollama exposed relative publication ages at the time of writing rather than exact dates, so the table records the Ollama publication month. Context lengths are the values reported by `ollama show` for the exact local tags tested, which matters operationally: the local `qwen2.5-coder:7b` tag reports 32K context even though upstream Qwen2.5-Coder 7B is documented at 128K.
 
 ### Runtime Adapters
 
@@ -285,13 +287,13 @@ The platform-native suite uses `benchmarks/platform_native.json` and asks the ag
 
 | Adapter | Strict Tool Score | Platform-Native Use-Case Score | Root Cause |
 |---------|-------------------|--------------------------------|------------|
-| openclaw-native | 0/5 for all models | 0/5 for all models | Context overflow (32K models) or model-override rejected (40K+ models) |
-| hermes-native | 0/5 for all models | Ornith 0.5/5; others 0/5 | Silent session failure (32K models) or toolset mismatch (40K+ models) |
+| openclaw-native | 0/5 for all six models | LFM2.5 1/5; others 0/5 | 32K models overflow; long-context models are configured but mostly hit full-agent timeouts |
+| hermes-native | 0/5 for all models | Ornith 0.5/5; others 0/5 | Silent session failure (32K models) or toolset mismatch (long-context models) |
 | pi-native | qwen2.5-coder:7b 1.5/5; others 0/5 | Ornith 5/5; qwen3.5 3/5; lfm2.5 3/5; qwen2.5-coder 1/5; mistral 1/5 | Pi tools are usable when prompted for evidence; strict benchmark-tool parsing misses this |
 
 **Key findings:**
 
-1. **OpenClaw agent mode** has two failure modes: context overflow for 32K models (mistral:7b, qwen2.5-coder:7b — ~56K workspace context overflows 32K window) and model-override rejection for 40K+ models (qwen3.5:9b, ornith:9b, lfm2.5 — OpenClaw blocks `--model` overrides for agent "main").
+1. **OpenClaw agent mode** changed after fixing local model configuration. The original qwen3.5/Ornith/LFM model-override rejection was a config artifact: those models were missing from `/home/ebelo/.openclaw/openclaw.json`. After adding qwen3.5, Ornith, LFM2.5, and Granite, OpenClaw reports them as configured and available. The rerun still scored 0/5 strict for all six models: 32K models overflow, while long-context models mostly hit 180s full-agent timeouts. In platform-native use cases, only LFM2.5 got a non-zero OpenClaw-native score (1/5 on weather).
 
 2. **Hermes** has a hard 64K context floor. Models with 32K context (mistral:7b, qwen2.5-coder:7b) produce silent empty sessions in v0.18.2. Models with sufficient context (qwen3.5:9b, ornith:9b, lfm2.5) run but report only `vision_analyze` as available — the safe toolset may not be correctly registered.
 

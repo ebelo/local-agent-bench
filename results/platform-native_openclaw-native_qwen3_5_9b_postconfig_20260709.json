@@ -1,0 +1,186 @@
+{
+  "metadata": {
+    "runtime": "openclaw-native",
+    "benchmark": "benchmarks/platform_native.json",
+    "git_commit": "36d741073cd4d9fcc63a01034300538b48ca32de",
+    "python": "3.12.3",
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "model": "ollama/qwen3.5:9b",
+    "adapter": "openclaw-native",
+    "openclaw_version": "OpenClaw 2026.6.11 (e085fa1)",
+    "openclaw_mode": "agent --local --json",
+    "native_platform_tool_score": true,
+    "platform_native_task_score": true,
+    "judge_model": "ollama/glm-5.2:cloud"
+  },
+  "runtime": "openclaw-native",
+  "model": "ollama/qwen3.5:9b",
+  "benchmark": "benchmarks/platform_native.json",
+  "results": [
+    {
+      "task_id": "native_current_directory",
+      "category": "filesystem",
+      "runtime": "openclaw-native",
+      "model": "ollama/qwen3.5:9b",
+      "score": 0.0,
+      "failure_reason": "TIMEOUT",
+      "final_answer": "runtime timed out after 180s: openclaw",
+      "tool_calls": [],
+      "latency_ms": 180114,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "Use your available tools if needed and tell me the absolute path of the current working directory. Do not guess. In your final answer, include a short Evidence line naming the command or tool you used and the relevant output."
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": {
+        "suite": "platform-native",
+        "score": 0.0,
+        "failure_reason": "PLATFORM_NATIVE_FAIL",
+        "judge": {
+          "judge_score": 0.0,
+          "judge_verdict": "JUDGE_FAIL",
+          "judge_reasoning": "Runtime error: runtime timed out after 180s: openclaw",
+          "judge_model": "ollama/glm-5.2:cloud"
+        },
+        "deterministic_score": 0.0,
+        "deterministic_reason": "RUNTIME_ERROR",
+        "deterministic_passed": false,
+        "assertion_results": []
+      }
+    },
+    {
+      "task_id": "native_list_project",
+      "category": "filesystem",
+      "runtime": "openclaw-native",
+      "model": "ollama/qwen3.5:9b",
+      "score": 0.0,
+      "failure_reason": "TIMEOUT",
+      "final_answer": "runtime timed out after 180s: openclaw",
+      "tool_calls": [],
+      "latency_ms": 180108,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "Use your available tools to list the files and folders in the current project directory. Include README.md, benchmarks, and local_agent_bench if they are present. In your final answer, include a short Evidence line naming the command or tool you used and the relevant output."
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": {
+        "suite": "platform-native",
+        "score": 0.0,
+        "failure_reason": "PLATFORM_NATIVE_FAIL",
+        "judge": {
+          "judge_score": 0.0,
+          "judge_verdict": "JUDGE_FAIL",
+          "judge_reasoning": "Runtime error: runtime timed out after 180s: openclaw",
+          "judge_model": "ollama/glm-5.2:cloud"
+        },
+        "deterministic_score": 0.0,
+        "deterministic_reason": "RUNTIME_ERROR",
+        "deterministic_passed": false,
+        "assertion_results": []
+      }
+    },
+    {
+      "task_id": "native_read_fixture",
+      "category": "filesystem",
+      "runtime": "openclaw-native",
+      "model": "ollama/qwen3.5:9b",
+      "score": 0.0,
+      "failure_reason": "TIMEOUT",
+      "final_answer": "runtime timed out after 180s: openclaw",
+      "tool_calls": [],
+      "latency_ms": 180117,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "Use your available tools to read benchmarks/fixtures.md, then tell me the benchmark codename. In your final answer, include a short Evidence line naming the command or tool you used and the relevant output."
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": {
+        "suite": "platform-native",
+        "score": 0.0,
+        "failure_reason": "PLATFORM_NATIVE_FAIL",
+        "judge": {
+          "judge_score": 0.0,
+          "judge_verdict": "JUDGE_FAIL",
+          "judge_reasoning": "Runtime error: runtime timed out after 180s: openclaw",
+          "judge_model": "ollama/glm-5.2:cloud"
+        },
+        "deterministic_score": 0.0,
+        "deterministic_reason": "RUNTIME_ERROR",
+        "deterministic_passed": false,
+        "assertion_results": []
+      }
+    },
+    {
+      "task_id": "native_weather_berlin",
+      "category": "weather",
+      "runtime": "openclaw-native",
+      "model": "ollama/qwen3.5:9b",
+      "score": 0.0,
+      "failure_reason": "TIMEOUT",
+      "final_answer": "runtime timed out after 180s: openclaw",
+      "tool_calls": [],
+      "latency_ms": 180103,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "Use your available tools to get the current weather in Berlin, Germany. You may use a shell command, curl, or any weather-capable tool available to you. Do not invent the weather. In your final answer, include a short Evidence line naming the command or tool you used and the relevant output."
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": {
+        "suite": "platform-native",
+        "score": 0.0,
+        "failure_reason": "PLATFORM_NATIVE_FAIL",
+        "judge": {
+          "judge_score": 0.0,
+          "judge_verdict": "JUDGE_FAIL",
+          "judge_reasoning": "Runtime error: runtime timed out after 180s: openclaw",
+          "judge_model": "ollama/glm-5.2:cloud"
+        },
+        "deterministic_score": 0.0,
+        "deterministic_reason": "RUNTIME_ERROR",
+        "deterministic_passed": false,
+        "assertion_results": []
+      }
+    },
+    {
+      "task_id": "native_recover_missing_path",
+      "category": "recovery",
+      "runtime": "openclaw-native",
+      "model": "ollama/qwen3.5:9b",
+      "score": 0.0,
+      "failure_reason": "TIMEOUT",
+      "final_answer": "runtime timed out after 180s: openclaw",
+      "tool_calls": [],
+      "latency_ms": 180060,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "Use your available tools to read benchmarks/agentic/missing-note.md. If that path is missing, recover by inspecting benchmarks/agentic, find the recovery note, read it, and tell me the recovery code. In your final answer, include a short Evidence line naming the commands or tools you used and the relevant output."
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": {
+        "suite": "platform-native",
+        "score": 0.0,
+        "failure_reason": "PLATFORM_NATIVE_FAIL",
+        "judge": {
+          "judge_score": 0.0,
+          "judge_verdict": "JUDGE_FAIL",
+          "judge_reasoning": "Runtime error: runtime timed out after 180s: openclaw",
+          "judge_model": "ollama/glm-5.2:cloud"
+        },
+        "deterministic_score": 0.0,
+        "deterministic_reason": "RUNTIME_ERROR",
+        "deterministic_passed": false,
+        "assertion_results": []
+      }
+    }
+  ]
+}

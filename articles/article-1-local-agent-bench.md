@@ -188,7 +188,7 @@ Local Agent Bench doesn't just test models in isolation. It tests models *throug
 
 - **pi-native** — Runs `pi --print --no-session --mode text` with Pi's native tools active (bash, read, write, edit). Tests Pi's real platform tool-calling layer.
 
-The ReAct adapters all use the same benchmark tasks, the same harness-owned tools, and the same scoring logic. That makes cross-runtime comparison fair. The native adapters are used in two ways: strict tool-call compatibility tests, and the new `platform_native.json` use-case suite. As documented in [article-3](article-3-native-adapters.md), these reveal real platform constraints across all five benchmark models: context overflow, model-override rejection, silent session failure, toolset misconfiguration, tool registration gaps, and the difference between tool-call syntax and user-visible completion.
+The ReAct adapters all use the same benchmark tasks, the same harness-owned tools, and the same scoring logic. That makes cross-runtime comparison fair. The native adapters are used in two ways: strict tool-call compatibility tests, and the new `platform_native.json` use-case suite. As documented in [article-3](article-3-native-adapters.md), these reveal real platform constraints across the benchmark models: context overflow, local model configuration requirements, full-agent timeout/latency, silent session failure, toolset misconfiguration, tool registration gaps, and the difference between tool-call syntax and user-visible completion.
 
 ### ReAct vs Native Tool Calling
 

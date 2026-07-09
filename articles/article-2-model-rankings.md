@@ -301,7 +301,7 @@ The platform-native suite uses `benchmarks/platform_native.json` and asks the ag
 
 5. **ReAct rankings do not predict strict native performance, but they partly predict Pi task completion.** Native adapters serve primarily as platform diagnostics; when judged as use cases, Pi-native Ornith:9b becomes the standout result despite strict 0/5 parser scoring.
 
-6. **The harder platform-native ladder finds Ornith's current limit.** After the 5/5 Pi result, `benchmarks/platform_native_ladder.json` tested levels 6-8 with live web/API grounding, local link navigation, and end-to-end project-health/release-readiness tasks. Ornith:9b through Pi scored 2/7: it passed GitHub metadata grounding and the local project-health task, but failed several correct-looking answers because the evidence was not strong enough to distinguish real execution from plausible reconstruction.
+6. **The harder platform-native ladder finds Ornith's current limit.** After the 5/5 Pi result, `benchmarks/platform_native_ladder.json` tested levels 6-8 with live web/API grounding, local link navigation, and end-to-end project-health/release-readiness tasks. A five-run independent repeat scored `[0.0, 2.5, 1.0, 1.35, 2.0]`, mean **1.37/7** (stdev 0.96, range 0-2.5). The failures were often correct-looking answers rejected for weak execution evidence, plus occasional task drift.
 
 These findings are real platform constraints that would affect any user trying to deploy small models through these runtimes. The ReAct adapters, which use a benchmark-owned prompt and parser, remain the fair cross-runtime comparison method.
 

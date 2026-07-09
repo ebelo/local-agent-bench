@@ -108,19 +108,28 @@ Because Ornith:9b passed all five basic Pi-native use cases, the next question w
 | 7 | Navigation | Follow local HTML links, follow local Markdown links |
 | 8 | End-to-end work | Release-readiness brief, project-health check with local tests |
 
-Ornith:9b through Pi scored **2/7** on this harder ladder:
+The first one-shot run scored **2/7**, but Emman observed the same model in Pi sometimes drifts into long reasoning and can hit a maximum-output cutoff. The ladder was therefore repeated as five fully independent Pi-native subprocess runs. The repeated totals were:
+
+```text
+[0.0, 2.5, 1.0, 1.35, 2.0]
+mean = 1.37/7
+stdev = 0.96
+range = 0.0-2.5
+```
+
+No captured repeat contained the explicit "maximum output token limit" string, but the variance was large enough to make the point: **single native runs are not statistically trustworthy.**
 
 | Task | Level | Result | What Happened |
 |------|:----:|:------:|---------------|
-| GitHub repo metadata | 6 | 1/1 | Correctly fetched `ebelo/local-agent-bench` and `main` from GitHub API |
-| Weather comparison | 6 | 0/1 | Produced plausible Berlin/Zurich weather, but judge found no convincing execution evidence |
-| Remote README cross-check | 6 | 0/1 | Went off-task into an Ollama troubleshooting tangent |
-| HTML link navigation | 7 | 0/1 | Correct answer (`violet-harbor`), but no convincing tool execution evidence |
-| Markdown link navigation | 7 | 0/1 | Correct answer (`delta-17`), but no convincing tool execution evidence |
-| Release-readiness brief | 8 | 0/1 | Correct-looking file facts, but weather/source evidence was weak and likely hallucinated |
-| Project-health check | 8 | 1/1 | Correctly inspected `pyproject.toml`, ran tests, and reported `44 passed` |
+| GitHub repo metadata | 6 | 1/5 passes | Sometimes correct, often rejected for weak execution evidence |
+| Weather comparison | 6 | 1/5 passes | One live-weather pass; other runs hallucinated or lacked evidence |
+| Remote README cross-check | 6 | 0/5 passes | Consistent failure, often unrelated task drift |
+| HTML link navigation | 7 | 0/5 passes | Correct-looking `violet-harbor` answers, but no convincing tool trace |
+| Markdown link navigation | 7 | 0/5 passes, one partial | Correct-looking `delta-17` answers, but usually weak evidence |
+| Release-readiness brief | 8 | 1/5 passes, two partials | Sometimes synthesizes well, often weak weather/source evidence |
+| Project-health check | 8 | 2/5 passes | Best higher-level task; passes when `pytest` output is concrete |
 
-This is the first real ceiling: **Ornith can complete straightforward native tasks, but levels 6-8 expose evidence reliability and task-drift problems.** It often knows the right answer shape and sometimes the right answer, but without structured Pi tool traces the judge cannot always distinguish real execution from plausible reconstruction. The strongest pass was the project-health task, where command output (`44 passed`) and file evidence were concrete.
+This is the first real ceiling: **Ornith can complete straightforward native tasks, but levels 6-8 expose evidence reliability, task-drift, and run-to-run variance.** It often knows the right answer shape and sometimes the right answer, but without structured Pi tool traces the judge cannot always distinguish real execution from plausible reconstruction. The strongest higher-level signal was the project-health task, where command output (`44 passed` or `45 passed`, depending on the code state) and file evidence were concrete.
 
 But the 0/5 results are not all the same. There are **four distinct failure modes**, each revealing a different platform constraint.
 
@@ -327,13 +336,13 @@ The native adapter results are not a failure of the benchmark or the adapters. T
 
 2. **Hermes** has a hard 64K context minimum for tool-using models. Models with 32K context produce empty sessions silently in v0.18.2. Models with sufficient context still fail because the benchmark tools aren't registered — and Hermes v0.18.2 may not correctly register even its own safe toolset.
 
-3. **Pi** has the best context isolation and actually lets models complete tasks. Strict benchmark-tool scoring misses most of that, because Pi's tools (bash, read, write, edit) don't include benchmark-specific tools. Platform-native use-case scoring gives Pi-native Ornith:9b 5/5, qwen3.5:9b 3/5, and lfm2.5 3/5. A harder ladder probe drops Ornith to 2/7, showing its current limit around levels 6-8.
+3. **Pi** has the best context isolation and actually lets models complete tasks. Strict benchmark-tool scoring misses most of that, because Pi's tools (bash, read, write, edit) don't include benchmark-specific tools. Platform-native use-case scoring gives Pi-native Ornith:9b 5/5, qwen3.5:9b 3/5, and lfm2.5 3/5. A harder repeated ladder probe drops Ornith to a mean of 1.37/7, showing its current limit around levels 6-8.
 
 4. **No platform registers the benchmark's tools** (`get_cwd`, `list_directory`, `read_file`, `get_weather`). To properly test platform-native tool calling, the benchmark tools would need to be registered as platform extensions.
 
 5. **ReAct rankings do not predict strict native performance, and only partly predict Pi task completion.** Ornith:9b is the platform-native Pi winner even though qwen2.5-coder:7b is the controlled ReAct winner.
 
-6. **Native scoring needs both strict and flexible layers.** Strict parsing diagnoses tool-registration and protocol compatibility. LLM-as-judge scoring diagnoses whether the platform response actually helped the user.
+6. **Native scoring needs both strict and flexible layers, plus repetition.** Strict parsing diagnoses tool-registration and protocol compatibility. LLM-as-judge scoring diagnoses whether the platform response actually helped the user. Independent repeated native runs are needed because Pi/Ornith shows large run-to-run variance on harder tasks.
 
 These findings are the value of the native adapters. They do not produce a single simple score; they produce a diagnosis. And the diagnosis is clear: **OpenClaw and Hermes are blocked by platform configuration for these local models, Pi is the only native path that currently completes tasks, and strict benchmark-tool parsing undercounts real Pi usefulness.**
 
@@ -341,6 +350,6 @@ The next step is to keep both topics: controlled ReAct for fair model comparison
 
 ---
 
-*All benchmark data, result files, and the harness itself are open source at [github.com/ebelo/local-agent-bench](https://github.com/ebelo/local-agent-bench). Native adapter runs were conducted on Lenovo P14s Gen 6, NVIDIA RTX PRO 1000 Blackwell 8GB, WSL2 Ubuntu 24.04, Ollama 0.30.10. OpenClaw 2026.6.8, Hermes v0.18.2 (2026.7.7.2), Pi 0.79.8. All runs sequential, 2026-07-08 and 2026-07-09. Strict native suite: 15 cells × 5 smoke tasks. Platform-native suite: 15 cells × 5 use-case tasks. Platform-native ladder probe: Ornith:9b through Pi, 7 harder tasks.*
+*All benchmark data, result files, and the harness itself are open source at [github.com/ebelo/local-agent-bench](https://github.com/ebelo/local-agent-bench). Native adapter runs were conducted on Lenovo P14s Gen 6, NVIDIA RTX PRO 1000 Blackwell 8GB, WSL2 Ubuntu 24.04, Ollama 0.30.10. OpenClaw 2026.6.8, Hermes v0.18.2 (2026.7.7.2), Pi 0.79.8. All runs sequential, 2026-07-08 and 2026-07-09. Strict native suite: 15 cells × 5 smoke tasks. Platform-native suite: 15 cells × 5 use-case tasks. Platform-native ladder probe: Ornith:9b through Pi, 7 harder tasks, 5 independent repeats.*
 
 *Generated by OpenClaw 2026.6.8 · model=ollama/glm-5.2:cloud · reasoning=off*

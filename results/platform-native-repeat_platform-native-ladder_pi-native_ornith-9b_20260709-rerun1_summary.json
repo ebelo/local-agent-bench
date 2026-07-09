@@ -1,0 +1,105 @@
+{
+  "runs_completed": 5,
+  "total_scores": [
+    0.0,
+    2.5,
+    1.0,
+    1.35,
+    2.0
+  ],
+  "mean_total": 1.3699999999999999,
+  "stdev_total": 0.9602083107326244,
+  "min_total": 0.0,
+  "max_total": 2.5,
+  "per_task": {
+    "level6_github_repo_grounding": {
+      "runs": 5,
+      "mean_score": 0.2,
+      "stdev_score": 0.447213595499958,
+      "pass_count": 1,
+      "failure_reasons": {
+        "PLATFORM_NATIVE_FAIL": 4,
+        "PLATFORM_NATIVE_PASS": 1
+      },
+      "max_output_cutoffs": 0
+    },
+    "level6_weather_compare_live": {
+      "runs": 5,
+      "mean_score": 0.2,
+      "stdev_score": 0.447213595499958,
+      "pass_count": 1,
+      "failure_reasons": {
+        "PLATFORM_NATIVE_FAIL": 4,
+        "PLATFORM_NATIVE_PASS": 1
+      },
+      "max_output_cutoffs": 0
+    },
+    "level6_remote_readme_cross_check": {
+      "runs": 5,
+      "mean_score": 0.0,
+      "stdev_score": 0.0,
+      "pass_count": 0,
+      "failure_reasons": {
+        "PLATFORM_NATIVE_FAIL": 5
+      },
+      "max_output_cutoffs": 0
+    },
+    "level7_html_link_navigation": {
+      "runs": 5,
+      "mean_score": 0.0,
+      "stdev_score": 0.0,
+      "pass_count": 0,
+      "failure_reasons": {
+        "PLATFORM_NATIVE_FAIL": 5
+      },
+      "max_output_cutoffs": 0
+    },
+    "level7_markdown_link_navigation": {
+      "runs": 5,
+      "mean_score": 0.16999999999999998,
+      "stdev_score": 0.3801315561749642,
+      "pass_count": 0,
+      "failure_reasons": {
+        "PLATFORM_NATIVE_FAIL": 4,
+        "PLATFORM_NATIVE_PARTIAL": 1
+      },
+      "max_output_cutoffs": 0
+    },
+    "level8_release_readiness_brief": {
+      "runs": 5,
+      "mean_score": 0.4,
+      "stdev_score": 0.4183300132670378,
+      "pass_count": 1,
+      "failure_reasons": {
+        "PLATFORM_NATIVE_FAIL": 2,
+        "PLATFORM_NATIVE_PARTIAL": 2,
+        "PLATFORM_NATIVE_PASS": 1
+      },
+      "max_output_cutoffs": 0
+    },
+    "level8_test_and_summarize": {
+      "runs": 5,
+      "mean_score": 0.4,
+      "stdev_score": 0.5477225575051662,
+      "pass_count": 2,
+      "failure_reasons": {
+        "PLATFORM_NATIVE_FAIL": 3,
+        "PLATFORM_NATIVE_PASS": 2
+      },
+      "max_output_cutoffs": 0
+    }
+  },
+  "runtime": "pi-native",
+  "model": "ollama/ornith:9b",
+  "benchmark": "benchmarks/platform_native_ladder.json",
+  "runs_requested": 5,
+  "subprocess_failures": 5,
+  "elapsed_seconds": 1301.179,
+  "run_files": [
+    "/home/ebelo/.openclaw/workspace/projects/local-agent-bench/results/platform-native-repeat_platform-native-ladder_pi-native_ornith-9b_20260709-rerun1_run1.json",
+    "/home/ebelo/.openclaw/workspace/projects/local-agent-bench/results/platform-native-repeat_platform-native-ladder_pi-native_ornith-9b_20260709-rerun1_run2.json",
+    "/home/ebelo/.openclaw/workspace/projects/local-agent-bench/results/platform-native-repeat_platform-native-ladder_pi-native_ornith-9b_20260709-rerun1_run3.json",
+    "/home/ebelo/.openclaw/workspace/projects/local-agent-bench/results/platform-native-repeat_platform-native-ladder_pi-native_ornith-9b_20260709-rerun1_run4.json",
+    "/home/ebelo/.openclaw/workspace/projects/local-agent-bench/results/platform-native-repeat_platform-native-ladder_pi-native_ornith-9b_20260709-rerun1_run5.json"
+  ]
+}

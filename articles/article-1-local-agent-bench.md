@@ -33,6 +33,8 @@ The platform-native suite uses use-case prompts instead: "list the project", "re
 
 There is also a harder platform-native ladder suite, `benchmarks/platform_native_ladder.json`, for probing levels 6-8: live web/API grounding, local HTML/Markdown link navigation, and end-to-end project-health or release-readiness work.
 
+Because native platform runs are probabilistic, especially through Pi, the ladder suite should be interpreted through independent repeated runs rather than a single transcript. The repeat runner stores one result file per run and summarizes mean score, variance, task pass counts, and output-limit cutoffs.
+
 ### What Is ReAct?
 
 ReAct (short for **Re**asoning + **Act**ing) is a prompting framework introduced by Yao et al. in 2022. The core idea is simple but powerful: instead of asking an LLM to just *think* or just *act*, you ask it to alternate between the two in a tight loop.

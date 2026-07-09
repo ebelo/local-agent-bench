@@ -133,6 +133,19 @@ Run it with:
 python3 -m local_agent_bench run-platform-native --runtime pi-native --model ollama/ornith:9b --benchmark benchmarks/platform_native_ladder.json
 ```
 
+Native platform runs are probabilistic and should be repeated as independent processes when used for conclusions:
+
+```bash
+python3 runners/run_platform_native_repeats.py \
+  --runtime pi-native \
+  --model ornith:9b \
+  --benchmark benchmarks/platform_native_ladder.json \
+  --runs 5 \
+  --skip-preflight
+```
+
+The repeat runner writes one raw JSON file per run plus a summary JSON with mean score, standard deviation, per-task pass counts, failure reasons, and detected max-output cutoffs.
+
 `run` performs a preflight check before executing benchmark tasks. Use `--skip-preflight` only when intentionally testing degraded configuration behavior.
 
 `--task-timeout` sets a per-task timeout in seconds. Tasks that exceed this threshold are auto-failed with `TIMEOUT` as the failure reason. This is useful for discriminating between models that can complete tasks correctly but too slowly to be usable in interactive agent workflows. A threshold of 30 seconds per task is recommended as a practical usability cutoff. Set to 0 (default) to disable the timeout.

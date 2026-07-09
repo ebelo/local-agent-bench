@@ -72,6 +72,7 @@ python3 -m local_agent_bench run --runtime hermes-react --model <provider/model>
 python3 -m local_agent_bench run --runtime pi-react --model ollama/qwen2.5-coder:7b
 python3 -m local_agent_bench run --runtime openclaw-native --model ollama/qwen2.5-coder:7b
 python3 -m local_agent_bench run --runtime hermes-native --model ollama/qwen2.5-coder:7b
+python3 -m local_agent_bench run --runtime pi-native --model ollama/qwen2.5-coder:7b
 ```
 
 `openclaw-react` calls `openclaw infer model run --local --json`; `hermes-react` calls `hermes chat --query --quiet --ignore-rules`; `pi-react` calls `pi --print --no-session --no-tools --no-context-files`.
@@ -81,7 +82,18 @@ The Hermes adapter runs with `--ignore-rules` and defaults to the `safe` toolset
 Hermes may reject small local models if their configured context window is below its agent minimum; treat that as a runtime-configuration failure, not a benchmark-task failure.
 Pi needs a configured local model provider in `~/.pi/agent/models.json` or a custom `PI_CODING_AGENT_DIR`. If `pi` is not installed on `PATH`, set `LOCAL_AGENT_BENCH_PI_COMMAND`, for example `LOCAL_AGENT_BENCH_PI_COMMAND="npx -y @earendil-works/pi-coding-agent"`.
 
-`openclaw-native` and `hermes-native` run a platform-native agent turn and add `native_platform_tool_score` to each result. This score checks whether the platform/model emitted native tool-call traces for the task's required tools and whether required arguments were present. It is intentionally separate from the ReAct score: a model can pass `raw-ollama-react` while failing native tool-call formation inside a platform.
+`openclaw-native`, `hermes-native`, and `pi-native` run a platform-native agent turn and add `native_platform_tool_score` to each result. This score checks whether the platform/model emitted native tool-call traces for the task's required tools and whether required arguments were present. It is intentionally separate from the ReAct score: a model can pass `raw-ollama-react` while failing native tool-call formation inside a platform.
+
+Platform-native use-case suites can be run with an LLM judge:
+
+```bash
+python3 -m local_agent_bench run-platform-native \
+  --runtime pi-native \
+  --model ollama/ornith:9b \
+  --benchmark benchmarks/platform_native.json
+```
+
+`benchmarks/platform_native.json` checks practical native use cases at the level of filesystem, weather, and recovery tasks. `benchmarks/platform_native_ladder.json` probes harder capability-ladder levels 6-8: live web/API grounding, local HTML/Markdown link navigation, and end-to-end project-health/release-brief tasks.
 
 ## Initial Benchmark
 
@@ -107,6 +119,18 @@ Run it with:
 
 ```bash
 python3 -m local_agent_bench run --runtime pi-react --model ollama/qwen3.5:9b --benchmark benchmarks/agentic.json
+```
+
+The platform-native ladder suite is [benchmarks/platform_native_ladder.json](benchmarks/platform_native_ladder.json). It is designed for native runtimes and asks harder use-case tasks:
+
+- level 6: live web/API grounding with cited evidence
+- level 7: local HTML and Markdown link navigation
+- level 8: multi-source synthesis, live data, and command execution
+
+Run it with:
+
+```bash
+python3 -m local_agent_bench run-platform-native --runtime pi-native --model ollama/ornith:9b --benchmark benchmarks/platform_native_ladder.json
 ```
 
 `run` performs a preflight check before executing benchmark tasks. Use `--skip-preflight` only when intentionally testing degraded configuration behavior.

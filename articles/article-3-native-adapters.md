@@ -34,6 +34,8 @@ The second suite, `benchmarks/platform_native.json`, asks use-case tasks and let
 
 Use-case completion is scored by an LLM judge (`ollama/glm-5.2:cloud` through OpenClaw `infer`) with deterministic text assertions as guardrails. This was added after a manual Pi session with Ornith:9b showed the problem clearly: when nudged to use `bash`, Ornith fetched live weather from `wttr.in` and answered correctly, but strict scoring still gave 0/5 because it did not emit benchmark-specific `get_weather` JSON.
 
+After Ornith passed all five platform-native use cases through Pi, a harder follow-up suite, `benchmarks/platform_native_ladder.json`, was added to probe levels 6-8: live web/API grounding, local HTML/Markdown navigation, and end-to-end project-health or release-readiness work.
+
 ## The Five Models
 
 | Model | Family | Size | Context (default) | ReAct ranking |
@@ -95,6 +97,30 @@ qwen3.5:9b and lfm2.5 both scored 3/5 through Pi. qwen2.5-coder:7b and mistral:7
 | Ornith:9b | 1 | 1 | 1 | 1 | 1 | **5/5** |
 
 There is an important caveat: Pi's `--print` output is not a structured tool trace. The prompt asks for evidence, and the judge evaluates the answer plus evidence line. That is much better than scoring final text alone, but it is still weaker than a runtime transcript that records every tool call and output. Platform-native use-case results should therefore be read as **holistic user-experience evidence**, not as a formal proof of tool execution.
+
+### Ornith Limit Probe: Platform-Native Ladder
+
+Because Ornith:9b passed all five basic Pi-native use cases, the next question was: *where does it break?* The follow-up suite `benchmarks/platform_native_ladder.json` adds seven harder tasks:
+
+| Level | Task Type | Tasks |
+|------:|-----------|-------|
+| 6 | Web/API grounding | GitHub repo metadata, Berlin-vs-Zurich weather comparison, remote README cross-check |
+| 7 | Navigation | Follow local HTML links, follow local Markdown links |
+| 8 | End-to-end work | Release-readiness brief, project-health check with local tests |
+
+Ornith:9b through Pi scored **2/7** on this harder ladder:
+
+| Task | Level | Result | What Happened |
+|------|:----:|:------:|---------------|
+| GitHub repo metadata | 6 | 1/1 | Correctly fetched `ebelo/local-agent-bench` and `main` from GitHub API |
+| Weather comparison | 6 | 0/1 | Produced plausible Berlin/Zurich weather, but judge found no convincing execution evidence |
+| Remote README cross-check | 6 | 0/1 | Went off-task into an Ollama troubleshooting tangent |
+| HTML link navigation | 7 | 0/1 | Correct answer (`violet-harbor`), but no convincing tool execution evidence |
+| Markdown link navigation | 7 | 0/1 | Correct answer (`delta-17`), but no convincing tool execution evidence |
+| Release-readiness brief | 8 | 0/1 | Correct-looking file facts, but weather/source evidence was weak and likely hallucinated |
+| Project-health check | 8 | 1/1 | Correctly inspected `pyproject.toml`, ran tests, and reported `44 passed` |
+
+This is the first real ceiling: **Ornith can complete straightforward native tasks, but levels 6-8 expose evidence reliability and task-drift problems.** It often knows the right answer shape and sometimes the right answer, but without structured Pi tool traces the judge cannot always distinguish real execution from plausible reconstruction. The strongest pass was the project-health task, where command output (`44 passed`) and file evidence were concrete.
 
 But the 0/5 results are not all the same. There are **four distinct failure modes**, each revealing a different platform constraint.
 
@@ -301,7 +327,7 @@ The native adapter results are not a failure of the benchmark or the adapters. T
 
 2. **Hermes** has a hard 64K context minimum for tool-using models. Models with 32K context produce empty sessions silently in v0.18.2. Models with sufficient context still fail because the benchmark tools aren't registered — and Hermes v0.18.2 may not correctly register even its own safe toolset.
 
-3. **Pi** has the best context isolation and actually lets models complete tasks. Strict benchmark-tool scoring misses most of that, because Pi's tools (bash, read, write, edit) don't include benchmark-specific tools. Platform-native use-case scoring gives Pi-native Ornith:9b 5/5, qwen3.5:9b 3/5, and lfm2.5 3/5.
+3. **Pi** has the best context isolation and actually lets models complete tasks. Strict benchmark-tool scoring misses most of that, because Pi's tools (bash, read, write, edit) don't include benchmark-specific tools. Platform-native use-case scoring gives Pi-native Ornith:9b 5/5, qwen3.5:9b 3/5, and lfm2.5 3/5. A harder ladder probe drops Ornith to 2/7, showing its current limit around levels 6-8.
 
 4. **No platform registers the benchmark's tools** (`get_cwd`, `list_directory`, `read_file`, `get_weather`). To properly test platform-native tool calling, the benchmark tools would need to be registered as platform extensions.
 
@@ -315,6 +341,6 @@ The next step is to keep both topics: controlled ReAct for fair model comparison
 
 ---
 
-*All benchmark data, result files, and the harness itself are open source at [github.com/ebelo/local-agent-bench](https://github.com/ebelo/local-agent-bench). Native adapter runs were conducted on Lenovo P14s Gen 6, NVIDIA RTX PRO 1000 Blackwell 8GB, WSL2 Ubuntu 24.04, Ollama 0.30.10. OpenClaw 2026.6.8, Hermes v0.18.2 (2026.7.7.2), Pi 0.79.8. All runs sequential, 2026-07-08. Strict native suite: 15 cells × 5 smoke tasks. Platform-native suite: 15 cells × 5 use-case tasks.*
+*All benchmark data, result files, and the harness itself are open source at [github.com/ebelo/local-agent-bench](https://github.com/ebelo/local-agent-bench). Native adapter runs were conducted on Lenovo P14s Gen 6, NVIDIA RTX PRO 1000 Blackwell 8GB, WSL2 Ubuntu 24.04, Ollama 0.30.10. OpenClaw 2026.6.8, Hermes v0.18.2 (2026.7.7.2), Pi 0.79.8. All runs sequential, 2026-07-08 and 2026-07-09. Strict native suite: 15 cells × 5 smoke tasks. Platform-native suite: 15 cells × 5 use-case tasks. Platform-native ladder probe: Ornith:9b through Pi, 7 harder tasks.*
 
 *Generated by OpenClaw 2026.6.8 · model=ollama/glm-5.2:cloud · reasoning=off*

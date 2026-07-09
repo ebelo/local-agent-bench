@@ -55,6 +55,24 @@ class TaskLoadingTest(unittest.TestCase):
         self.assertEqual(task.required_tools, ["list_directory"])
         self.assertEqual(task.assertions[0]["type"], "answer_contains_any")
 
+    def test_loads_platform_native_ladder_suite(self) -> None:
+        tasks = load_tasks(Path("benchmarks/platform_native_ladder.json"))
+
+        self.assertEqual(len(tasks), 7)
+        self.assertEqual(
+            [task.diagnostic_layer for task in tasks],
+            [
+                "platform_native_ladder_level_6",
+                "platform_native_ladder_level_6",
+                "platform_native_ladder_level_6",
+                "platform_native_ladder_level_7",
+                "platform_native_ladder_level_7",
+                "platform_native_ladder_level_8",
+                "platform_native_ladder_level_8",
+            ],
+        )
+        self.assertTrue(any(task.requires_network for task in tasks))
+
 
 if __name__ == "__main__":
     unittest.main()

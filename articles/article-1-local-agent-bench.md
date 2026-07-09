@@ -31,6 +31,8 @@ The controlled suite uses a ReAct-style protocol: the model is given a system pr
 
 The platform-native suite uses use-case prompts instead: "list the project", "read this fixture", "recover from a missing path", "get current weather". It lets Pi, Hermes, or OpenClaw choose their own native tools. Scoring combines deterministic answer checks with an LLM judge that evaluates task completion and evidence of real tool use.
 
+There is also a harder platform-native ladder suite, `benchmarks/platform_native_ladder.json`, for probing levels 6-8: live web/API grounding, local HTML/Markdown link navigation, and end-to-end project-health or release-readiness work.
+
 ### What Is ReAct?
 
 ReAct (short for **Re**asoning + **Act**ing) is a prompting framework introduced by Yao et al. in 2022. The core idea is simple but powerful: instead of asking an LLM to just *think* or just *act*, you ask it to alternate between the two in a tight loop.

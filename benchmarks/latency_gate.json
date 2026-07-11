@@ -1,0 +1,18 @@
+{
+  "name": "latency-gate",
+  "description": "Cheap ReAct gate for excluding model/runtime combinations that are too slow or cannot complete a minimal tool round-trip.",
+  "tasks": [
+    {
+      "id": "latency_minimal_tool_round_trip",
+      "category": "latency",
+      "prompt": "This is a latency gate. Use the get_cwd tool, then answer with the absolute current working directory.",
+      "required_tools": ["get_cwd"],
+      "allowed_tools": ["get_cwd"],
+      "diagnostic_layer": "latency_gate",
+      "assertions": [
+        {"type": "answer_contains_tool_result", "tool": "get_cwd", "path": "cwd"},
+        {"type": "answer_contains_any", "values": ["local-agent-bench"]}
+      ]
+    }
+  ]
+}

@@ -24,6 +24,7 @@ def run_platform_native_task(
     *,
     judge_model: str | None = None,
     judge_timeout: int = 60,
+    deterministic_score_only: bool = False,
 ) -> TaskResult:
     start = time.monotonic()
     transcript = [{"role": "user", "content": task.prompt}]
@@ -95,6 +96,32 @@ def run_platform_native_task(
         )
 
     deterministic_score, deterministic_reason, assertion_results = score_task(task, final_answer, [], False)
+    if deterministic_score_only:
+        platform_score = {
+            "suite": "platform-native",
+            "score": deterministic_score,
+            "failure_reason": deterministic_reason,
+            "judge": None,
+            "deterministic_score": deterministic_score,
+            "deterministic_reason": deterministic_reason,
+            "deterministic_passed": deterministic_score >= 0.9,
+            "assertion_results": assertion_results,
+        }
+        return TaskResult(
+            task_id=task.id,
+            category=task.category,
+            runtime=backend.runtime,
+            model=model,
+            score=deterministic_score,
+            failure_reason=deterministic_reason,
+            final_answer=final_answer,
+            tool_calls=[],
+            latency_ms=_elapsed_ms(start),
+            raw_transcript=transcript,
+            assertion_results=assertion_results,
+            native_platform_tool_score=platform_score,
+        )
+
     judge = judge_native_result(
         task,
         final_answer,
@@ -103,16 +130,21 @@ def run_platform_native_task(
         timeout=judge_timeout,
     )
     judge_score = float(judge.get("judge_score", 0.0) or 0.0)
+    final_score = judge_score
+    if assertion_results and deterministic_reason != PASS:
+        final_score = min(final_score, deterministic_score)
     judge_verdict = str(judge.get("judge_verdict", PLATFORM_NATIVE_JUDGE_ERROR))
-    reason = _platform_native_reason(judge_score, judge_verdict)
+    reason = _platform_native_reason(final_score, judge_verdict)
 
-    # Keep deterministic assertions as guardrails but use the judge as the
-    # primary score: native platform outputs vary too much for tool-name scoring.
+    # Native platform traces are uneven, so the judge remains useful for
+    # synthesis quality. Deterministic guardrails still cap the score: a model
+    # cannot pass by merely claiming a source or writing tool-shaped pseudocode.
     platform_score: dict[str, Any] = {
         "suite": "platform-native",
-        "score": judge_score,
+        "score": final_score,
         "failure_reason": reason,
         "judge": judge,
+        "judge_score_before_guardrails": judge_score,
         "deterministic_score": deterministic_score,
         "deterministic_reason": deterministic_reason,
         "deterministic_passed": deterministic_reason == PASS,
@@ -121,11 +153,11 @@ def run_platform_native_task(
 
     return TaskResult(
         task_id=task.id,
-        category=task.category,
-        runtime=backend.runtime,
-        model=model,
-        score=judge_score,
-        failure_reason=reason,
+            category=task.category,
+            runtime=backend.runtime,
+            model=model,
+            score=final_score,
+            failure_reason=reason,
         final_answer=final_answer,
         tool_calls=[],
         latency_ms=_elapsed_ms(start),

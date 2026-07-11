@@ -1,0 +1,209 @@
+{
+  "name": "platform-native-reality",
+  "description": "Candid user-facing native runtime tasks. Prompts are ordinary user requests; scoring checks whether the runtime/model pair resolves the use case with current evidence and concise synthesis.",
+  "reference_behavior": {
+    "model": "ollama/glm-5.2:cloud",
+    "summary": "Frontier reference behavior is to avoid web search and HTML scraping, call a keyless structured weather API with curl/native HTTP, parse current fields, and answer without dumping raw JSON.",
+    "canonical_api": "https://api.open-meteo.com/v1/forecast?latitude=48.8566&longitude=2.3522&current=temperature_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,wind_direction_10m&timezone=Europe%2FParis"
+  },
+  "tasks": [
+    {
+      "id": "native_weather_paris_plain_user_prompt",
+      "category": "weather",
+      "prompt": "What is the current weather in Paris?",
+      "requires_network": true,
+      "diagnostic_layer": "platform_native_reality",
+      "assertions": [
+        {
+          "type": "answer_contains_any",
+          "values": [
+            "Paris"
+          ]
+        },
+        {
+          "type": "answer_matches_regex",
+          "pattern": "([+-]?\\d{1,2}(?:\\.\\d+)?)\\s?(?:°\\s?C|Celsius|degrees Celsius|\\bC\\b)"
+        },
+        {
+          "type": "answer_matches_open_meteo_current",
+          "latitude": 48.8566,
+          "longitude": 2.3522,
+          "timezone": "Europe/Paris",
+          "field": "temperature_2m",
+          "tolerance": 3.0,
+          "critical": true
+        },
+        {
+          "type": "answer_word_count_at_most",
+          "max": 120
+        },
+        {
+          "type": "answer_not_contains_any",
+          "values": [
+            "web_search",
+            "web_fetch",
+            "Mots-clés",
+            "Keywords",
+            "1.",
+            "2.",
+            "3.",
+            "${",
+            "javascript:",
+            "Actualité",
+            "Shopping",
+            "\"current_condition\"",
+            "\"current\"",
+            "we can use",
+            "I'll search",
+            "Let's first",
+            "assuming",
+            "provided code",
+            "This command fetches",
+            "will leverage",
+            "To get the current weather",
+            "Here is how to proceed"
+          ],
+          "critical": true
+        }
+      ]
+    },
+    {
+      "id": "native_weather_paris_user_answer",
+      "category": "weather",
+      "prompt": "What is the current weather in Paris, with a little detail on wind or rain?",
+      "requires_network": true,
+      "diagnostic_layer": "platform_native_reality",
+      "assertions": [
+        {
+          "type": "answer_contains_any",
+          "values": [
+            "Paris"
+          ]
+        },
+        {
+          "type": "answer_matches_regex",
+          "pattern": "([+-]?\\d{1,2}(?:\\.\\d+)?)\\s?(?:°\\s?C|Celsius|degrees Celsius|\\bC\\b)"
+        },
+        {
+          "type": "answer_matches_open_meteo_current",
+          "latitude": 48.8566,
+          "longitude": 2.3522,
+          "timezone": "Europe/Paris",
+          "field": "temperature_2m",
+          "tolerance": 3.0,
+          "critical": true
+        },
+        {
+          "type": "answer_word_count_at_most",
+          "max": 180
+        },
+        {
+          "type": "answer_not_contains_any",
+          "values": [
+            "Mots-clés",
+            "Keywords",
+            "${",
+            "javascript:",
+            "MENU",
+            "Voir plusVoir moins",
+            "\"current_units\"",
+            "\"current\"",
+            "we can use",
+            "I'll search",
+            "Let's first",
+            "assuming",
+            "provided code",
+            "This command fetches",
+            "will leverage"
+          ],
+          "critical": true
+        }
+      ]
+    },
+    {
+      "id": "native_weather_paris_api_selection",
+      "category": "weather",
+      "prompt": "Should I expect hot weather in Paris right now?",
+      "requires_network": true,
+      "diagnostic_layer": "platform_native_reality",
+      "assertions": [
+        {
+          "type": "answer_contains_any",
+          "values": [
+            "Paris"
+          ]
+        },
+        {
+          "type": "answer_matches_regex",
+          "pattern": "([+-]?\\d{1,2}(?:\\.\\d+)?)\\s?(?:°\\s?C|Celsius|degrees Celsius|\\bC\\b)"
+        },
+        {
+          "type": "answer_matches_open_meteo_current",
+          "latitude": 48.8566,
+          "longitude": 2.3522,
+          "timezone": "Europe/Paris",
+          "field": "temperature_2m",
+          "tolerance": 3.0,
+          "critical": true
+        },
+        {
+          "type": "answer_word_count_at_most",
+          "max": 120
+        },
+        {
+          "type": "answer_not_contains_any",
+          "values": [
+            "Mots-clés",
+            "Keywords",
+            "1.",
+            "2.",
+            "3.",
+            "${",
+            "javascript:",
+            "Actualité",
+            "Shopping",
+            "\"current_condition\"",
+            "\"current\"",
+            "we can use",
+            "I'll search",
+            "Let's first",
+            "assuming",
+            "provided code",
+            "This command fetches",
+            "will leverage"
+          ],
+          "critical": true
+        }
+      ]
+    },
+    {
+      "id": "native_project_answer_not_dump",
+      "category": "filesystem",
+      "prompt": "What is this repository for?",
+      "diagnostic_layer": "platform_native_reality",
+      "assertions": [
+        {
+          "type": "answer_contains_any",
+          "values": [
+            "benchmark",
+            "bench",
+            "agent",
+            "local-agent-bench"
+          ]
+        },
+        {
+          "type": "answer_contains_any",
+          "values": [
+            "README.md",
+            "benchmarks",
+            "local_agent_bench"
+          ]
+        },
+        {
+          "type": "answer_word_count_at_most",
+          "max": 80
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "name": "platform-native-latency-gate",
+  "description": "Cheap deterministic gate for native platform runtime availability and latency before repeated platform-native runs.",
+  "tasks": [
+    {
+      "id": "native_latency_current_directory",
+      "category": "latency",
+      "prompt": "This is a latency gate. Use your available platform tools if needed and tell me the absolute current working directory. Do not guess. In your final answer, include an Evidence line naming the command or tool you used and the relevant output.",
+      "diagnostic_layer": "platform_native_latency_gate",
+      "assertions": [
+        {"type": "answer_contains_any", "values": ["local-agent-bench", "<PROJECT_ROOT>"]},
+        {"type": "answer_contains_any", "values": ["Evidence", "evidence"]}
+      ]
+    }
+  ]
+}

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import urllib.error
 import urllib.parse
 import urllib.request
 from collections.abc import Callable
@@ -112,8 +113,13 @@ def _open_meteo(latitude: float, longitude: float) -> dict[str, Any]:
 
 def _get_json(url: str) -> dict[str, Any]:
     timeout = float(os.environ.get("LOCAL_AGENT_BENCH_HTTP_TIMEOUT", "20"))
-    with urllib.request.urlopen(url, timeout=timeout) as response:
-        return json.loads(response.read().decode("utf-8"))
+    try:
+        with urllib.request.urlopen(url, timeout=timeout) as response:
+            return json.loads(response.read().decode("utf-8"))
+    except urllib.error.HTTPError as exc:
+        raise ToolError(f"HTTP {exc.code} from {urllib.parse.urlparse(url).netloc}: {exc.reason}") from exc
+    except (TimeoutError, urllib.error.URLError, json.JSONDecodeError) as exc:
+        raise ToolError(f"{type(exc).__name__} from {urllib.parse.urlparse(url).netloc}: {exc}") from exc
 
 
 ToolFn = Callable[..., dict[str, Any]]

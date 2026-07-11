@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="420" viewBox="0 0 960 420" role="img" aria-labelledby="title desc">
+  <title id="title">Clean-room benchmark pipeline</title>
+  <desc id="desc">Flow from manifest and Docker profiles through repeated admission gates, repeated benchmark runs, JSON artifacts, and paper tables.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,3 L0,6 Z" fill="#334155"/>
+    </marker>
+    <style>
+      .box { fill: #f8fafc; stroke: #334155; stroke-width: 1.4; }
+      .gate { fill: #fff7ed; stroke: #c2410c; stroke-width: 1.4; }
+      .run { fill: #ecfdf5; stroke: #047857; stroke-width: 1.4; }
+      .out { fill: #eff6ff; stroke: #1d4ed8; stroke-width: 1.4; }
+      .txt { font-family: Arial, Helvetica, sans-serif; fill: #0f172a; font-size: 15px; }
+      .small { font-family: Arial, Helvetica, sans-serif; fill: #475569; font-size: 12px; }
+      .cap { font-family: Arial, Helvetica, sans-serif; fill: #0f172a; font-size: 13px; font-weight: 700; }
+      .line { stroke: #334155; stroke-width: 1.5; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect x="24" y="24" width="912" height="372" fill="#ffffff" stroke="#cbd5e1"/>
+  <text x="42" y="56" class="cap">Clean-room benchmark workflow</text>
+
+  <rect class="box" x="48" y="88" width="132" height="92" rx="8"/>
+  <text class="txt" x="68" y="120">Manifest</text>
+  <text class="small" x="68" y="144">models, tasks,</text>
+  <text class="small" x="68" y="162">10 repeats</text>
+
+  <rect class="box" x="216" y="88" width="154" height="92" rx="8"/>
+  <text class="txt" x="236" y="120">Docker profiles</text>
+  <text class="small" x="236" y="144">WSL2 GPU</text>
+  <text class="small" x="236" y="162">runtime overlay</text>
+
+  <rect class="gate" x="406" y="88" width="152" height="92" rx="8"/>
+  <text class="txt" x="426" y="120">Admission gate</text>
+  <text class="small" x="426" y="144">3 attempts</text>
+  <text class="small" x="426" y="162">2 passes required</text>
+
+  <rect class="run" x="594" y="88" width="152" height="92" rx="8"/>
+  <text class="txt" x="614" y="120">Repeated runs</text>
+  <text class="small" x="614" y="144">sequential jobs</text>
+  <text class="small" x="614" y="162">10 per admitted row</text>
+
+  <rect class="out" x="782" y="88" width="128" height="92" rx="8"/>
+  <text class="txt" x="802" y="120">Artifacts</text>
+  <text class="small" x="802" y="144">310 run JSONs</text>
+  <text class="small" x="802" y="162">129 gate JSONs</text>
+
+  <path class="line" d="M180,134 L216,134"/>
+  <path class="line" d="M370,134 L406,134"/>
+  <path class="line" d="M558,134 L594,134"/>
+  <path class="line" d="M746,134 L782,134"/>
+
+  <rect class="run" x="112" y="238" width="194" height="84" rx="8"/>
+  <text class="txt" x="132" y="268">Primary controlled-core</text>
+  <text class="small" x="132" y="292">raw Ollama ReAct</text>
+  <text class="small" x="132" y="310">60 completed, 60 skipped</text>
+
+  <rect class="run" x="382" y="238" width="194" height="84" rx="8"/>
+  <text class="txt" x="402" y="268">Runtime-effect</text>
+  <text class="small" x="402" y="292">OpenClaw, Hermes, Pi</text>
+  <text class="small" x="402" y="310">80 completed, 280 skipped</text>
+
+  <rect class="run" x="652" y="238" width="194" height="84" rx="8"/>
+  <text class="txt" x="672" y="268">Platform-native</text>
+  <text class="small" x="672" y="292">native runtime tools</text>
+  <text class="small" x="672" y="310">170 completed, 20 skipped</text>
+
+  <path class="line" d="M482,180 C420,208 306,216 216,238"/>
+  <path class="line" d="M482,180 C482,205 482,216 482,238"/>
+  <path class="line" d="M482,180 C552,208 662,216 746,238"/>
+  <path class="line" d="M846,180 C846,214 828,226 784,238"/>
+
+  <text class="small" x="52" y="368">Gate exclusions remain visible in latency-gate-summary.json; benchmark task failures are retained as data when a JSON result file is written.</text>
+</svg>

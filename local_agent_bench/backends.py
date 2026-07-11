@@ -82,7 +82,7 @@ class OllamaChatBackend:
     def metadata(self, model: str) -> dict[str, Any]:
         model_info = _model_info(self.client, model)
         return {
-            "ollama_version": command_output(["ollama", "--version"]),
+            "ollama_version": _ollama_api_version(self.client),
             "model_details": model_info.get("details", {}),
             "model_info": model_info.get("model_info", {}),
         }
@@ -139,11 +139,13 @@ class HermesChatBackend:
         self,
         *,
         binary: str | None = None,
+        provider: str | None = None,
         toolsets: str | None = None,
         timeout_seconds: int = 600,
         run_command: CommandRunner | None = None,
     ) -> None:
         self.binary = binary or os.environ.get("LOCAL_AGENT_BENCH_HERMES_BIN", "hermes")
+        self.provider = provider if provider is not None else os.environ.get("LOCAL_AGENT_BENCH_HERMES_PROVIDER")
         self.toolsets = toolsets or os.environ.get("LOCAL_AGENT_BENCH_HERMES_TOOLSETS", "safe")
         self.timeout_seconds = timeout_seconds
         self._run_command = run_command or run_subprocess
@@ -157,8 +159,6 @@ class HermesChatBackend:
             "--query",
             prompt,
             "--quiet",
-            "--model",
-            model,
             "--toolsets",
             self.toolsets,
             "--max-turns",
@@ -167,8 +167,11 @@ class HermesChatBackend:
             "--source",
             "local-agent-bench",
         ]
+        if self.provider:
+            argv.extend(["--provider", self.provider])
+        argv.extend(["--model", model])
         result = _run_cli(argv, self.timeout_seconds, self._run_command)
-        return result.stdout.strip()
+        return _strip_hermes_preamble(result.stdout)
 
     def metadata(self, model: str) -> dict[str, Any]:
         return {
@@ -176,6 +179,7 @@ class HermesChatBackend:
             "model": model,
             "hermes_version": command_output([self.binary, "--version"]),
             "hermes_mode": "chat --query --quiet --ignore-rules",
+            "hermes_provider": self.provider,
             "hermes_toolsets": self.toolsets,
         }
 
@@ -324,11 +328,18 @@ class HermesNativeBackend:
         self,
         *,
         binary: str | None = None,
+        provider: str | None = None,
         toolsets: str | None = None,
         timeout_seconds: int = 600,
         run_command: CommandRunner | None = None,
     ) -> None:
         self.binary = binary or os.environ.get("LOCAL_AGENT_BENCH_HERMES_BIN", "hermes")
+        self.provider = (
+            provider
+            if provider is not None
+            else os.environ.get("LOCAL_AGENT_BENCH_HERMES_NATIVE_PROVIDER")
+            or os.environ.get("LOCAL_AGENT_BENCH_HERMES_PROVIDER")
+        )
         self.toolsets = toolsets or os.environ.get("LOCAL_AGENT_BENCH_HERMES_NATIVE_TOOLSETS", "safe")
         self.timeout_seconds = timeout_seconds
         self._run_command = run_command or run_subprocess
@@ -340,8 +351,6 @@ class HermesNativeBackend:
             "--query",
             prompt,
             "--quiet",
-            "--model",
-            model,
             "--toolsets",
             self.toolsets,
             "--max-turns",
@@ -350,6 +359,9 @@ class HermesNativeBackend:
             "--source",
             "local-agent-bench-native",
         ]
+        if self.provider:
+            argv.extend(["--provider", self.provider])
+        argv.extend(["--model", model])
         result = _run_cli(argv, self.timeout_seconds, self._run_command)
         cleaned = _strip_hermes_preamble(result.stdout)
         return CommandResult(result.returncode, cleaned, result.stderr)
@@ -360,6 +372,7 @@ class HermesNativeBackend:
             "model": model,
             "hermes_version": command_output([self.binary, "--version"]),
             "hermes_mode": "chat --query --quiet --ignore-rules --max-turns 1",
+            "hermes_provider": self.provider,
             "hermes_toolsets": self.toolsets,
             "native_platform_tool_score": True,
         }
@@ -445,22 +458,20 @@ def render_native_prompt(task_prompt: str) -> str:
 
 
 def _strip_hermes_preamble(stdout: str) -> str:
-    """Remove Hermes CLI preamble (warnings, session_id, banners) from stdout."""
+    """Remove Hermes CLI metadata lines from stdout."""
     lines = stdout.splitlines()
     cleaned = []
-    skipping_preamble = True
     for line in lines:
-        if skipping_preamble:
-            stripped = line.strip()
-            if (
-                stripped.startswith("⚠️")
-                or stripped.startswith("session_id:")
-                or stripped == ""
-                or stripped.startswith("Ollama loaded")
-                or stripped.startswith("Increase the Ollama")
-            ):
-                continue
-            skipping_preamble = False
+        stripped = line.strip()
+        if (
+            stripped.startswith("⚠")
+            or stripped.startswith("session_id:")
+            or stripped.startswith("Ollama loaded")
+            or stripped.startswith("Increase the Ollama")
+        ):
+            continue
+        if not cleaned and stripped == "":
+            continue
         cleaned.append(line)
     return "\n".join(cleaned).strip()
 
@@ -550,12 +561,21 @@ def _model_info(client: OllamaClient, model: str) -> dict[str, Any]:
         return {"error": str(exc)}
 
 
+def _ollama_api_version(client: OllamaClient) -> str | None:
+    try:
+        return client.version()
+    except OllamaError:
+        return None
+
+
 def _ollama_failure_reason(exc: OllamaError) -> str:
     text = f"{exc} {exc.body or ''}".casefold()
     if "model" in text and "not found" in text:
         return "MODEL_NOT_INSTALLED"
     if exc.status_code == 404:
         return "MODEL_NOT_INSTALLED"
+    if "timed out" in text or "timeout" in text:
+        return "TIMEOUT"
     return "OLLAMA_UNREACHABLE"
 
 

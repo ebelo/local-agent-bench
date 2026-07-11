@@ -72,6 +72,11 @@ def main() -> int:
     platform_native.add_argument("--skip-preflight", action="store_true")
     platform_native.add_argument("--judge-model", default=os.environ.get("LOCAL_AGENT_BENCH_JUDGE_MODEL", "ollama/glm-5.2:cloud"))
     platform_native.add_argument("--judge-timeout", type=int, default=60)
+    platform_native.add_argument(
+        "--deterministic-score-only",
+        action="store_true",
+        help="Score platform-native output with deterministic assertions only. Used for cheap runtime gates.",
+    )
 
 
     args = parser.parse_args()
@@ -108,6 +113,7 @@ def main() -> int:
             args.command_runtime_timeout if args.command_runtime_timeout is not None else args.runtime_timeout,
             args.judge_model,
             args.judge_timeout,
+            args.deterministic_score_only,
         )
     return 2
 
@@ -240,6 +246,7 @@ def _run_platform_native(
     runtime_timeout: int,
     judge_model: str,
     judge_timeout: int,
+    deterministic_score_only: bool = False,
 ) -> int:
     if runtime not in {OPENCLAW_NATIVE, HERMES_NATIVE, PI_NATIVE}:
         print("run-platform-native requires a native runtime: openclaw-native, hermes-native, or pi-native", file=sys.stderr)
@@ -265,6 +272,7 @@ def _run_platform_native(
             task,
             judge_model=judge_model,
             judge_timeout=judge_timeout,
+            deterministic_score_only=deterministic_score_only,
         )
         for task in tasks
     ]
@@ -276,7 +284,8 @@ def _run_platform_native(
             {
                 **backend.metadata(model),
                 "platform_native_task_score": True,
-                "judge_model": judge_model,
+                "judge_model": None if deterministic_score_only else judge_model,
+                "deterministic_score_only": deterministic_score_only,
             },
         ),
         "runtime": backend.runtime,

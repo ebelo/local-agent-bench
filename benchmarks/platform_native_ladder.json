@@ -1,77 +1,222 @@
 {
   "name": "platform-native-ladder",
-  "description": "Harder platform-native use-case tasks for probing levels 6-8 of the capability ladder. Runtimes may use any native tools they expose; scoring is task-completion oriented.",
+  "description": "Harder candid user-facing platform-native tasks for probing levels 6-8 of the capability ladder. Prompts are ordinary user requests; scoring checks whether the runtime solved the use case.",
   "tasks": [
     {
       "id": "level6_github_repo_grounding",
       "category": "level6_web_grounding",
-      "prompt": "Use your available tools to fetch live metadata for https://api.github.com/repos/ebelo/local-agent-bench. Answer with the repository full_name and default_branch. Do not use prior knowledge. In your final answer, include a short Evidence line naming the command/tool, the URL, and the relevant output fields.",
+      "prompt": "What is the GitHub repository full name and default branch for https://github.com/ebelo/local-agent-bench?",
       "requires_network": true,
       "diagnostic_layer": "platform_native_ladder_level_6",
       "assertions": [
-        {"type": "answer_contains_all", "values": ["ebelo/local-agent-bench", "main"]}
+        {
+          "type": "answer_contains_all",
+          "values": [
+            "ebelo/local-agent-bench",
+            "main"
+          ]
+        }
       ]
     },
     {
       "id": "level6_weather_compare_live",
       "category": "level6_web_grounding",
-      "prompt": "Use your available tools to fetch current weather for both Berlin, Germany and Zurich, Switzerland from a live web/API source. Answer with both cities and their current temperatures in Celsius, and say which is warmer. Do not invent values. In your final answer, include a short Evidence line naming the command/tool, source URL(s), and relevant output.",
+      "prompt": "Which is warmer right now, Berlin or Zurich?",
       "requires_network": true,
       "diagnostic_layer": "platform_native_ladder_level_6",
       "assertions": [
-        {"type": "answer_contains_any", "values": ["Berlin"]},
-        {"type": "answer_contains_any", "values": ["Zurich", "Zürich"]},
-        {"type": "answer_contains_any", "values": ["warmer", "higher", "hotter"]}
+        {
+          "type": "answer_contains_any",
+          "values": [
+            "Berlin"
+          ]
+        },
+        {
+          "type": "answer_contains_any",
+          "values": [
+            "Zurich",
+            "Zürich"
+          ]
+        },
+        {
+          "type": "answer_contains_any",
+          "values": [
+            "warmer",
+            "higher",
+            "hotter"
+          ]
+        },
+        {
+          "type": "answer_matches_regex",
+          "pattern": "([+-]?\\d{1,2}(?:\\.\\d+)?)\\s?(?:°\\s?C|Celsius|degrees Celsius|\\bC\\b)"
+        },
+        {
+          "type": "answer_matches_open_meteo_current",
+          "latitude": 52.52,
+          "longitude": 13.405,
+          "timezone": "Europe/Berlin",
+          "field": "temperature_2m",
+          "tolerance": 3.0,
+          "critical": true
+        },
+        {
+          "type": "answer_matches_open_meteo_current",
+          "latitude": 47.3769,
+          "longitude": 8.5417,
+          "timezone": "Europe/Zurich",
+          "field": "temperature_2m",
+          "tolerance": 3.0,
+          "critical": true
+        },
+        {
+          "type": "answer_not_contains_any",
+          "values": [
+            "Mots-clés",
+            "Keywords",
+            "${",
+            "javascript:",
+            "\"current_units\"",
+            "\"current\"",
+            "we can use",
+            "I'll search",
+            "Let's first",
+            "assuming",
+            "provided code",
+            "This command fetches",
+            "will leverage"
+          ],
+          "critical": true
+        }
       ]
     },
     {
       "id": "level6_remote_readme_cross_check",
       "category": "level6_web_grounding",
-      "prompt": "Use your available tools to fetch the live README from https://raw.githubusercontent.com/ebelo/local-agent-bench/main/README.md and verify whether its capability ladder includes level 8 as end-to-end agent work. Answer yes or no, quote the relevant level 8 phrase, and cite the URL in an Evidence line.",
+      "prompt": "Does the live README for ebelo/local-agent-bench say level 8 is end-to-end agent work?",
       "requires_network": true,
       "diagnostic_layer": "platform_native_ladder_level_6",
       "assertions": [
-        {"type": "answer_contains_all", "values": ["Level 8", "End-to-end agent work"]}
+        {
+          "type": "answer_contains_all",
+          "values": [
+            "Level 8",
+            "End-to-end agent work"
+          ]
+        }
       ]
     },
     {
       "id": "level7_html_link_navigation",
       "category": "level7_navigation",
-      "prompt": "Use your available tools to open benchmarks/native_nav/index.html, follow the links through the local HTML pages until you reach the final page, and tell me the navigation passphrase. Do not guess from filenames. In your final answer, include a short Evidence line naming the files or links you followed and the relevant output.",
+      "prompt": "Open benchmarks/native_nav/index.html, follow the links to the final page, and tell me the navigation passphrase.",
       "diagnostic_layer": "platform_native_ladder_level_7",
       "assertions": [
-        {"type": "answer_contains_all", "values": ["violet-harbor"]}
+        {
+          "type": "answer_contains_all",
+          "values": [
+            "violet-harbor"
+          ]
+        }
       ]
     },
     {
       "id": "level7_markdown_link_navigation",
       "category": "level7_navigation",
-      "prompt": "Use your available tools to read benchmarks/native_nav/start.md, follow the Markdown links until the terminal note, and tell me the navigation code. Do not answer until you have followed the chain. In your final answer, include a short Evidence line naming the files or links you followed and the relevant output.",
+      "prompt": "Read benchmarks/native_nav/start.md, follow the Markdown links to the terminal note, and tell me the navigation code.",
       "diagnostic_layer": "platform_native_ladder_level_7",
       "assertions": [
-        {"type": "answer_contains_all", "values": ["delta-17"]}
+        {
+          "type": "answer_contains_all",
+          "values": [
+            "delta-17"
+          ]
+        }
       ]
     },
     {
       "id": "level8_release_readiness_brief",
       "category": "level8_end_to_end",
-      "prompt": "Complete a small release-readiness brief. Use your available tools to read benchmarks/agentic/project.md, benchmarks/agentic/release.md, and benchmarks/agentic/grounding.md. Then fetch current weather for Zurich, Switzerland from a live source. Answer with a concise brief containing the project codename, release window, deployment color, current Zurich temperature in Celsius, and one go/no-go recommendation. In your final answer, include a short Evidence line naming the files, command/tool, source URL, and relevant output.",
+      "prompt": "Can you give me a release-readiness brief for this project, including the codename, release window, deployment color, current Zurich weather, and a go/no-go recommendation?",
       "requires_network": true,
       "diagnostic_layer": "platform_native_ladder_level_8",
       "assertions": [
-        {"type": "answer_contains_all", "values": ["alpine-signal", "2026-Q3", "teal"]},
-        {"type": "answer_contains_any", "values": ["Zurich", "Zürich"]},
-        {"type": "answer_contains_any", "values": ["go", "no-go", "recommendation"]}
+        {
+          "type": "answer_contains_all",
+          "values": [
+            "alpine-signal",
+            "2026-Q3",
+            "teal"
+          ]
+        },
+        {
+          "type": "answer_contains_any",
+          "values": [
+            "Zurich",
+            "Zürich"
+          ]
+        },
+        {
+          "type": "answer_contains_any",
+          "values": [
+            "go",
+            "no-go",
+            "recommendation"
+          ]
+        },
+        {
+          "type": "answer_matches_regex",
+          "pattern": "([+-]?\\d{1,2}(?:\\.\\d+)?)\\s?(?:°\\s?C|Celsius|degrees Celsius|\\bC\\b)"
+        },
+        {
+          "type": "answer_matches_open_meteo_current",
+          "latitude": 47.3769,
+          "longitude": 8.5417,
+          "timezone": "Europe/Zurich",
+          "field": "temperature_2m",
+          "tolerance": 3.0,
+          "critical": true
+        },
+        {
+          "type": "answer_not_contains_any",
+          "values": [
+            "Mots-clés",
+            "Keywords",
+            "${",
+            "javascript:",
+            "\"current_units\"",
+            "\"current\"",
+            "we can use",
+            "I'll search",
+            "Let's first",
+            "assuming",
+            "provided code",
+            "This command fetches",
+            "will leverage"
+          ],
+          "critical": true
+        }
       ]
     },
     {
       "id": "level8_test_and_summarize",
       "category": "level8_end_to_end",
-      "prompt": "Complete a small project-health task. Use your available tools to inspect pyproject.toml, run the local test suite with python3 -m pytest -q, and answer with the package name, whether there are runtime dependencies, the test result summary, and one concise health recommendation. In your final answer, include a short Evidence line naming the files/commands used and the relevant output.",
+      "prompt": "Can you do a quick project-health check: what is the package name, are there runtime dependencies, do the tests pass, and what is your recommendation?",
       "diagnostic_layer": "platform_native_ladder_level_8",
       "assertions": [
-        {"type": "answer_contains_all", "values": ["local-agent-bench", "pytest"]},
-        {"type": "answer_contains_any", "values": ["44 passed", "passed"]}
+        {
+          "type": "answer_contains_all",
+          "values": [
+            "local-agent-bench",
+            "pytest"
+          ]
+        },
+        {
+          "type": "answer_contains_any",
+          "values": [
+            "44 passed",
+            "passed"
+          ]
+        }
       ]
     }
   ]

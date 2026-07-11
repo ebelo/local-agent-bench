@@ -1,7 +1,22 @@
 import unittest
+from unittest.mock import patch
 
 from local_agent_bench.scoring import IGNORED_TOOL_RESULT, MISSING_REQUIRED_TOOL, PASS, score_task
 from local_agent_bench.types import Task, ToolCall
+
+
+class FakeHTTPResponse:
+    def __init__(self, body: bytes) -> None:
+        self.body = body
+
+    def __enter__(self) -> "FakeHTTPResponse":
+        return self
+
+    def __exit__(self, exc_type, exc, tb) -> None:
+        return None
+
+    def read(self) -> bytes:
+        return self.body
 
 
 class ScoringTest(unittest.TestCase):
@@ -114,6 +129,95 @@ class ScoringTest(unittest.TestCase):
         calls = [ToolCall(name="read_file", args={}, ok=True, result={"content": "Deployment color: teal"})]
         score, reason, assertions = score_task(task, "The color is blue.", calls, False)
         self.assertEqual(score, 0.5)
+        self.assertEqual(reason, "ASSERTION_FAILED")
+        self.assertFalse(assertions[0]["ok"])
+
+    def test_answer_matches_regex_can_require_temperature_format(self) -> None:
+        task = Task(
+            id="weather",
+            category="weather",
+            prompt="Current weather",
+            assertions=[{"type": "answer_matches_regex", "pattern": r"\b\d{1,2}\s?°\s?C\b"}],
+        )
+        score, reason, assertions = score_task(task, "Paris is sunny, 34 °C.", [], False)
+        self.assertEqual(score, 1.0)
+        self.assertEqual(reason, PASS)
+        self.assertTrue(assertions[0]["ok"])
+
+    def test_answer_word_count_at_most_rejects_dumps(self) -> None:
+        task = Task(
+            id="concise",
+            category="synthesis",
+            prompt="Answer briefly",
+            assertions=[{"type": "answer_word_count_at_most", "max": 3}],
+        )
+        score, reason, assertions = score_task(task, "one two three four", [], False)
+        self.assertEqual(score, 0.5)
+        self.assertEqual(reason, "ASSERTION_FAILED")
+        self.assertFalse(assertions[0]["ok"])
+
+    def test_answer_matches_open_meteo_current_passes_with_tolerance(self) -> None:
+        task = Task(
+            id="weather",
+            category="weather",
+            prompt="Current weather",
+            assertions=[
+                {
+                    "type": "answer_matches_open_meteo_current",
+                    "latitude": 48.8566,
+                    "longitude": 2.3522,
+                    "timezone": "Europe/Paris",
+                    "field": "temperature_2m",
+                    "tolerance": 3.0,
+                }
+            ],
+        )
+        with patch(
+            "local_agent_bench.scoring.urllib.request.urlopen",
+            return_value=FakeHTTPResponse(b'{"current":{"temperature_2m":17.4}}'),
+        ):
+            score, reason, assertions = score_task(task, "Paris is 18 degrees Celsius.", [], False)
+
+        self.assertEqual(score, 1.0)
+        self.assertEqual(reason, PASS)
+        self.assertTrue(assertions[0]["ok"])
+
+    def test_answer_matches_open_meteo_current_rejects_wrong_temperature(self) -> None:
+        task = Task(
+            id="weather",
+            category="weather",
+            prompt="Current weather",
+            assertions=[
+                {
+                    "type": "answer_matches_open_meteo_current",
+                    "latitude": 48.8566,
+                    "longitude": 2.3522,
+                    "timezone": "Europe/Paris",
+                    "field": "temperature_2m",
+                    "tolerance": 3.0,
+                }
+            ],
+        )
+        with patch(
+            "local_agent_bench.scoring.urllib.request.urlopen",
+            return_value=FakeHTTPResponse(b'{"current":{"temperature_2m":17.4}}'),
+        ):
+            score, reason, assertions = score_task(task, "Paris is 25 degrees Celsius.", [], False)
+
+        self.assertEqual(score, 0.5)
+        self.assertEqual(reason, "ASSERTION_FAILED")
+        self.assertFalse(assertions[0]["ok"])
+
+    def test_critical_assertion_failure_scores_zero(self) -> None:
+        task = Task(
+            id="weather",
+            category="weather",
+            prompt="Current weather",
+            assertions=[{"type": "answer_not_contains_any", "values": ["will use curl"], "critical": True}],
+        )
+        score, reason, assertions = score_task(task, "I will use curl later.", [], False)
+
+        self.assertEqual(score, 0.0)
         self.assertEqual(reason, "ASSERTION_FAILED")
         self.assertFalse(assertions[0]["ok"])
 

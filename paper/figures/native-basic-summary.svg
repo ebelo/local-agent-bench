@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="440" viewBox="0 0 960 440" role="img" aria-labelledby="title desc">
+  <title id="title">Platform-native diagnostic summary</title>
+  <desc id="desc">Mean native-basic score ranges and admission counts for OpenClaw, Hermes, and Pi native phases.</desc>
+  <defs>
+    <style>
+      .axis { stroke: #334155; stroke-width: 1; }
+      .grid { stroke: #e2e8f0; stroke-width: 1; }
+      .bar { fill: #7c3aed; }
+      .range { stroke: #0f172a; stroke-width: 3; }
+      .dot { fill: #0f172a; }
+      .txt { font-family: Arial, Helvetica, sans-serif; fill: #0f172a; font-size: 13px; }
+      .small { font-family: Arial, Helvetica, sans-serif; fill: #475569; font-size: 11px; }
+      .title { font-family: Arial, Helvetica, sans-serif; fill: #0f172a; font-size: 16px; font-weight: 700; }
+      .label { font-family: Arial, Helvetica, sans-serif; fill: #0f172a; font-size: 12px; font-weight: 700; }
+    </style>
+  </defs>
+  <rect x="24" y="24" width="912" height="392" fill="#ffffff" stroke="#cbd5e1"/>
+  <text x="44" y="58" class="title">Secondary platform-native diagnostics</text>
+  <text x="44" y="78" class="small">Native-basic score ranges by runtime. Scores reflect each platform's own tool system and output traces.</text>
+
+  <line x1="116" y1="322" x2="826" y2="322" class="axis"/>
+  <line x1="116" y1="112" x2="116" y2="322" class="axis"/>
+  <line x1="116" y1="280" x2="826" y2="280" class="grid"/>
+  <line x1="116" y1="238" x2="826" y2="238" class="grid"/>
+  <line x1="116" y1="196" x2="826" y2="196" class="grid"/>
+  <line x1="116" y1="154" x2="826" y2="154" class="grid"/>
+  <line x1="116" y1="112" x2="826" y2="112" class="grid"/>
+  <text x="90" y="326" class="small">0</text>
+  <text x="90" y="242" class="small">2</text>
+  <text x="90" y="158" class="small">4</text>
+  <text x="90" y="116" class="small">5</text>
+  <text x="94" y="100" class="label">Native-basic score out of 5</text>
+
+  <line x1="234" y1="154" x2="234" y2="154" class="range"/>
+  <circle cx="234" cy="154" r="6" class="dot"/>
+  <rect x="198" y="154" width="72" height="168" class="bar" opacity="0.16"/>
+  <text x="190" y="346" class="txt">OpenClaw</text>
+  <text x="196" y="364" class="small">6/6 admitted</text>
+  <text x="196" y="382" class="small">all 4.00/5</text>
+
+  <line x1="470" y1="165" x2="470" y2="154" class="range"/>
+  <circle cx="470" cy="154" r="6" class="dot"/>
+  <circle cx="470" cy="165" r="6" class="dot"/>
+  <rect x="434" y="154" width="72" height="168" class="bar" opacity="0.16"/>
+  <text x="432" y="346" class="txt">Hermes</text>
+  <text x="426" y="364" class="small">6/6 admitted</text>
+  <text x="420" y="382" class="small">3.75-4.00/5</text>
+
+  <line x1="706" y1="160" x2="706" y2="120" class="range"/>
+  <circle cx="706" cy="120" r="6" class="dot"/>
+  <circle cx="706" cy="160" r="6" class="dot"/>
+  <rect x="670" y="120" width="72" height="202" class="bar" opacity="0.16"/>
+  <text x="700" y="346" class="txt">Pi</text>
+  <text x="676" y="364" class="small">4/6 admitted</text>
+  <text x="660" y="382" class="small">3.85-4.80/5</text>
+
+  <rect x="832" y="128" width="74" height="74" fill="#f8fafc" stroke="#cbd5e1" rx="8"/>
+  <text x="846" y="154" class="small">Pi ladder</text>
+  <text x="846" y="174" class="small">Ornith</text>
+  <text x="846" y="194" class="small">5.50/7</text>
+
+  <text x="44" y="398" class="small">OpenClaw/Hermes native rows are stable but clustered; Pi native reaches higher scores on admitted models with more variance and higher ladder latency.</text>
+</svg>

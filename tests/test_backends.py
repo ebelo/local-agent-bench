@@ -75,7 +75,7 @@ class BackendTest(unittest.TestCase):
 
         def runner(argv: list[str], timeout: int, cwd: Path) -> CommandResult:
             calls.append((argv, timeout, cwd))
-            return CommandResult(0, "Final Answer: ok\n", "")
+            return CommandResult(0, "Final Answer: ok\n\nsession_id: 20260709_probe\n", "")
 
         backend = HermesChatBackend(binary="hermes", toolsets="safe", timeout_seconds=30, run_command=runner)
         result = backend.chat("provider/model", [{"role": "user", "content": "Hello"}])
@@ -92,6 +92,28 @@ class BackendTest(unittest.TestCase):
         self.assertIn("safe", argv)
         self.assertIn("--max-turns", argv)
         self.assertIn("--ignore-rules", argv)
+        self.assertNotIn("session_id", result)
+
+    def test_hermes_backend_adds_provider_when_configured(self) -> None:
+        calls: list[tuple[list[str], int, Path]] = []
+
+        def runner(argv: list[str], timeout: int, cwd: Path) -> CommandResult:
+            calls.append((argv, timeout, cwd))
+            return CommandResult(0, "⚠️  Normalized model.\n\nsession_id: 1\nFinal Answer: ok\n", "")
+
+        backend = HermesChatBackend(
+            binary="hermes",
+            provider="custom",
+            toolsets="safe",
+            timeout_seconds=30,
+            run_command=runner,
+        )
+        result = backend.chat("ollama/qwen2.5-coder:7b", [{"role": "user", "content": "Hello"}])
+
+        self.assertEqual(result, "Final Answer: ok")
+        argv = calls[0][0]
+        self.assertIn("--provider", argv)
+        self.assertIn("custom", argv)
 
     def test_pi_backend_builds_oneshot_command(self) -> None:
         calls: list[tuple[list[str], int, Path]] = []
@@ -179,7 +201,7 @@ class BackendTest(unittest.TestCase):
 
     def test_strip_hermes_preamble(self) -> None:
         from local_agent_bench.backends import _strip_hermes_preamble
-        raw = "⚠️  Normalized model 'ollama/mistral:7b' to 'mistral:7b' for custom.\n\nsession_id: 20260708_200454_6512cc\nThe weather is clear."
+        raw = "⚠️  Normalized model 'ollama/mistral:7b' to 'mistral:7b' for custom.\n\nsession_id: 20260708_200454_6512cc\nThe weather is clear.\n\nsession_id: trailing"
         self.assertEqual(_strip_hermes_preamble(raw), "The weather is clear.")
 
     def test_cli_failure_raises_backend_error(self) -> None:

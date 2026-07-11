@@ -47,6 +47,10 @@ class ReactParsingTest(unittest.TestCase):
         exc = OllamaError("HTTP 404: model 'missing' not found", status_code=404)
         self.assertEqual(_ollama_failure_reason(exc), "MODEL_NOT_INSTALLED")
 
+    def test_classifies_ollama_timeout(self) -> None:
+        exc = OllamaError("request timed out after 25s")
+        self.assertEqual(_ollama_failure_reason(exc), "TIMEOUT")
+
     def test_plain_answer_after_tool_observation_is_scored(self) -> None:
         backend = StubBackend(
             [

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import platform
 import subprocess
 from typing import Any
@@ -19,6 +20,9 @@ def collect_run_metadata(
         "platform": platform.platform(),
         "model": model,
     }
+    execution_profile = os.getenv("LOCAL_AGENT_BENCH_EXECUTION_PROFILE")
+    if execution_profile:
+        metadata["execution_profile"] = execution_profile
     if adapter_metadata:
         metadata.update(adapter_metadata)
     return metadata

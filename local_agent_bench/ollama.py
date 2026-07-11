@@ -21,6 +21,10 @@ class OllamaClient:
         data = self._request("GET", "/api/tags")
         return [model["name"] for model in data.get("models", [])]
 
+    def version(self) -> str:
+        data = self._request("GET", "/api/version")
+        return str(data.get("version", "unknown"))
+
     def chat(self, model: str, messages: list[dict[str, str]], temperature: float = 0.0) -> str:
         payload = {
             "model": model,
@@ -50,5 +54,7 @@ class OllamaClient:
         except urllib.error.HTTPError as exc:
             body = exc.read().decode("utf-8", errors="replace")
             raise OllamaError(f"HTTP {exc.code}: {body}", status_code=exc.code, body=body) from exc
+        except TimeoutError as exc:
+            raise OllamaError(f"request timed out after {timeout}s") from exc
         except urllib.error.URLError as exc:
             raise OllamaError(str(exc)) from exc

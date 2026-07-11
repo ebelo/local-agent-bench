@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="520" viewBox="0 0 960 520" role="img" aria-labelledby="title desc">
+  <title id="title">Score and latency comparison</title>
+  <desc id="desc">Grouped bars showing mean score out of five and average latency per task for primary admitted models.</desc>
+  <defs>
+    <style>
+      .axis { stroke: #334155; stroke-width: 1; }
+      .grid { stroke: #e2e8f0; stroke-width: 1; }
+      .smoke { fill: #2563eb; }
+      .agentic { fill: #10b981; }
+      .txt { font-family: Arial, Helvetica, sans-serif; fill: #0f172a; font-size: 13px; }
+      .small { font-family: Arial, Helvetica, sans-serif; fill: #475569; font-size: 11px; }
+      .title { font-family: Arial, Helvetica, sans-serif; fill: #0f172a; font-size: 16px; font-weight: 700; }
+      .label { font-family: Arial, Helvetica, sans-serif; fill: #0f172a; font-size: 12px; font-weight: 700; }
+    </style>
+  </defs>
+  <rect x="24" y="24" width="912" height="472" fill="#ffffff" stroke="#cbd5e1"/>
+  <text x="44" y="58" class="title">Primary controlled-core results: score and latency</text>
+  <text x="44" y="78" class="small">Scores are mean totals over 10 runs. Latency is average seconds per task.</text>
+
+  <text x="76" y="110" class="label">Mean score out of 5</text>
+  <line x1="96" y1="310" x2="512" y2="310" class="axis"/>
+  <line x1="96" y1="130" x2="96" y2="310" class="axis"/>
+  <line x1="96" y1="274" x2="512" y2="274" class="grid"/>
+  <line x1="96" y1="238" x2="512" y2="238" class="grid"/>
+  <line x1="96" y1="202" x2="512" y2="202" class="grid"/>
+  <line x1="96" y1="166" x2="512" y2="166" class="grid"/>
+  <line x1="96" y1="130" x2="512" y2="130" class="grid"/>
+  <text x="70" y="314" class="small">0</text>
+  <text x="70" y="242" class="small">2</text>
+  <text x="70" y="170" class="small">4</text>
+  <text x="70" y="134" class="small">5</text>
+
+  <rect x="132" y="130" width="24" height="180" class="smoke"/>
+  <rect x="162" y="130" width="24" height="180" class="agentic"/>
+  <text x="120" y="330" class="small">qwen2.5</text>
+  <text x="130" y="124" class="small">5.0</text>
+
+  <rect x="267" y="186" width="24" height="124" class="smoke"/>
+  <rect x="297" y="157" width="24" height="153" class="agentic"/>
+  <text x="266" y="330" class="small">qwen3.5</text>
+  <text x="263" y="180" class="small">3.45</text>
+  <text x="294" y="151" class="small">4.25</text>
+
+  <rect x="402" y="184" width="24" height="126" class="smoke"/>
+  <rect x="432" y="157" width="24" height="153" class="agentic"/>
+  <text x="405" y="330" class="small">ornith</text>
+  <text x="398" y="178" class="small">3.5</text>
+  <text x="429" y="151" class="small">4.25</text>
+
+  <rect x="126" y="362" width="14" height="14" class="smoke"/>
+  <text x="146" y="374" class="small">smoke</text>
+  <rect x="202" y="362" width="14" height="14" class="agentic"/>
+  <text x="222" y="374" class="small">agentic</text>
+
+  <text x="566" y="110" class="label">Average latency per task</text>
+  <line x1="588" y1="310" x2="888" y2="310" class="axis"/>
+  <line x1="588" y1="130" x2="588" y2="310" class="axis"/>
+  <line x1="588" y1="265" x2="888" y2="265" class="grid"/>
+  <line x1="588" y1="220" x2="888" y2="220" class="grid"/>
+  <line x1="588" y1="175" x2="888" y2="175" class="grid"/>
+  <line x1="588" y1="130" x2="888" y2="130" class="grid"/>
+  <text x="560" y="314" class="small">0s</text>
+  <text x="558" y="224" class="small">8s</text>
+  <text x="552" y="134" class="small">16s</text>
+
+  <rect x="626" y="273" width="22" height="37" class="smoke"/>
+  <rect x="654" y="270" width="22" height="40" class="agentic"/>
+  <text x="614" y="330" class="small">qwen2.5</text>
+  <text x="621" y="267" class="small">3.3</text>
+  <text x="651" y="264" class="small">3.5</text>
+
+  <rect x="728" y="174" width="22" height="136" class="smoke"/>
+  <rect x="756" y="169" width="22" height="141" class="agentic"/>
+  <text x="724" y="330" class="small">qwen3.5</text>
+  <text x="724" y="168" class="small">12.1</text>
+  <text x="751" y="163" class="small">12.5</text>
+
+  <rect x="830" y="212" width="22" height="98" class="smoke"/>
+  <rect x="858" y="223" width="22" height="87" class="agentic"/>
+  <text x="834" y="330" class="small">ornith</text>
+  <text x="826" y="206" class="small">8.7</text>
+  <text x="855" y="217" class="small">7.7</text>
+
+  <text x="44" y="460" class="small">The controlled-core winner is also the latency winner: qwen2.5-coder:7b is perfect on both suites and fastest among admitted models.</text>
+</svg>

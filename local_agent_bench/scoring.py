@@ -1,6 +1,10 @@
 from __future__ import annotations
 
 import re
+import json
+import urllib.error
+import urllib.parse
+import urllib.request
 from collections.abc import Iterable
 from typing import Any
 
@@ -59,6 +63,8 @@ def score_task(
 
     assertion_results = [_evaluate_assertion(assertion, final_answer, tool_calls) for assertion in task.assertions]
     if assertion_results and not all(result["ok"] for result in assertion_results):
+        if any(_assertion_is_critical(result) for result in assertion_results if not result["ok"]):
+            return 0.0, ASSERTION_FAILED, assertion_results
         if any(_assertion_uses_tool(result) for result in assertion_results if not result["ok"]):
             return 0.75, IGNORED_TOOL_RESULT, assertion_results
         return 0.5, ASSERTION_FAILED, assertion_results
@@ -91,6 +97,20 @@ def _evaluate_assertion(assertion: dict[str, Any], final_answer: str, tool_calls
         values = [str(value) for value in assertion.get("values", [])]
         matched = [value for value in values if _contains(answer, value)]
         return _result(assertion, not matched, {"matched": matched, "forbidden": values})
+
+    if assertion_type == "answer_matches_regex":
+        pattern = str(assertion.get("pattern", ""))
+        flags = re.IGNORECASE | re.MULTILINE
+        matched = bool(re.search(pattern, final_answer, flags)) if pattern else False
+        return _result(assertion, matched, {"pattern": pattern})
+
+    if assertion_type == "answer_word_count_at_most":
+        maximum = int(assertion.get("max", 0))
+        words = re.findall(r"\S+", final_answer)
+        return _result(assertion, len(words) <= maximum, {"observed": len(words), "max": maximum})
+
+    if assertion_type == "answer_matches_open_meteo_current":
+        return _evaluate_open_meteo_current(assertion, final_answer)
 
     if assertion_type == "tool_call_count":
         tool = str(assertion.get("tool", ""))
@@ -134,6 +154,11 @@ def _assertion_uses_tool(result: dict[str, Any]) -> bool:
     return assertion_type in {"tool_result_contains", "answer_contains_tool_result"}
 
 
+def _assertion_is_critical(result: dict[str, Any]) -> bool:
+    assertion = result.get("assertion", {})
+    return bool(assertion.get("critical")) if isinstance(assertion, dict) else False
+
+
 def _expects_failed_tool_call(assertions: list[dict[str, Any]]) -> bool:
     return any(assertion.get("type") == "tool_call_failed" for assertion in assertions)
 
@@ -166,6 +191,64 @@ def _answer_contains_value(answer: str, value: Any) -> bool:
 
 def _result(assertion: dict[str, Any], ok: bool, detail: Any) -> dict[str, Any]:
     return {"ok": ok, "type": assertion.get("type"), "assertion": assertion, "detail": detail}
+
+
+def _evaluate_open_meteo_current(assertion: dict[str, Any], final_answer: str) -> dict[str, Any]:
+    latitude = assertion.get("latitude")
+    longitude = assertion.get("longitude")
+    field = str(assertion.get("field", "temperature_2m"))
+    timezone = str(assertion.get("timezone", "UTC"))
+    tolerance = float(assertion.get("tolerance", 2.0))
+    if latitude is None or longitude is None:
+        return _result(assertion, False, "latitude and longitude are required")
+
+    numbers = _extract_answer_numbers(final_answer)
+    if not numbers:
+        return _result(assertion, False, {"observed_answer_numbers": [], "field": field})
+
+    params = urllib.parse.urlencode(
+        {
+            "latitude": latitude,
+            "longitude": longitude,
+            "current": field,
+            "timezone": timezone,
+        }
+    )
+    url = f"https://api.open-meteo.com/v1/forecast?{params}"
+    try:
+        with urllib.request.urlopen(url, timeout=10) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
+        return _result(assertion, False, {"error": str(exc), "url": url})
+
+    current = payload.get("current", {}) if isinstance(payload, dict) else {}
+    expected = current.get(field) if isinstance(current, dict) else None
+    if not isinstance(expected, (int, float)):
+        return _result(assertion, False, {"expected": expected, "field": field, "url": url})
+
+    matched = [value for value in numbers if abs(value - float(expected)) <= tolerance]
+    return _result(
+        assertion,
+        bool(matched),
+        {
+            "matched": matched,
+            "answer_numbers": numbers,
+            "expected": float(expected),
+            "field": field,
+            "tolerance": tolerance,
+            "url": url,
+        },
+    )
+
+
+def _extract_answer_numbers(final_answer: str) -> list[float]:
+    values: list[float] = []
+    for match in re.finditer(r"(?<![\w.])([+-]?\d{1,3}(?:\.\d+)?)(?![\w.])", final_answer):
+        try:
+            values.append(float(match.group(1)))
+        except ValueError:
+            continue
+    return values
 
 
 def _tool_values(tool_calls: list[ToolCall], tool: str, path: str) -> list[Any]:

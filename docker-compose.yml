@@ -1,0 +1,32 @@
+services:
+  ollama:
+    image: ${OLLAMA_IMAGE:-ollama/ollama:0.31.1}
+    environment:
+      OLLAMA_API_KEY: ${OLLAMA_API_KEY:-}
+    volumes:
+      - ollama-models:/root/.ollama
+
+  bench:
+    build:
+      context: .
+    depends_on:
+      - ollama
+    environment:
+      OLLAMA_BASE_URL: http://ollama:11434
+      LOCAL_AGENT_BENCH_RUNTIME_TIMEOUT: "600"
+      LOCAL_AGENT_BENCH_TASK_TIMEOUT: "30"
+      LOCAL_AGENT_BENCH_EXECUTION_PROFILE: docker-compose.cpu
+    volumes:
+      - .:/workspace/local-agent-bench
+    working_dir: /workspace/local-agent-bench
+    command:
+      - bash
+      - -lc
+      - >-
+        python3 -m pytest -q &&
+        python3 -m local_agent_bench diagnose
+        --runtime raw-ollama-react
+        --model "$${MODEL:-qwen2.5-coder:7b}"
+
+volumes:
+  ollama-models:

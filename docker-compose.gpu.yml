@@ -1,0 +1,7 @@
+services:
+  bench:
+    environment:
+      LOCAL_AGENT_BENCH_EXECUTION_PROFILE: docker-compose.gpu
+
+  ollama:
+    gpus: all

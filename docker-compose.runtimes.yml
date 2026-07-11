@@ -1,0 +1,24 @@
+services:
+  bench:
+    user: "${LOCAL_AGENT_BENCH_UID:-1000}:${LOCAL_AGENT_BENCH_GID:-1000}"
+    build:
+      args:
+        INSTALL_AGENT_RUNTIMES: "1"
+        OPENCLAW_VERSION: "2026.6.11"
+        PI_VERSION: "0.80.3"
+        HERMES_REPO: "https://github.com/NousResearch/hermes-agent.git"
+        HERMES_REF: "f64e4f4f5768c18a53f44890747653bafcab2796"
+    environment:
+      HOME: /tmp/local-agent-bench-home
+      LOCAL_AGENT_BENCH_EXECUTION_PROFILE: docker-compose.wsl-gpu.agent-runtimes
+      HERMES_HOME: /tmp/local-agent-bench-hermes
+      OPENCLAW_HOME: /tmp/local-agent-bench-openclaw
+      OLLAMA_API_KEY: ${OLLAMA_API_KEY:-ollama-local}
+      LOCAL_AGENT_BENCH_OLLAMA_API_KEY: ${OLLAMA_API_KEY:-ollama-local}
+      LOCAL_AGENT_BENCH_SETUP_RUNTIME_CONFIGS: "1"
+      LOCAL_AGENT_BENCH_OLLAMA_OPENAI_BASE_URL: http://ollama:11434/v1
+      LOCAL_AGENT_BENCH_MODEL_CONTEXT_WINDOW: "131072"
+      LOCAL_AGENT_BENCH_OPENCLAW_BIN: openclaw
+      LOCAL_AGENT_BENCH_HERMES_BIN: hermes
+      LOCAL_AGENT_BENCH_HERMES_PROVIDER: custom
+      LOCAL_AGENT_BENCH_PI_COMMAND: pi

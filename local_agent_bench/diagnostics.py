@@ -4,7 +4,6 @@ import os
 import platform
 import shlex
 import shutil
-import subprocess
 from dataclasses import dataclass
 
 from local_agent_bench.backends import (
@@ -12,6 +11,7 @@ from local_agent_bench.backends import (
     HERMES_REACT,
     OPENCLAW_NATIVE,
     OPENCLAW_REACT,
+    PI_NATIVE,
     PI_REACT,
     RAW_OLLAMA_REACT,
     command_output,
@@ -57,7 +57,7 @@ def run_diagnostics(
 
 def _runtime_checks(runtime: str, base_url: str, model: str | None) -> list[Check]:
     if runtime == RAW_OLLAMA_REACT:
-        checks = [_ollama_version(), _ollama_reachable(base_url)]
+        checks = [_ollama_api_version(base_url), _ollama_reachable(base_url)]
         if model:
             checks.append(_model_installed(base_url, model))
         return checks
@@ -65,7 +65,7 @@ def _runtime_checks(runtime: str, base_url: str, model: str | None) -> list[Chec
         return [_cli_available("openclaw", "LOCAL_AGENT_BENCH_OPENCLAW_BIN")]
     if runtime in {HERMES_REACT, HERMES_NATIVE}:
         return [_cli_available("hermes", "LOCAL_AGENT_BENCH_HERMES_BIN")]
-    if runtime == PI_REACT:
+    if runtime in {PI_REACT, PI_NATIVE}:
         return [_command_available("pi_cli", os.environ.get("LOCAL_AGENT_BENCH_PI_COMMAND", "pi"))]
     return [Check("runtime", False, "configuration", f"unsupported runtime: {runtime}")]
 
@@ -90,14 +90,14 @@ def _command_available(name: str, command: str) -> Check:
     return Check(name, version is not None, "configuration", version or f"{command} exists")
 
 
-def _ollama_version() -> Check:
+def _ollama_api_version(base_url: str) -> Check:
+    client = OllamaClient(base_url)
     try:
-        completed = subprocess.run(["ollama", "--version"], check=False, text=True, capture_output=True, timeout=10)
-    except (FileNotFoundError, subprocess.TimeoutExpired) as exc:
-        return Check("ollama_cli", False, "configuration", str(exc))
-    ok = completed.returncode == 0
-    detail = completed.stdout.strip() or completed.stderr.strip()
-    return Check("ollama_cli", ok, "configuration", detail)
+        version = client.version()
+    except OllamaError as exc:
+        return Check("ollama_api_version", False, "configuration", f"{base_url}: {exc}")
+    return Check("ollama_api_version", True, "configuration", version)
+
 
 
 def _ollama_reachable(base_url: str) -> Check:

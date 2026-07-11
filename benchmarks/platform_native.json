@@ -1,51 +1,111 @@
 {
   "name": "platform-native",
-  "description": "Use-case tasks for real platform agent loops. Runtimes may use any native tools they expose; scoring is task-completion oriented.",
+  "description": "Candid user-facing tasks for real platform agent loops. Prompts are written as ordinary user requests; scoring checks whether the runtime solved the use case.",
   "tasks": [
     {
       "id": "native_current_directory",
       "category": "filesystem",
-      "prompt": "Use your available tools if needed and tell me the absolute path of the current working directory. Do not guess. In your final answer, include a short Evidence line naming the command or tool you used and the relevant output.",
+      "prompt": "What folder are we in right now?",
       "diagnostic_layer": "platform_native",
       "assertions": [
-        {"type": "answer_contains_any", "values": ["local-agent-bench", "<PROJECT_ROOT>"]}
+        {
+          "type": "answer_contains_any",
+          "values": [
+            "local-agent-bench",
+            "<PROJECT_ROOT>"
+          ]
+        }
       ]
     },
     {
       "id": "native_list_project",
       "category": "filesystem",
-      "prompt": "Use your available tools to list the files and folders in the current project directory. Include README.md, benchmarks, and local_agent_bench if they are present. In your final answer, include a short Evidence line naming the command or tool you used and the relevant output.",
+      "prompt": "What are the main files and folders in this project?",
       "diagnostic_layer": "platform_native",
       "assertions": [
-        {"type": "answer_contains_all", "values": ["README.md", "benchmarks", "local_agent_bench"]}
+        {
+          "type": "answer_contains_all",
+          "values": [
+            "README.md",
+            "benchmarks",
+            "local_agent_bench"
+          ]
+        }
       ]
     },
     {
       "id": "native_read_fixture",
       "category": "filesystem",
-      "prompt": "Use your available tools to read benchmarks/fixtures.md, then tell me the benchmark codename. In your final answer, include a short Evidence line naming the command or tool you used and the relevant output.",
+      "prompt": "What is the benchmark codename in benchmarks/fixtures.md?",
       "diagnostic_layer": "platform_native",
       "assertions": [
-        {"type": "answer_contains_all", "values": ["alpine-signal"]}
+        {
+          "type": "answer_contains_all",
+          "values": [
+            "alpine-signal"
+          ]
+        }
       ]
     },
     {
       "id": "native_weather_berlin",
       "category": "weather",
-      "prompt": "Use your available tools to get the current weather in Berlin, Germany. You may use a shell command, curl, or any weather-capable tool available to you. Do not invent the weather. In your final answer, include a short Evidence line naming the command or tool you used and the relevant output.",
+      "prompt": "What is the current weather in Berlin?",
       "requires_network": true,
       "diagnostic_layer": "platform_native",
       "assertions": [
-        {"type": "answer_contains_any", "values": ["Berlin"]}
+        {
+          "type": "answer_contains_any",
+          "values": [
+            "Berlin"
+          ]
+        },
+        {
+          "type": "answer_matches_regex",
+          "pattern": "([+-]?\\d{1,2}(?:\\.\\d+)?)\\s?(?:°\\s?C|Celsius|degrees Celsius|\\bC\\b)"
+        },
+        {
+          "type": "answer_matches_open_meteo_current",
+          "latitude": 52.52,
+          "longitude": 13.405,
+          "timezone": "Europe/Berlin",
+          "field": "temperature_2m",
+          "tolerance": 3.0,
+          "critical": true
+        },
+        {
+          "type": "answer_not_contains_any",
+          "values": [
+            "Mots-clés",
+            "Keywords",
+            "${",
+            "javascript:",
+            "\"current_units\"",
+            "\"current\"",
+            "we can use",
+            "I'll search",
+            "Let's first",
+            "assuming",
+            "provided code",
+            "This command fetches",
+            "will leverage"
+          ],
+          "critical": true
+        }
       ]
     },
     {
       "id": "native_recover_missing_path",
       "category": "recovery",
-      "prompt": "Use your available tools to read benchmarks/agentic/missing-note.md. If that path is missing, recover by inspecting benchmarks/agentic, find the recovery note, read it, and tell me the recovery code. In your final answer, include a short Evidence line naming the commands or tools you used and the relevant output.",
+      "prompt": "I need the recovery code from benchmarks/agentic/missing-note.md. If that file is not there, find the right note in benchmarks/agentic and tell me the code.",
       "diagnostic_layer": "platform_native",
       "assertions": [
-        {"type": "answer_contains_all", "values": ["ridge-42"]}
+        {
+          "type": "answer_contains_all",
+          "values": [
+            "ridge-42"
+          ]
+        }
       ]
     }
   ]

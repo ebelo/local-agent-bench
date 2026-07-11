@@ -1,0 +1,190 @@
+{
+  "schema_version": 1,
+  "dataset": "clean-room-2026-07",
+  "description": "Paper rerun manifest for clean local-agent-bench methodology. Controlled ReAct results are the primary paper dataset; native platform profiles are secondary diagnostics.",
+  "output_dir": "results/paper-clean-room",
+  "ollama_base_url": "http://ollama:11434",
+  "default_runtime_timeout": 600,
+  "default_task_timeout": 30,
+  "default_max_steps": 5,
+  "judge_model": "ollama/mistral:7b",
+  "latency_gate": {
+    "enabled_by_default": false,
+    "benchmark": "latency-gate",
+    "native_benchmark": "platform-native-latency-gate",
+    "threshold_seconds": 20,
+    "task_timeout": 20,
+    "runtime_timeout": 45,
+    "max_steps": 2,
+    "min_score": 0.9,
+    "repeats": 3,
+    "min_passes": 2,
+    "prewarm": true,
+    "warmup_timeout": 120,
+    "notes": "Warm the model once through the Ollama API, then run once per selected phase/runtime/model before real benchmark jobs. If the warmed model cannot complete the minimal ReAct get_cwd gate within threshold and score minimum, skip that phase/runtime/model combination."
+  },
+  "futility_gate": {
+    "enabled": true,
+    "min_runs": 3,
+    "max_total_score": 1.0,
+    "notes": "For judged native phases only, if a runtime/model/benchmark combination completes three full repeats and never scores above 1 total point, skip the remaining repeats and record the skipped files in futility-summary.json. This preserves repeated evidence for viable combinations while excluding stable near-zero native behavior."
+  },
+  "models": [
+    {
+      "id": "qwen2.5-coder:7b",
+      "paper_id": "qwen25-coder-7b",
+      "family": "Qwen2.5-Coder",
+      "role": "controlled-baseline-winner"
+    },
+    {
+      "id": "qwen3.5:9b",
+      "paper_id": "qwen35-9b",
+      "family": "Qwen3.5",
+      "role": "agentic-reasoning-candidate"
+    },
+    {
+      "id": "ornith:9b",
+      "paper_id": "ornith-9b",
+      "family": "Qwen3.5 fine-tune",
+      "role": "native-pi-candidate"
+    },
+    {
+      "id": "mistral:7b",
+      "paper_id": "mistral-7b",
+      "family": "Mistral",
+      "role": "common-local-baseline"
+    },
+    {
+      "id": "lfm2.5:latest",
+      "paper_id": "lfm25-latest",
+      "family": "LFM2 MoE",
+      "role": "fast-moe-candidate"
+    },
+    {
+      "id": "ibm/granite4.1:8b",
+      "paper_id": "granite41-8b",
+      "family": "Granite 4.1",
+      "role": "enterprise-local-baseline"
+    }
+  ],
+  "benchmarks": [
+    {
+      "id": "latency-gate",
+      "path": "benchmarks/latency_gate.json",
+      "capability_levels": [0]
+    },
+    {
+      "id": "platform-native-latency-gate",
+      "path": "benchmarks/platform_native_latency_gate.json",
+      "capability_levels": [0]
+    },
+    {
+      "id": "smoke",
+      "path": "benchmarks/smoke.json",
+      "capability_levels": [2, 3, 4]
+    },
+    {
+      "id": "agentic",
+      "path": "benchmarks/agentic.json",
+      "capability_levels": [3, 4, 5]
+    },
+    {
+      "id": "platform-native",
+      "path": "benchmarks/platform_native.json",
+      "capability_levels": [2, 3, 4, 5]
+    },
+    {
+      "id": "platform-native-ladder",
+      "path": "benchmarks/platform_native_ladder.json",
+      "capability_levels": [6, 7, 8]
+    },
+    {
+      "id": "platform-native-reality",
+      "path": "benchmarks/platform_native_reality.json",
+      "capability_levels": [5, 6]
+    }
+  ],
+  "phases": [
+    {
+      "id": "controlled-core",
+      "description": "Primary paper dataset: clean ReAct protocol through raw Ollama. Ten independent process runs per model and benchmark at temperature 0.",
+      "command": "run",
+      "runtimes": ["raw-ollama-react"],
+      "models": ["qwen2.5-coder:7b", "qwen3.5:9b", "ornith:9b", "mistral:7b", "lfm2.5:latest", "ibm/granite4.1:8b"],
+      "benchmarks": ["smoke", "agentic"],
+      "runs": 10,
+      "included_in_main_findings": true
+    },
+    {
+      "id": "controlled-runtime-effect",
+      "description": "Secondary controlled dataset: same ReAct protocol through CLI runtimes when clean binaries are installed in the container/profile.",
+      "command": "run",
+      "runtimes": ["openclaw-react", "hermes-react", "pi-react"],
+      "models": ["qwen2.5-coder:7b", "qwen3.5:9b", "ornith:9b", "mistral:7b", "lfm2.5:latest", "ibm/granite4.1:8b"],
+      "benchmarks": ["smoke", "agentic"],
+      "runs": 10,
+      "task_timeout": 120,
+      "included_in_main_findings": false,
+      "requires_external_binaries": true,
+      "latency_threshold_seconds": 120
+    },
+    {
+      "id": "platform-native-basic",
+      "description": "Secondary diagnostic dataset: real platform-native use cases with LLM judging and explicit evidence prompts.",
+      "command": "run-platform-native",
+      "runtimes": ["openclaw-native", "hermes-native", "pi-native"],
+      "models": ["qwen2.5-coder:7b", "qwen3.5:9b", "ornith:9b", "mistral:7b", "lfm2.5:latest", "ibm/granite4.1:8b"],
+      "benchmarks": ["platform-native"],
+      "runs": 10,
+      "runtime_timeout": 180,
+      "included_in_main_findings": false,
+      "requires_external_binaries": true,
+      "skip_preflight": true,
+      "latency_threshold_seconds": 120
+    },
+    {
+      "id": "platform-native-ladder",
+      "description": "Exploratory ceiling probe for the best native candidate. Interpret only with repeated independent runs.",
+      "command": "run-platform-native",
+      "runtimes": ["pi-native"],
+      "models": ["ornith:9b"],
+      "benchmarks": ["platform-native-ladder"],
+      "runs": 10,
+      "runtime_timeout": 180,
+      "included_in_main_findings": false,
+      "requires_external_binaries": true,
+      "skip_preflight": true,
+      "latency_threshold_seconds": 120
+    },
+    {
+      "id": "platform-native-reality",
+      "description": "User-facing native runtime tasks. Native tool output must be synthesized into concise final answers; LLM judging is primary and deterministic assertions are guardrails.",
+      "command": "run-platform-native",
+      "runtimes": ["openclaw-native", "hermes-native", "pi-native"],
+      "models": ["qwen2.5-coder:7b", "qwen3.5:9b", "ornith:9b", "mistral:7b", "lfm2.5:latest", "ibm/granite4.1:8b"],
+      "benchmarks": ["platform-native-reality"],
+      "runs": 10,
+      "runtime_timeout": 240,
+      "included_in_main_findings": false,
+      "requires_external_binaries": true,
+      "skip_preflight": true,
+      "latency_threshold_seconds": 120
+    }
+  ],
+  "result_policy": {
+    "included_patterns": ["results/paper-clean-room/*.json"],
+    "excluded_from_paper": [
+      "results/*20260610*.json",
+      "results/*20260620*.json",
+      "results/*20260708*.json",
+      "results/*20260709*.json",
+      "results/*postconfig*.json",
+      "results/platform-native-repeat_*_summary.json"
+    ],
+    "notes": [
+      "Legacy WSL2 result files are exploratory unless explicitly copied into results/paper-clean-room by a clean rerun.",
+      "Benchmark task failures are data. A paper matrix subprocess is considered complete if it writes a JSON result file, even when local-agent-bench exits 1 because some tasks failed.",
+      "Runs contaminated by service outages must be rerun and the excluded file named in the paper manifest notes before table generation."
+    ]
+  }
+}

@@ -239,7 +239,7 @@ Results also include assertion-level details so a partial failure can show exact
 `diagnose` reports checks by layer:
 
 - `host`: Python and platform metadata
-- `configuration`: Ollama CLI/API reachability and model availability
+- `configuration`: Ollama API version, API reachability, and model availability
 - `configuration`: OpenClaw/Hermes CLI availability for CLI-backed runtimes
 - `tooling`: local filesystem tools, known-location fallback, and composed weather tool
 - `network`: external API access needed by live-data tasks
@@ -259,7 +259,24 @@ The benchmark is designed to be reproducible on different hardware. Results shou
 - prompt protocol
 - benchmark commit SHA
 
-Generated result JSON redacts the local project root and home directory as `<PROJECT_ROOT>` and `<HOME>`. Do not commit raw, unredacted benchmark results from local machines.
+## Clean-Room Paper Runs
+
+Paper-grade reruns should use the clean-room manifest instead of ad hoc result files:
+
+```bash
+docker compose up -d ollama
+docker compose run --rm bench python3 -m pytest -q
+docker compose run --rm bench python3 scripts/run_paper_matrix.py --phase controlled-core --with-latency-gate
+docker compose run --rm bench python3 scripts/aggregate_paper_results.py
+```
+
+Use `docker compose -f docker-compose.yml -f docker-compose.gpu.yml ...` when the Docker host has a working NVIDIA GPU runtime. On WSL2 hosts where `nvidia-smi` works in WSL but Docker has no NVIDIA runtime, use `docker-compose.wsl-gpu.yml` instead; it mounts `/dev/dxg` plus the WSL CUDA/NVML libraries. The default compose file is CPU-compatible so clean-room setup can still start on hosts where Docker cannot see the GPU; the latency gate should then exclude combinations that are too slow for the declared profile.
+
+The default compose file also avoids binding Ollama to the host, so it will not collide with a laptop Ollama already using `localhost:11434`. Add `-f docker-compose.host-port.yml` when host-side API access is needed.
+
+The clean-room workflow is defined in [paper/methodology-clean-room.md](paper/methodology-clean-room.md) and [paper/clean-room-matrix.json](paper/clean-room-matrix.json). By default, only JSON files under `results/paper-clean-room/` are included in paper tables; legacy WSL2 result files remain exploratory unless explicitly copied into that directory with a note. Use `--with-latency-gate` to warm each model, run the cheap `benchmarks/latency_gate.json` probe, and skip model/runtime combinations that are already too slow or cannot complete a minimal ReAct tool round-trip.
+
+Generated result JSON redacts the local project root and home directory as `<PROJECT_ROOT>` and `<HOME>`. Compose profiles also stamp `metadata.execution_profile` as `docker-compose.cpu`, `docker-compose.gpu`, or `docker-compose.wsl-gpu`. Do not commit raw, unredacted benchmark results from local machines.
 
 CLI adapter binaries can be overridden with `LOCAL_AGENT_BENCH_OPENCLAW_BIN` and `LOCAL_AGENT_BENCH_HERMES_BIN`. Pi's command can be overridden with `LOCAL_AGENT_BENCH_PI_COMMAND`. OpenClaw thinking can be set with `LOCAL_AGENT_BENCH_OPENCLAW_THINKING`; Hermes ReAct toolsets can be set with `LOCAL_AGENT_BENCH_HERMES_TOOLSETS`, and Hermes native toolsets with `LOCAL_AGENT_BENCH_HERMES_NATIVE_TOOLSETS`.
 

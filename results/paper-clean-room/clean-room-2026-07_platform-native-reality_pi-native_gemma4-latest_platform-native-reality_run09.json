@@ -1,0 +1,837 @@
+{
+  "metadata": {
+    "runtime": "pi-native",
+    "benchmark": "benchmarks/platform_native_reality.json",
+    "git_commit": "53d0491d4442f4b4a1cd03807e3eeea7b9948d56",
+    "python": "3.12.3",
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "model": "gemma4:latest",
+    "adapter": "pi-native",
+    "pi_version": "0.80.7",
+    "pi_mode": "--print --no-session --no-context-files --mode text (native tools active)",
+    "pi_command": "pi",
+    "native_platform_tool_score": true,
+    "platform_native_task_score": true,
+    "judge_model": "mistral:7b",
+    "deterministic_score_only": false
+  },
+  "runtime": "pi-native",
+  "model": "gemma4:latest",
+  "benchmark": "benchmarks/platform_native_reality.json",
+  "results": [
+    {
+      "task_id": "native_weather_paris_plain_user_prompt",
+      "category": "weather",
+      "runtime": "pi-native",
+      "model": "gemma4:latest",
+      "score": 0.0,
+      "failure_reason": "PLATFORM_NATIVE_JUDGE_ERROR",
+      "final_answer": "I apologize, but as an AI assistant operating within this coding environment, I do not have access to real-time external data like current weather reports. You would need a dedicated weather website or API for that information.",
+      "tool_calls": [],
+      "latency_ms": 13908,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "What is the current weather in Paris?"
+        },
+        {
+          "role": "assistant",
+          "content": "I apologize, but as an AI assistant operating within this coding environment, I do not have access to real-time external data like current weather reports. You would need a dedicated weather website or API for that information."
+        }
+      ],
+      "assertion_results": [
+        {
+          "ok": false,
+          "type": "answer_contains_any",
+          "assertion": {
+            "type": "answer_contains_any",
+            "values": [
+              "Paris"
+            ]
+          },
+          "detail": {
+            "matched": [],
+            "expected": [
+              "Paris"
+            ]
+          }
+        },
+        {
+          "ok": false,
+          "type": "answer_matches_regex",
+          "assertion": {
+            "type": "answer_matches_regex",
+            "pattern": "([+-]?\\d{1,2}(?:\\.\\d+)?)\\s?(?:°\\s?C|Celsius|degrees Celsius|\\bC\\b)"
+          },
+          "detail": {
+            "pattern": "([+-]?\\d{1,2}(?:\\.\\d+)?)\\s?(?:°\\s?C|Celsius|degrees Celsius|\\bC\\b)"
+          }
+        },
+        {
+          "ok": false,
+          "type": "answer_matches_open_meteo_current",
+          "assertion": {
+            "type": "answer_matches_open_meteo_current",
+            "latitude": 48.8566,
+            "longitude": 2.3522,
+            "timezone": "Europe/Paris",
+            "field": "temperature_2m",
+            "tolerance": 3.0,
+            "critical": true
+          },
+          "detail": {
+            "observed_answer_numbers": [],
+            "field": "temperature_2m"
+          }
+        },
+        {
+          "ok": true,
+          "type": "answer_word_count_at_most",
+          "assertion": {
+            "type": "answer_word_count_at_most",
+            "max": 120
+          },
+          "detail": {
+            "observed": 37,
+            "max": 120
+          }
+        },
+        {
+          "ok": true,
+          "type": "answer_not_contains_any",
+          "assertion": {
+            "type": "answer_not_contains_any",
+            "values": [
+              "web_search",
+              "web_fetch",
+              "Mots-clés",
+              "Keywords",
+              "1.",
+              "2.",
+              "3.",
+              "${",
+              "javascript:",
+              "Actualité",
+              "Shopping",
+              "\"current_condition\"",
+              "\"current\"",
+              "we can use",
+              "I'll search",
+              "Let's first",
+              "assuming",
+              "provided code",
+              "This command fetches",
+              "will leverage",
+              "To get the current weather",
+              "Here is how to proceed"
+            ],
+            "critical": true
+          },
+          "detail": {
+            "matched": [],
+            "forbidden": [
+              "web_search",
+              "web_fetch",
+              "Mots-clés",
+              "Keywords",
+              "1.",
+              "2.",
+              "3.",
+              "${",
+              "javascript:",
+              "Actualité",
+              "Shopping",
+              "\"current_condition\"",
+              "\"current\"",
+              "we can use",
+              "I'll search",
+              "Let's first",
+              "assuming",
+              "provided code",
+              "This command fetches",
+              "will leverage",
+              "To get the current weather",
+              "Here is how to proceed"
+            ]
+          }
+        }
+      ],
+      "native_platform_tool_score": {
+        "suite": "platform-native",
+        "score": 0.0,
+        "failure_reason": "PLATFORM_NATIVE_JUDGE_ERROR",
+        "judge": {
+          "judge_score": 0.0,
+          "judge_verdict": "JUDGE_ERROR",
+          "judge_reasoning": "Judge inference failed: openclaw infer exited 1: Error: Unknown model: openai/mistral:7b\n",
+          "judge_model": "mistral:7b",
+          "judge_raw": "openclaw infer exited 1: Error: Unknown model: openai/mistral:7b\n"
+        },
+        "judge_score_before_guardrails": 0.0,
+        "deterministic_score": 0.0,
+        "deterministic_reason": "ASSERTION_FAILED",
+        "deterministic_passed": false,
+        "assertion_results": [
+          {
+            "ok": false,
+            "type": "answer_contains_any",
+            "assertion": {
+              "type": "answer_contains_any",
+              "values": [
+                "Paris"
+              ]
+            },
+            "detail": {
+              "matched": [],
+              "expected": [
+                "Paris"
+              ]
+            }
+          },
+          {
+            "ok": false,
+            "type": "answer_matches_regex",
+            "assertion": {
+              "type": "answer_matches_regex",
+              "pattern": "([+-]?\\d{1,2}(?:\\.\\d+)?)\\s?(?:°\\s?C|Celsius|degrees Celsius|\\bC\\b)"
+            },
+            "detail": {
+              "pattern": "([+-]?\\d{1,2}(?:\\.\\d+)?)\\s?(?:°\\s?C|Celsius|degrees Celsius|\\bC\\b)"
+            }
+          },
+          {
+            "ok": false,
+            "type": "answer_matches_open_meteo_current",
+            "assertion": {
+              "type": "answer_matches_open_meteo_current",
+              "latitude": 48.8566,
+              "longitude": 2.3522,
+              "timezone": "Europe/Paris",
+              "field": "temperature_2m",
+              "tolerance": 3.0,
+              "critical": true
+            },
+            "detail": {
+              "observed_answer_numbers": [],
+              "field": "temperature_2m"
+            }
+          },
+          {
+            "ok": true,
+            "type": "answer_word_count_at_most",
+            "assertion": {
+              "type": "answer_word_count_at_most",
+              "max": 120
+            },
+            "detail": {
+              "observed": 37,
+              "max": 120
+            }
+          },
+          {
+            "ok": true,
+            "type": "answer_not_contains_any",
+            "assertion": {
+              "type": "answer_not_contains_any",
+              "values": [
+                "web_search",
+                "web_fetch",
+                "Mots-clés",
+                "Keywords",
+                "1.",
+                "2.",
+                "3.",
+                "${",
+                "javascript:",
+                "Actualité",
+                "Shopping",
+                "\"current_condition\"",
+                "\"current\"",
+                "we can use",
+                "I'll search",
+                "Let's first",
+                "assuming",
+                "provided code",
+                "This command fetches",
+                "will leverage",
+                "To get the current weather",
+                "Here is how to proceed"
+              ],
+              "critical": true
+            },
+            "detail": {
+              "matched": [],
+              "forbidden": [
+                "web_search",
+                "web_fetch",
+                "Mots-clés",
+                "Keywords",
+                "1.",
+                "2.",
+                "3.",
+                "${",
+                "javascript:",
+                "Actualité",
+                "Shopping",
+                "\"current_condition\"",
+                "\"current\"",
+                "we can use",
+                "I'll search",
+                "Let's first",
+                "assuming",
+                "provided code",
+                "This command fetches",
+                "will leverage",
+                "To get the current weather",
+                "Here is how to proceed"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "native_weather_paris_user_answer",
+      "category": "weather",
+      "runtime": "pi-native",
+      "model": "gemma4:latest",
+      "score": 0.0,
+      "failure_reason": "PLATFORM_NATIVE_JUDGE_ERROR",
+      "final_answer": "I am sorry, but I do not have access to real-time external APIs or the internet services required to provide current weather information for Paris (or anywhere else). My abilities are limited to processing local files and executing basic system commands within this environment.\n\nTo get the current weather, please use a dedicated weather website, app, or search engine.",
+      "tool_calls": [],
+      "latency_ms": 7690,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "What is the current weather in Paris, with a little detail on wind or rain?"
+        },
+        {
+          "role": "assistant",
+          "content": "I am sorry, but I do not have access to real-time external APIs or the internet services required to provide current weather information for Paris (or anywhere else). My abilities are limited to processing local files and executing basic system commands within this environment.\n\nTo get the current weather, please use a dedicated weather website, app, or search engine."
+        }
+      ],
+      "assertion_results": [
+        {
+          "ok": true,
+          "type": "answer_contains_any",
+          "assertion": {
+            "type": "answer_contains_any",
+            "values": [
+              "Paris"
+            ]
+          },
+          "detail": {
+            "matched": [
+              "Paris"
+            ],
+            "expected": [
+              "Paris"
+            ]
+          }
+        },
+        {
+          "ok": false,
+          "type": "answer_matches_regex",
+          "assertion": {
+            "type": "answer_matches_regex",
+            "pattern": "([+-]?\\d{1,2}(?:\\.\\d+)?)\\s?(?:°\\s?C|Celsius|degrees Celsius|\\bC\\b)"
+          },
+          "detail": {
+            "pattern": "([+-]?\\d{1,2}(?:\\.\\d+)?)\\s?(?:°\\s?C|Celsius|degrees Celsius|\\bC\\b)"
+          }
+        },
+        {
+          "ok": false,
+          "type": "answer_matches_open_meteo_current",
+          "assertion": {
+            "type": "answer_matches_open_meteo_current",
+            "latitude": 48.8566,
+            "longitude": 2.3522,
+            "timezone": "Europe/Paris",
+            "field": "temperature_2m",
+            "tolerance": 3.0,
+            "critical": true
+          },
+          "detail": {
+            "observed_answer_numbers": [],
+            "field": "temperature_2m"
+          }
+        },
+        {
+          "ok": true,
+          "type": "answer_word_count_at_most",
+          "assertion": {
+            "type": "answer_word_count_at_most",
+            "max": 180
+          },
+          "detail": {
+            "observed": 59,
+            "max": 180
+          }
+        },
+        {
+          "ok": true,
+          "type": "answer_not_contains_any",
+          "assertion": {
+            "type": "answer_not_contains_any",
+            "values": [
+              "Mots-clés",
+              "Keywords",
+              "${",
+              "javascript:",
+              "MENU",
+              "Voir plusVoir moins",
+              "\"current_units\"",
+              "\"current\"",
+              "we can use",
+              "I'll search",
+              "Let's first",
+              "assuming",
+              "provided code",
+              "This command fetches",
+              "will leverage"
+            ],
+            "critical": true
+          },
+          "detail": {
+            "matched": [],
+            "forbidden": [
+              "Mots-clés",
+              "Keywords",
+              "${",
+              "javascript:",
+              "MENU",
+              "Voir plusVoir moins",
+              "\"current_units\"",
+              "\"current\"",
+              "we can use",
+              "I'll search",
+              "Let's first",
+              "assuming",
+              "provided code",
+              "This command fetches",
+              "will leverage"
+            ]
+          }
+        }
+      ],
+      "native_platform_tool_score": {
+        "suite": "platform-native",
+        "score": 0.0,
+        "failure_reason": "PLATFORM_NATIVE_JUDGE_ERROR",
+        "judge": {
+          "judge_score": 0.0,
+          "judge_verdict": "JUDGE_ERROR",
+          "judge_reasoning": "Judge inference failed: openclaw infer exited 1: Error: Unknown model: openai/mistral:7b\n",
+          "judge_model": "mistral:7b",
+          "judge_raw": "openclaw infer exited 1: Error: Unknown model: openai/mistral:7b\n"
+        },
+        "judge_score_before_guardrails": 0.0,
+        "deterministic_score": 0.0,
+        "deterministic_reason": "ASSERTION_FAILED",
+        "deterministic_passed": false,
+        "assertion_results": [
+          {
+            "ok": true,
+            "type": "answer_contains_any",
+            "assertion": {
+              "type": "answer_contains_any",
+              "values": [
+                "Paris"
+              ]
+            },
+            "detail": {
+              "matched": [
+                "Paris"
+              ],
+              "expected": [
+                "Paris"
+              ]
+            }
+          },
+          {
+            "ok": false,
+            "type": "answer_matches_regex",
+            "assertion": {
+              "type": "answer_matches_regex",
+              "pattern": "([+-]?\\d{1,2}(?:\\.\\d+)?)\\s?(?:°\\s?C|Celsius|degrees Celsius|\\bC\\b)"
+            },
+            "detail": {
+              "pattern": "([+-]?\\d{1,2}(?:\\.\\d+)?)\\s?(?:°\\s?C|Celsius|degrees Celsius|\\bC\\b)"
+            }
+          },
+          {
+            "ok": false,
+            "type": "answer_matches_open_meteo_current",
+            "assertion": {
+              "type": "answer_matches_open_meteo_current",
+              "latitude": 48.8566,
+              "longitude": 2.3522,
+              "timezone": "Europe/Paris",
+              "field": "temperature_2m",
+              "tolerance": 3.0,
+              "critical": true
+            },
+            "detail": {
+              "observed_answer_numbers": [],
+              "field": "temperature_2m"
+            }
+          },
+          {
+            "ok": true,
+            "type": "answer_word_count_at_most",
+            "assertion": {
+              "type": "answer_word_count_at_most",
+              "max": 180
+            },
+            "detail": {
+              "observed": 59,
+              "max": 180
+            }
+          },
+          {
+            "ok": true,
+            "type": "answer_not_contains_any",
+            "assertion": {
+              "type": "answer_not_contains_any",
+              "values": [
+                "Mots-clés",
+                "Keywords",
+                "${",
+                "javascript:",
+                "MENU",
+                "Voir plusVoir moins",
+                "\"current_units\"",
+                "\"current\"",
+                "we can use",
+                "I'll search",
+                "Let's first",
+                "assuming",
+                "provided code",
+                "This command fetches",
+                "will leverage"
+              ],
+              "critical": true
+            },
+            "detail": {
+              "matched": [],
+              "forbidden": [
+                "Mots-clés",
+                "Keywords",
+                "${",
+                "javascript:",
+                "MENU",
+                "Voir plusVoir moins",
+                "\"current_units\"",
+                "\"current\"",
+                "we can use",
+                "I'll search",
+                "Let's first",
+                "assuming",
+                "provided code",
+                "This command fetches",
+                "will leverage"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "native_weather_paris_api_selection",
+      "category": "weather",
+      "runtime": "pi-native",
+      "model": "gemma4:latest",
+      "score": 0.0,
+      "failure_reason": "PLATFORM_NATIVE_JUDGE_ERROR",
+      "final_answer": "I cannot provide you with real-time weather forecasts for Paris or any other location. My capabilities are limited to processing information within our current conversational context and executing commands on files in this agent environment.\n\nFor up-to-date weather information, please check a reliable source like the [Météo France](https://meteofrance.com/) website, a dedicated weather app, or a search engine.",
+      "tool_calls": [],
+      "latency_ms": 10076,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "Should I expect hot weather in Paris right now?"
+        },
+        {
+          "role": "assistant",
+          "content": "I cannot provide you with real-time weather forecasts for Paris or any other location. My capabilities are limited to processing information within our current conversational context and executing commands on files in this agent environment.\n\nFor up-to-date weather information, please check a reliable source like the [Météo France](https://meteofrance.com/) website, a dedicated weather app, or a search engine."
+        }
+      ],
+      "assertion_results": [
+        {
+          "ok": true,
+          "type": "answer_contains_any",
+          "assertion": {
+            "type": "answer_contains_any",
+            "values": [
+              "Paris"
+            ]
+          },
+          "detail": {
+            "matched": [
+              "Paris"
+            ],
+            "expected": [
+              "Paris"
+            ]
+          }
+        },
+        {
+          "ok": false,
+          "type": "answer_matches_regex",
+          "assertion": {
+            "type": "answer_matches_regex",
+            "pattern": "([+-]?\\d{1,2}(?:\\.\\d+)?)\\s?(?:°\\s?C|Celsius|degrees Celsius|\\bC\\b)"
+          },
+          "detail": {
+            "pattern": "([+-]?\\d{1,2}(?:\\.\\d+)?)\\s?(?:°\\s?C|Celsius|degrees Celsius|\\bC\\b)"
+          }
+        },
+        {
+          "ok": false,
+          "type": "answer_matches_open_meteo_current",
+          "assertion": {
+            "type": "answer_matches_open_meteo_current",
+            "latitude": 48.8566,
+            "longitude": 2.3522,
+            "timezone": "Europe/Paris",
+            "field": "temperature_2m",
+            "tolerance": 3.0,
+            "critical": true
+          },
+          "detail": {
+            "observed_answer_numbers": [],
+            "field": "temperature_2m"
+          }
+        },
+        {
+          "ok": true,
+          "type": "answer_word_count_at_most",
+          "assertion": {
+            "type": "answer_word_count_at_most",
+            "max": 120
+          },
+          "detail": {
+            "observed": 57,
+            "max": 120
+          }
+        },
+        {
+          "ok": true,
+          "type": "answer_not_contains_any",
+          "assertion": {
+            "type": "answer_not_contains_any",
+            "values": [
+              "Mots-clés",
+              "Keywords",
+              "1.",
+              "2.",
+              "3.",
+              "${",
+              "javascript:",
+              "Actualité",
+              "Shopping",
+              "\"current_condition\"",
+              "\"current\"",
+              "we can use",
+              "I'll search",
+              "Let's first",
+              "assuming",
+              "provided code",
+              "This command fetches",
+              "will leverage"
+            ],
+            "critical": true
+          },
+          "detail": {
+            "matched": [],
+            "forbidden": [
+              "Mots-clés",
+              "Keywords",
+              "1.",
+              "2.",
+              "3.",
+              "${",
+              "javascript:",
+              "Actualité",
+              "Shopping",
+              "\"current_condition\"",
+              "\"current\"",
+              "we can use",
+              "I'll search",
+              "Let's first",
+              "assuming",
+              "provided code",
+              "This command fetches",
+              "will leverage"
+            ]
+          }
+        }
+      ],
+      "native_platform_tool_score": {
+        "suite": "platform-native",
+        "score": 0.0,
+        "failure_reason": "PLATFORM_NATIVE_JUDGE_ERROR",
+        "judge": {
+          "judge_score": 0.0,
+          "judge_verdict": "JUDGE_ERROR",
+          "judge_reasoning": "Judge inference failed: openclaw infer exited 1: Error: Unknown model: openai/mistral:7b\n",
+          "judge_model": "mistral:7b",
+          "judge_raw": "openclaw infer exited 1: Error: Unknown model: openai/mistral:7b\n"
+        },
+        "judge_score_before_guardrails": 0.0,
+        "deterministic_score": 0.0,
+        "deterministic_reason": "ASSERTION_FAILED",
+        "deterministic_passed": false,
+        "assertion_results": [
+          {
+            "ok": true,
+            "type": "answer_contains_any",
+            "assertion": {
+              "type": "answer_contains_any",
+              "values": [
+                "Paris"
+              ]
+            },
+            "detail": {
+              "matched": [
+                "Paris"
+              ],
+              "expected": [
+                "Paris"
+              ]
+            }
+          },
+          {
+            "ok": false,
+            "type": "answer_matches_regex",
+            "assertion": {
+              "type": "answer_matches_regex",
+              "pattern": "([+-]?\\d{1,2}(?:\\.\\d+)?)\\s?(?:°\\s?C|Celsius|degrees Celsius|\\bC\\b)"
+            },
+            "detail": {
+              "pattern": "([+-]?\\d{1,2}(?:\\.\\d+)?)\\s?(?:°\\s?C|Celsius|degrees Celsius|\\bC\\b)"
+            }
+          },
+          {
+            "ok": false,
+            "type": "answer_matches_open_meteo_current",
+            "assertion": {
+              "type": "answer_matches_open_meteo_current",
+              "latitude": 48.8566,
+              "longitude": 2.3522,
+              "timezone": "Europe/Paris",
+              "field": "temperature_2m",
+              "tolerance": 3.0,
+              "critical": true
+            },
+            "detail": {
+              "observed_answer_numbers": [],
+              "field": "temperature_2m"
+            }
+          },
+          {
+            "ok": true,
+            "type": "answer_word_count_at_most",
+            "assertion": {
+              "type": "answer_word_count_at_most",
+              "max": 120
+            },
+            "detail": {
+              "observed": 57,
+              "max": 120
+            }
+          },
+          {
+            "ok": true,
+            "type": "answer_not_contains_any",
+            "assertion": {
+              "type": "answer_not_contains_any",
+              "values": [
+                "Mots-clés",
+                "Keywords",
+                "1.",
+                "2.",
+                "3.",
+                "${",
+                "javascript:",
+                "Actualité",
+                "Shopping",
+                "\"current_condition\"",
+                "\"current\"",
+                "we can use",
+                "I'll search",
+                "Let's first",
+                "assuming",
+                "provided code",
+                "This command fetches",
+                "will leverage"
+              ],
+              "critical": true
+            },
+            "detail": {
+              "matched": [],
+              "forbidden": [
+                "Mots-clés",
+                "Keywords",
+                "1.",
+                "2.",
+                "3.",
+                "${",
+                "javascript:",
+                "Actualité",
+                "Shopping",
+                "\"current_condition\"",
+                "\"current\"",
+                "we can use",
+                "I'll search",
+                "Let's first",
+                "assuming",
+                "provided code",
+                "This command fetches",
+                "will leverage"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "task_id": "native_project_answer_not_dump",
+      "category": "filesystem",
+      "runtime": "pi-native",
+      "model": "gemma4:latest",
+      "score": 0.0,
+      "failure_reason": "PLATFORM_NATIVE_FAIL",
+      "final_answer": "",
+      "tool_calls": [],
+      "latency_ms": 44294,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "What is this repository for?"
+        },
+        {
+          "role": "assistant",
+          "content": ""
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": {
+        "suite": "platform-native",
+        "score": 0.0,
+        "failure_reason": "PLATFORM_NATIVE_FAIL",
+        "judge": {
+          "judge_score": 0.0,
+          "judge_verdict": "JUDGE_FAIL",
+          "judge_reasoning": "No platform output.",
+          "judge_model": "mistral:7b"
+        },
+        "deterministic_score": 0.0,
+        "deterministic_reason": "No platform output.",
+        "deterministic_passed": false,
+        "assertion_results": []
+      }
+    }
+  ]
+}

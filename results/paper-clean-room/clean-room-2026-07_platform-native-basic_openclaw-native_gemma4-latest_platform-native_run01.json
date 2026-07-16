@@ -1,0 +1,187 @@
+{
+  "metadata": {
+    "runtime": "openclaw-native",
+    "benchmark": "benchmarks/platform_native.json",
+    "git_commit": "53d0491d4442f4b4a1cd03807e3eeea7b9948d56",
+    "python": "3.12.3",
+    "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "model": "gemma4:latest",
+    "adapter": "openclaw-native",
+    "openclaw_version": "OpenClaw 2026.7.1 (2d2ddc4)",
+    "openclaw_mode": "agent --local --json",
+    "native_platform_tool_score": true,
+    "platform_native_task_score": true,
+    "judge_model": "mistral:7b",
+    "deterministic_score_only": false
+  },
+  "runtime": "openclaw-native",
+  "model": "gemma4:latest",
+  "benchmark": "benchmarks/platform_native.json",
+  "results": [
+    {
+      "task_id": "native_current_directory",
+      "category": "filesystem",
+      "runtime": "openclaw-native",
+      "model": "gemma4:latest",
+      "score": 0.0,
+      "failure_reason": "RUNTIME_ERROR",
+      "final_answer": "\u001b[35m[plugins]\u001b[39m \u001b[33mplugins.allow is empty; discovered non-bundled plugins may auto-load: codex (<HOME>/.openclaw/npm/projects/openclaw-codex-8902d781d4__openclaw-generation__g-29d0d5a117000eb2/node_modules/@openclaw/codex/dist/index.js). To trust them explicitly, set plugins.allow in openclaw.json (e.g. \"plugins\": { \"allow\": [\"codex\"] }). Run 'openclaw plugins list --enabled --verbose' or 'openclaw plugins inspect codex' to confirm plugin ids.\u001b[39m\n\u001b[35m[plugins]\u001b[39m \u001b[33m[ollama] WSL2 crash-loop risk: ollama.service is enabled with Restart=always and CUDA is visible.\u001b[39m\n\u001b[33mOn WSL2, GPU-backed Ollama can pin host memory while loading a model.\u001b[39m\n\u001b[33mHyper-V memory reclaim cannot always reclaim those pinned pages, so Windows can terminate and restart the WSL2 VM.\u001b[39m\n\u001b[33m\u001b[39m\n\u001b[33mCommon evidence: repeated WSL2 reboots, high CPU in app.slice at startup, and SIGTERM from systemd rather than the Linux OOM killer.\u001b[39m\n\u001b[33mSee: https://github.com/ollama/ollama/issues/11317\u001b[39m\n\u001b[33m\u001b[39m\n\u001b[33mMitigation:\u001b[39m\n\u001b[33m  1. Disable autostart: sudo systemctl disable ollama\u001b[39m\n\u001b[33m  2. Add [experimental] autoMemoryReclaim=disabled to %USERPROFILE%\\.wslconfig on Windows, then run wsl --shutdown\u001b[39m\n\u001b[33m  3. Set OLLAMA_KEEP_ALIVE=5m in the Ollama service environment or start ollama serve manually when needed\u001b[39m\nError: Model override \"openai/gemma4:latest\" is not allowed for agent \"main\".",
+      "tool_calls": [],
+      "latency_ms": 5913,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "What folder are we in right now?"
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": {
+        "suite": "platform-native",
+        "score": 0.0,
+        "failure_reason": "PLATFORM_NATIVE_FAIL",
+        "judge": {
+          "judge_score": 0.0,
+          "judge_verdict": "JUDGE_FAIL",
+          "judge_reasoning": "Runtime error: \u001b[35m[plugins]\u001b[39m \u001b[33mplugins.allow is empty; discovered non-bundled plugins may auto-load: codex (<HOME>/.openclaw/npm/projects/openclaw-codex-8902d781d4__openclaw-generation__g-29d0d5a117000eb2/node_modules/@openclaw/codex/dist/index.js). To trust them explicitly, set plugins.allow in openclaw.json (e.g. \"plugins\": { \"allow\": [\"codex\"] }). Run 'openclaw plugins list --enabled --verbose' or 'openclaw plugins inspect codex' to confirm plugin ids.\u001b[39m\n\u001b[35m[plugins]\u001b[39m \u001b[33m[ollama] WSL2 crash-loop risk: ollama.service is enabled with Restart=always and CUDA is visible.\u001b[39m\n\u001b[33mOn WSL2, GPU-backed Ollama can pin host memory while loading a model.\u001b[39m\n\u001b[33mHyper-V memory reclaim cannot always reclaim those pinned pages, so Windows can terminate and restart the WSL2 VM.\u001b[39m\n\u001b[33m\u001b[39m\n\u001b[33mCommon evidence: repeated WSL2 reboots, high CPU in app.slice at startup, and SIGTERM from systemd rather than the Linux OOM killer.\u001b[39m\n\u001b[33mSee: https://github.com/ollama/ollama/issues/11317\u001b[39m\n\u001b[33m\u001b[39m\n\u001b[33mMitigation:\u001b[39m\n\u001b[33m  1. Disable autostart: sudo systemctl disable ollama\u001b[39m\n\u001b[33m  2. Add [experimental] autoMemoryReclaim=disabled to %USERPROFILE%\\.wslconfig on Windows, then run wsl --shutdown\u001b[39m\n\u001b[33m  3. Set OLLAMA_KEEP_ALIVE=5m in the Ollama service environment or start ollama serve manually when needed\u001b[39m\nError: Model override \"openai/gemma4:latest\" is not allowed for agent \"main\".",
+          "judge_model": "mistral:7b"
+        },
+        "deterministic_score": 0.0,
+        "deterministic_reason": "RUNTIME_ERROR",
+        "deterministic_passed": false,
+        "assertion_results": []
+      }
+    },
+    {
+      "task_id": "native_list_project",
+      "category": "filesystem",
+      "runtime": "openclaw-native",
+      "model": "gemma4:latest",
+      "score": 0.0,
+      "failure_reason": "RUNTIME_ERROR",
+      "final_answer": "\u001b[35m[plugins]\u001b[39m \u001b[33mplugins.allow is empty; discovered non-bundled plugins may auto-load: codex (<HOME>/.openclaw/npm/projects/openclaw-codex-8902d781d4__openclaw-generation__g-29d0d5a117000eb2/node_modules/@openclaw/codex/dist/index.js). To trust them explicitly, set plugins.allow in openclaw.json (e.g. \"plugins\": { \"allow\": [\"codex\"] }). Run 'openclaw plugins list --enabled --verbose' or 'openclaw plugins inspect codex' to confirm plugin ids.\u001b[39m\n\u001b[35m[plugins]\u001b[39m \u001b[33m[ollama] WSL2 crash-loop risk: ollama.service is enabled with Restart=always and CUDA is visible.\u001b[39m\n\u001b[33mOn WSL2, GPU-backed Ollama can pin host memory while loading a model.\u001b[39m\n\u001b[33mHyper-V memory reclaim cannot always reclaim those pinned pages, so Windows can terminate and restart the WSL2 VM.\u001b[39m\n\u001b[33m\u001b[39m\n\u001b[33mCommon evidence: repeated WSL2 reboots, high CPU in app.slice at startup, and SIGTERM from systemd rather than the Linux OOM killer.\u001b[39m\n\u001b[33mSee: https://github.com/ollama/ollama/issues/11317\u001b[39m\n\u001b[33m\u001b[39m\n\u001b[33mMitigation:\u001b[39m\n\u001b[33m  1. Disable autostart: sudo systemctl disable ollama\u001b[39m\n\u001b[33m  2. Add [experimental] autoMemoryReclaim=disabled to %USERPROFILE%\\.wslconfig on Windows, then run wsl --shutdown\u001b[39m\n\u001b[33m  3. Set OLLAMA_KEEP_ALIVE=5m in the Ollama service environment or start ollama serve manually when needed\u001b[39m\nError: Model override \"openai/gemma4:latest\" is not allowed for agent \"main\".",
+      "tool_calls": [],
+      "latency_ms": 3087,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "What are the main files and folders in this project?"
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": {
+        "suite": "platform-native",
+        "score": 0.0,
+        "failure_reason": "PLATFORM_NATIVE_FAIL",
+        "judge": {
+          "judge_score": 0.0,
+          "judge_verdict": "JUDGE_FAIL",
+          "judge_reasoning": "Runtime error: \u001b[35m[plugins]\u001b[39m \u001b[33mplugins.allow is empty; discovered non-bundled plugins may auto-load: codex (<HOME>/.openclaw/npm/projects/openclaw-codex-8902d781d4__openclaw-generation__g-29d0d5a117000eb2/node_modules/@openclaw/codex/dist/index.js). To trust them explicitly, set plugins.allow in openclaw.json (e.g. \"plugins\": { \"allow\": [\"codex\"] }). Run 'openclaw plugins list --enabled --verbose' or 'openclaw plugins inspect codex' to confirm plugin ids.\u001b[39m\n\u001b[35m[plugins]\u001b[39m \u001b[33m[ollama] WSL2 crash-loop risk: ollama.service is enabled with Restart=always and CUDA is visible.\u001b[39m\n\u001b[33mOn WSL2, GPU-backed Ollama can pin host memory while loading a model.\u001b[39m\n\u001b[33mHyper-V memory reclaim cannot always reclaim those pinned pages, so Windows can terminate and restart the WSL2 VM.\u001b[39m\n\u001b[33m\u001b[39m\n\u001b[33mCommon evidence: repeated WSL2 reboots, high CPU in app.slice at startup, and SIGTERM from systemd rather than the Linux OOM killer.\u001b[39m\n\u001b[33mSee: https://github.com/ollama/ollama/issues/11317\u001b[39m\n\u001b[33m\u001b[39m\n\u001b[33mMitigation:\u001b[39m\n\u001b[33m  1. Disable autostart: sudo systemctl disable ollama\u001b[39m\n\u001b[33m  2. Add [experimental] autoMemoryReclaim=disabled to %USERPROFILE%\\.wslconfig on Windows, then run wsl --shutdown\u001b[39m\n\u001b[33m  3. Set OLLAMA_KEEP_ALIVE=5m in the Ollama service environment or start ollama serve manually when needed\u001b[39m\nError: Model override \"openai/gemma4:latest\" is not allowed for agent \"main\".",
+          "judge_model": "mistral:7b"
+        },
+        "deterministic_score": 0.0,
+        "deterministic_reason": "RUNTIME_ERROR",
+        "deterministic_passed": false,
+        "assertion_results": []
+      }
+    },
+    {
+      "task_id": "native_read_fixture",
+      "category": "filesystem",
+      "runtime": "openclaw-native",
+      "model": "gemma4:latest",
+      "score": 0.0,
+      "failure_reason": "RUNTIME_ERROR",
+      "final_answer": "\u001b[35m[plugins]\u001b[39m \u001b[33mplugins.allow is empty; discovered non-bundled plugins may auto-load: codex (<HOME>/.openclaw/npm/projects/openclaw-codex-8902d781d4__openclaw-generation__g-29d0d5a117000eb2/node_modules/@openclaw/codex/dist/index.js). To trust them explicitly, set plugins.allow in openclaw.json (e.g. \"plugins\": { \"allow\": [\"codex\"] }). Run 'openclaw plugins list --enabled --verbose' or 'openclaw plugins inspect codex' to confirm plugin ids.\u001b[39m\n\u001b[35m[plugins]\u001b[39m \u001b[33m[ollama] WSL2 crash-loop risk: ollama.service is enabled with Restart=always and CUDA is visible.\u001b[39m\n\u001b[33mOn WSL2, GPU-backed Ollama can pin host memory while loading a model.\u001b[39m\n\u001b[33mHyper-V memory reclaim cannot always reclaim those pinned pages, so Windows can terminate and restart the WSL2 VM.\u001b[39m\n\u001b[33m\u001b[39m\n\u001b[33mCommon evidence: repeated WSL2 reboots, high CPU in app.slice at startup, and SIGTERM from systemd rather than the Linux OOM killer.\u001b[39m\n\u001b[33mSee: https://github.com/ollama/ollama/issues/11317\u001b[39m\n\u001b[33m\u001b[39m\n\u001b[33mMitigation:\u001b[39m\n\u001b[33m  1. Disable autostart: sudo systemctl disable ollama\u001b[39m\n\u001b[33m  2. Add [experimental] autoMemoryReclaim=disabled to %USERPROFILE%\\.wslconfig on Windows, then run wsl --shutdown\u001b[39m\n\u001b[33m  3. Set OLLAMA_KEEP_ALIVE=5m in the Ollama service environment or start ollama serve manually when needed\u001b[39m\nError: Model override \"openai/gemma4:latest\" is not allowed for agent \"main\".",
+      "tool_calls": [],
+      "latency_ms": 3140,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "What is the benchmark codename in benchmarks/fixtures.md?"
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": {
+        "suite": "platform-native",
+        "score": 0.0,
+        "failure_reason": "PLATFORM_NATIVE_FAIL",
+        "judge": {
+          "judge_score": 0.0,
+          "judge_verdict": "JUDGE_FAIL",
+          "judge_reasoning": "Runtime error: \u001b[35m[plugins]\u001b[39m \u001b[33mplugins.allow is empty; discovered non-bundled plugins may auto-load: codex (<HOME>/.openclaw/npm/projects/openclaw-codex-8902d781d4__openclaw-generation__g-29d0d5a117000eb2/node_modules/@openclaw/codex/dist/index.js). To trust them explicitly, set plugins.allow in openclaw.json (e.g. \"plugins\": { \"allow\": [\"codex\"] }). Run 'openclaw plugins list --enabled --verbose' or 'openclaw plugins inspect codex' to confirm plugin ids.\u001b[39m\n\u001b[35m[plugins]\u001b[39m \u001b[33m[ollama] WSL2 crash-loop risk: ollama.service is enabled with Restart=always and CUDA is visible.\u001b[39m\n\u001b[33mOn WSL2, GPU-backed Ollama can pin host memory while loading a model.\u001b[39m\n\u001b[33mHyper-V memory reclaim cannot always reclaim those pinned pages, so Windows can terminate and restart the WSL2 VM.\u001b[39m\n\u001b[33m\u001b[39m\n\u001b[33mCommon evidence: repeated WSL2 reboots, high CPU in app.slice at startup, and SIGTERM from systemd rather than the Linux OOM killer.\u001b[39m\n\u001b[33mSee: https://github.com/ollama/ollama/issues/11317\u001b[39m\n\u001b[33m\u001b[39m\n\u001b[33mMitigation:\u001b[39m\n\u001b[33m  1. Disable autostart: sudo systemctl disable ollama\u001b[39m\n\u001b[33m  2. Add [experimental] autoMemoryReclaim=disabled to %USERPROFILE%\\.wslconfig on Windows, then run wsl --shutdown\u001b[39m\n\u001b[33m  3. Set OLLAMA_KEEP_ALIVE=5m in the Ollama service environment or start ollama serve manually when needed\u001b[39m\nError: Model override \"openai/gemma4:latest\" is not allowed for agent \"main\".",
+          "judge_model": "mistral:7b"
+        },
+        "deterministic_score": 0.0,
+        "deterministic_reason": "RUNTIME_ERROR",
+        "deterministic_passed": false,
+        "assertion_results": []
+      }
+    },
+    {
+      "task_id": "native_weather_berlin",
+      "category": "weather",
+      "runtime": "openclaw-native",
+      "model": "gemma4:latest",
+      "score": 0.0,
+      "failure_reason": "RUNTIME_ERROR",
+      "final_answer": "\u001b[35m[plugins]\u001b[39m \u001b[33mplugins.allow is empty; discovered non-bundled plugins may auto-load: codex (<HOME>/.openclaw/npm/projects/openclaw-codex-8902d781d4__openclaw-generation__g-29d0d5a117000eb2/node_modules/@openclaw/codex/dist/index.js). To trust them explicitly, set plugins.allow in openclaw.json (e.g. \"plugins\": { \"allow\": [\"codex\"] }). Run 'openclaw plugins list --enabled --verbose' or 'openclaw plugins inspect codex' to confirm plugin ids.\u001b[39m\n\u001b[35m[plugins]\u001b[39m \u001b[33m[ollama] WSL2 crash-loop risk: ollama.service is enabled with Restart=always and CUDA is visible.\u001b[39m\n\u001b[33mOn WSL2, GPU-backed Ollama can pin host memory while loading a model.\u001b[39m\n\u001b[33mHyper-V memory reclaim cannot always reclaim those pinned pages, so Windows can terminate and restart the WSL2 VM.\u001b[39m\n\u001b[33m\u001b[39m\n\u001b[33mCommon evidence: repeated WSL2 reboots, high CPU in app.slice at startup, and SIGTERM from systemd rather than the Linux OOM killer.\u001b[39m\n\u001b[33mSee: https://github.com/ollama/ollama/issues/11317\u001b[39m\n\u001b[33m\u001b[39m\n\u001b[33mMitigation:\u001b[39m\n\u001b[33m  1. Disable autostart: sudo systemctl disable ollama\u001b[39m\n\u001b[33m  2. Add [experimental] autoMemoryReclaim=disabled to %USERPROFILE%\\.wslconfig on Windows, then run wsl --shutdown\u001b[39m\n\u001b[33m  3. Set OLLAMA_KEEP_ALIVE=5m in the Ollama service environment or start ollama serve manually when needed\u001b[39m\nError: Model override \"openai/gemma4:latest\" is not allowed for agent \"main\".",
+      "tool_calls": [],
+      "latency_ms": 3117,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "What is the current weather in Berlin?"
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": {
+        "suite": "platform-native",
+        "score": 0.0,
+        "failure_reason": "PLATFORM_NATIVE_FAIL",
+        "judge": {
+          "judge_score": 0.0,
+          "judge_verdict": "JUDGE_FAIL",
+          "judge_reasoning": "Runtime error: \u001b[35m[plugins]\u001b[39m \u001b[33mplugins.allow is empty; discovered non-bundled plugins may auto-load: codex (<HOME>/.openclaw/npm/projects/openclaw-codex-8902d781d4__openclaw-generation__g-29d0d5a117000eb2/node_modules/@openclaw/codex/dist/index.js). To trust them explicitly, set plugins.allow in openclaw.json (e.g. \"plugins\": { \"allow\": [\"codex\"] }). Run 'openclaw plugins list --enabled --verbose' or 'openclaw plugins inspect codex' to confirm plugin ids.\u001b[39m\n\u001b[35m[plugins]\u001b[39m \u001b[33m[ollama] WSL2 crash-loop risk: ollama.service is enabled with Restart=always and CUDA is visible.\u001b[39m\n\u001b[33mOn WSL2, GPU-backed Ollama can pin host memory while loading a model.\u001b[39m\n\u001b[33mHyper-V memory reclaim cannot always reclaim those pinned pages, so Windows can terminate and restart the WSL2 VM.\u001b[39m\n\u001b[33m\u001b[39m\n\u001b[33mCommon evidence: repeated WSL2 reboots, high CPU in app.slice at startup, and SIGTERM from systemd rather than the Linux OOM killer.\u001b[39m\n\u001b[33mSee: https://github.com/ollama/ollama/issues/11317\u001b[39m\n\u001b[33m\u001b[39m\n\u001b[33mMitigation:\u001b[39m\n\u001b[33m  1. Disable autostart: sudo systemctl disable ollama\u001b[39m\n\u001b[33m  2. Add [experimental] autoMemoryReclaim=disabled to %USERPROFILE%\\.wslconfig on Windows, then run wsl --shutdown\u001b[39m\n\u001b[33m  3. Set OLLAMA_KEEP_ALIVE=5m in the Ollama service environment or start ollama serve manually when needed\u001b[39m\nError: Model override \"openai/gemma4:latest\" is not allowed for agent \"main\".",
+          "judge_model": "mistral:7b"
+        },
+        "deterministic_score": 0.0,
+        "deterministic_reason": "RUNTIME_ERROR",
+        "deterministic_passed": false,
+        "assertion_results": []
+      }
+    },
+    {
+      "task_id": "native_recover_missing_path",
+      "category": "recovery",
+      "runtime": "openclaw-native",
+      "model": "gemma4:latest",
+      "score": 0.0,
+      "failure_reason": "RUNTIME_ERROR",
+      "final_answer": "\u001b[35m[plugins]\u001b[39m \u001b[33mplugins.allow is empty; discovered non-bundled plugins may auto-load: codex (<HOME>/.openclaw/npm/projects/openclaw-codex-8902d781d4__openclaw-generation__g-29d0d5a117000eb2/node_modules/@openclaw/codex/dist/index.js). To trust them explicitly, set plugins.allow in openclaw.json (e.g. \"plugins\": { \"allow\": [\"codex\"] }). Run 'openclaw plugins list --enabled --verbose' or 'openclaw plugins inspect codex' to confirm plugin ids.\u001b[39m\n\u001b[35m[plugins]\u001b[39m \u001b[33m[ollama] WSL2 crash-loop risk: ollama.service is enabled with Restart=always and CUDA is visible.\u001b[39m\n\u001b[33mOn WSL2, GPU-backed Ollama can pin host memory while loading a model.\u001b[39m\n\u001b[33mHyper-V memory reclaim cannot always reclaim those pinned pages, so Windows can terminate and restart the WSL2 VM.\u001b[39m\n\u001b[33m\u001b[39m\n\u001b[33mCommon evidence: repeated WSL2 reboots, high CPU in app.slice at startup, and SIGTERM from systemd rather than the Linux OOM killer.\u001b[39m\n\u001b[33mSee: https://github.com/ollama/ollama/issues/11317\u001b[39m\n\u001b[33m\u001b[39m\n\u001b[33mMitigation:\u001b[39m\n\u001b[33m  1. Disable autostart: sudo systemctl disable ollama\u001b[39m\n\u001b[33m  2. Add [experimental] autoMemoryReclaim=disabled to %USERPROFILE%\\.wslconfig on Windows, then run wsl --shutdown\u001b[39m\n\u001b[33m  3. Set OLLAMA_KEEP_ALIVE=5m in the Ollama service environment or start ollama serve manually when needed\u001b[39m\nError: Model override \"openai/gemma4:latest\" is not allowed for agent \"main\".",
+      "tool_calls": [],
+      "latency_ms": 3124,
+      "raw_transcript": [
+        {
+          "role": "user",
+          "content": "I need the recovery code from benchmarks/agentic/missing-note.md. If that file is not there, find the right note in benchmarks/agentic and tell me the code."
+        }
+      ],
+      "assertion_results": [],
+      "native_platform_tool_score": {
+        "suite": "platform-native",
+        "score": 0.0,
+        "failure_reason": "PLATFORM_NATIVE_FAIL",
+        "judge": {
+          "judge_score": 0.0,
+          "judge_verdict": "JUDGE_FAIL",
+          "judge_reasoning": "Runtime error: \u001b[35m[plugins]\u001b[39m \u001b[33mplugins.allow is empty; discovered non-bundled plugins may auto-load: codex (<HOME>/.openclaw/npm/projects/openclaw-codex-8902d781d4__openclaw-generation__g-29d0d5a117000eb2/node_modules/@openclaw/codex/dist/index.js). To trust them explicitly, set plugins.allow in openclaw.json (e.g. \"plugins\": { \"allow\": [\"codex\"] }). Run 'openclaw plugins list --enabled --verbose' or 'openclaw plugins inspect codex' to confirm plugin ids.\u001b[39m\n\u001b[35m[plugins]\u001b[39m \u001b[33m[ollama] WSL2 crash-loop risk: ollama.service is enabled with Restart=always and CUDA is visible.\u001b[39m\n\u001b[33mOn WSL2, GPU-backed Ollama can pin host memory while loading a model.\u001b[39m\n\u001b[33mHyper-V memory reclaim cannot always reclaim those pinned pages, so Windows can terminate and restart the WSL2 VM.\u001b[39m\n\u001b[33m\u001b[39m\n\u001b[33mCommon evidence: repeated WSL2 reboots, high CPU in app.slice at startup, and SIGTERM from systemd rather than the Linux OOM killer.\u001b[39m\n\u001b[33mSee: https://github.com/ollama/ollama/issues/11317\u001b[39m\n\u001b[33m\u001b[39m\n\u001b[33mMitigation:\u001b[39m\n\u001b[33m  1. Disable autostart: sudo systemctl disable ollama\u001b[39m\n\u001b[33m  2. Add [experimental] autoMemoryReclaim=disabled to %USERPROFILE%\\.wslconfig on Windows, then run wsl --shutdown\u001b[39m\n\u001b[33m  3. Set OLLAMA_KEEP_ALIVE=5m in the Ollama service environment or start ollama serve manually when needed\u001b[39m\nError: Model override \"openai/gemma4:latest\" is not allowed for agent \"main\".",
+          "judge_model": "mistral:7b"
+        },
+        "deterministic_score": 0.0,
+        "deterministic_reason": "RUNTIME_ERROR",
+        "deterministic_passed": false,
+        "assertion_results": []
+      }
+    }
+  ]
+}

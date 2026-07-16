@@ -65,6 +65,12 @@
       "paper_id": "granite41-8b",
       "family": "Granite 4.1",
       "role": "enterprise-local-baseline"
+    },
+    {
+      "id": "gemma4:latest",
+      "paper_id": "gemma4-latest",
+      "family": "Gemma 4",
+      "role": "surprise-perfect-score-candidate"
     }
   ],
   "benchmarks": [
@@ -110,7 +116,7 @@
       "description": "Primary paper dataset: clean ReAct protocol through raw Ollama. Ten independent process runs per model and benchmark at temperature 0.",
       "command": "run",
       "runtimes": ["raw-ollama-react"],
-      "models": ["qwen2.5-coder:7b", "qwen3.5:9b", "ornith:9b", "mistral:7b", "lfm2.5:latest", "ibm/granite4.1:8b"],
+      "models": ["qwen2.5-coder:7b", "qwen3.5:9b", "ornith:9b", "mistral:7b", "lfm2.5:latest", "ibm/granite4.1:8b", "gemma4:latest"],
       "benchmarks": ["smoke", "agentic"],
       "runs": 10,
       "included_in_main_findings": true
@@ -120,7 +126,7 @@
       "description": "Secondary controlled dataset: same ReAct protocol through CLI runtimes when clean binaries are installed in the container/profile.",
       "command": "run",
       "runtimes": ["openclaw-react", "hermes-react", "pi-react"],
-      "models": ["qwen2.5-coder:7b", "qwen3.5:9b", "ornith:9b", "mistral:7b", "lfm2.5:latest", "ibm/granite4.1:8b"],
+      "models": ["qwen2.5-coder:7b", "qwen3.5:9b", "ornith:9b", "mistral:7b", "lfm2.5:latest", "ibm/granite4.1:8b", "gemma4:latest"],
       "benchmarks": ["smoke", "agentic"],
       "runs": 10,
       "task_timeout": 120,
@@ -133,7 +139,7 @@
       "description": "Secondary diagnostic dataset: real platform-native use cases with LLM judging and explicit evidence prompts.",
       "command": "run-platform-native",
       "runtimes": ["openclaw-native", "hermes-native", "pi-native"],
-      "models": ["qwen2.5-coder:7b", "qwen3.5:9b", "ornith:9b", "mistral:7b", "lfm2.5:latest", "ibm/granite4.1:8b"],
+      "models": ["qwen2.5-coder:7b", "qwen3.5:9b", "ornith:9b", "mistral:7b", "lfm2.5:latest", "ibm/granite4.1:8b", "gemma4:latest"],
       "benchmarks": ["platform-native"],
       "runs": 10,
       "runtime_timeout": 180,
@@ -161,7 +167,7 @@
       "description": "User-facing native runtime tasks. Native tool output must be synthesized into concise final answers; LLM judging is primary and deterministic assertions are guardrails.",
       "command": "run-platform-native",
       "runtimes": ["openclaw-native", "hermes-native", "pi-native"],
-      "models": ["qwen2.5-coder:7b", "qwen3.5:9b", "ornith:9b", "mistral:7b", "lfm2.5:latest", "ibm/granite4.1:8b"],
+      "models": ["qwen2.5-coder:7b", "qwen3.5:9b", "ornith:9b", "mistral:7b", "lfm2.5:latest", "ibm/granite4.1:8b", "gemma4:latest"],
       "benchmarks": ["platform-native-reality"],
       "runs": 10,
       "runtime_timeout": 240,

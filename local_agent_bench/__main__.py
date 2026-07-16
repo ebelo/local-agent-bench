@@ -213,7 +213,8 @@ def _rejudge(input_file: Path, benchmark: Path, output: Path | None, judge_model
             print(f"  [{i+1}/{len(results)}] {task_id}: SKIP (runtime error)", file=sys.stderr)
             continue
 
-        verdict = judge_native_result(task, final_answer, judge_model=judge_model, timeout=timeout)
+        transcript = result.get("raw_transcript") or []
+        verdict = judge_native_result(task, final_answer, transcript=transcript, judge_model=judge_model, timeout=timeout)
         result["judge"] = verdict
         score = verdict.get("judge_score", 0.0)
         v = verdict.get("judge_verdict", "?")

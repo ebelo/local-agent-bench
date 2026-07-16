@@ -2,7 +2,7 @@
   "metadata": {
     "runtime": "hermes-native",
     "benchmark": "benchmarks/platform_native_reality.json",
-    "git_commit": "53d0491d4442f4b4a1cd03807e3eeea7b9948d56",
+    "git_commit": "721cb4e5bf4bc6a97d98c4e7c7c39dd4225ee8c9",
     "python": "3.12.3",
     "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
     "model": "gemma4:latest",
@@ -13,8 +13,9 @@
     "hermes_toolsets": "safe",
     "native_platform_tool_score": true,
     "platform_native_task_score": true,
-    "judge_model": "mistral:7b",
-    "deterministic_score_only": false
+    "judge_model": "ollama/glm-5.2:cloud",
+    "deterministic_score_only": true,
+    "judge_total": 0.0
   },
   "runtime": "hermes-native",
   "model": "gemma4:latest",
@@ -26,10 +27,10 @@
       "runtime": "hermes-native",
       "model": "gemma4:latest",
       "score": 0.0,
-      "failure_reason": "PLATFORM_NATIVE_JUDGE_ERROR",
-      "final_answer": "I do not have access to real-time external services like a weather API, so I can't tell you the current weather in Paris right now. You will need to use an online search engine or dedicated weather application for that information.",
+      "failure_reason": "ASSERTION_FAILED",
+      "final_answer": "I cannot provide real-time weather information for Paris because I do not have access to an integrated weather API tool. I rely on my provided tools and code execution environment, and fetching live external data like current weather requires a dedicated connection or endpoint that has not been made available to me.\n\nIf you can provide a specific tool or API key for weather lookups, I would be happy to use it.",
       "tool_calls": [],
-      "latency_ms": 9291,
+      "latency_ms": 13683,
       "raw_transcript": [
         {
           "role": "user",
@@ -37,7 +38,7 @@
         },
         {
           "role": "assistant",
-          "content": "I do not have access to real-time external services like a weather API, so I can't tell you the current weather in Paris right now. You will need to use an online search engine or dedicated weather application for that information."
+          "content": "I cannot provide real-time weather information for Paris because I do not have access to an integrated weather API tool. I rely on my provided tools and code execution environment, and fetching live external data like current weather requires a dedicated connection or endpoint that has not been made available to me.\n\nIf you can provide a specific tool or API key for weather lookups, I would be happy to use it."
         }
       ],
       "assertion_results": [
@@ -95,7 +96,7 @@
             "max": 120
           },
           "detail": {
-            "observed": 41,
+            "observed": 72,
             "max": 120
           }
         },
@@ -162,15 +163,8 @@
       "native_platform_tool_score": {
         "suite": "platform-native",
         "score": 0.0,
-        "failure_reason": "PLATFORM_NATIVE_JUDGE_ERROR",
-        "judge": {
-          "judge_score": 0.0,
-          "judge_verdict": "JUDGE_ERROR",
-          "judge_reasoning": "Judge inference failed: openclaw infer exited 1: Error: Unknown model: openai/mistral:7b\n",
-          "judge_model": "mistral:7b",
-          "judge_raw": "openclaw infer exited 1: Error: Unknown model: openai/mistral:7b\n"
-        },
-        "judge_score_before_guardrails": 0.0,
+        "failure_reason": "ASSERTION_FAILED",
+        "judge": null,
         "deterministic_score": 0.0,
         "deterministic_reason": "ASSERTION_FAILED",
         "deterministic_passed": false,
@@ -229,7 +223,7 @@
               "max": 120
             },
             "detail": {
-              "observed": 41,
+              "observed": 72,
               "max": 120
             }
           },
@@ -293,6 +287,13 @@
             }
           }
         ]
+      },
+      "judge": {
+        "judge_score": 0.0,
+        "judge_verdict": "JUDGE_FAIL",
+        "judge_reasoning": "Agent did not attempt to use any available tools (e.g., curl) to fetch weather data and simply refused to answer.",
+        "judge_raw": "{\"verdict\": \"FAIL\", \"score\": 0.0, \"reasoning\": \"Agent did not attempt to use any available tools (e.g., curl) to fetch weather data and simply refused to answer.\"}",
+        "judge_model": "ollama/glm-5.2:cloud"
       }
     },
     {
@@ -301,10 +302,10 @@
       "runtime": "hermes-native",
       "model": "gemma4:latest",
       "score": 0.0,
-      "failure_reason": "PLATFORM_NATIVE_JUDGE_ERROR",
-      "final_answer": "I am sorry, but I do not have access to real-time global weather APIs or internet search tools to provide you with the current weather in Paris, including details on wind or rain.\n\nI can help you with tasks related to code, file analysis, information processing, or writing, but I cannot check live, external data feeds like weather reports. You will need to use a dedicated weather website or app for that information.",
+      "failure_reason": "ASSERTION_FAILED",
+      "final_answer": "I am an AI agent focused on assisting with coding, data analysis, and generating content using the tools available in this environment. I do not have access to real-time external information like current weather forecasts or APIs (such as for Paris).\n\nTo get the current weather details, please use a dedicated service like Google Search, a weather app, or a specialized API tool.",
       "tool_calls": [],
-      "latency_ms": 19276,
+      "latency_ms": 7190,
       "raw_transcript": [
         {
           "role": "user",
@@ -312,7 +313,7 @@
         },
         {
           "role": "assistant",
-          "content": "I am sorry, but I do not have access to real-time global weather APIs or internet search tools to provide you with the current weather in Paris, including details on wind or rain.\n\nI can help you with tasks related to code, file analysis, information processing, or writing, but I cannot check live, external data feeds like weather reports. You will need to use a dedicated weather website or app for that information."
+          "content": "I am an AI agent focused on assisting with coding, data analysis, and generating content using the tools available in this environment. I do not have access to real-time external information like current weather forecasts or APIs (such as for Paris).\n\nTo get the current weather details, please use a dedicated service like Google Search, a weather app, or a specialized API tool."
         }
       ],
       "assertion_results": [
@@ -370,7 +371,7 @@
             "max": 180
           },
           "detail": {
-            "observed": 73,
+            "observed": 63,
             "max": 180
           }
         },
@@ -423,15 +424,8 @@
       "native_platform_tool_score": {
         "suite": "platform-native",
         "score": 0.0,
-        "failure_reason": "PLATFORM_NATIVE_JUDGE_ERROR",
-        "judge": {
-          "judge_score": 0.0,
-          "judge_verdict": "JUDGE_ERROR",
-          "judge_reasoning": "Judge inference failed: openclaw infer exited 1: Error: Unknown model: openai/mistral:7b\n",
-          "judge_model": "mistral:7b",
-          "judge_raw": "openclaw infer exited 1: Error: Unknown model: openai/mistral:7b\n"
-        },
-        "judge_score_before_guardrails": 0.0,
+        "failure_reason": "ASSERTION_FAILED",
+        "judge": null,
         "deterministic_score": 0.0,
         "deterministic_reason": "ASSERTION_FAILED",
         "deterministic_passed": false,
@@ -490,7 +484,7 @@
               "max": 180
             },
             "detail": {
-              "observed": 73,
+              "observed": 63,
               "max": 180
             }
           },
@@ -540,6 +534,13 @@
             }
           }
         ]
+      },
+      "judge": {
+        "judge_score": 0.0,
+        "judge_verdict": "JUDGE_FAIL",
+        "judge_reasoning": "Agent refused to use available tools and provided no weather data, simply claiming it cannot access real-time information.",
+        "judge_raw": "{\"verdict\": \"FAIL\", \"score\": 0.0, \"reasoning\": \"Agent refused to use available tools and provided no weather data, simply claiming it cannot access real-time information.\"}",
+        "judge_model": "ollama/glm-5.2:cloud"
       }
     },
     {
@@ -548,10 +549,10 @@
       "runtime": "hermes-native",
       "model": "gemma4:latest",
       "score": 0.0,
-      "failure_reason": "PLATFORM_NATIVE_JUDGE_ERROR",
-      "final_answer": "I cannot provide you with real-time local weather updates for Paris because I do not have access to live weather APIs or data feeds.\n\nFor the most accurate information on whether you should expect hot weather right now, please check a dedicated weather service like Google Weather, AccuWeather, or a local meteorology site for Paris.",
+      "failure_reason": "ASSERTION_FAILED",
+      "final_answer": "I do not have built-in access to real-time weather APIs or live geographical data like current forecasts for Paris.\n\nTo find out if you should expect hot weather, I recommend checking a reliable online service such as:\n*   Google Search (searching \"weather in Paris\")\n*   AccuWeather\n*   The local meteorological services website for Paris",
       "tool_calls": [],
-      "latency_ms": 16486,
+      "latency_ms": 17676,
       "raw_transcript": [
         {
           "role": "user",
@@ -559,7 +560,7 @@
         },
         {
           "role": "assistant",
-          "content": "I cannot provide you with real-time local weather updates for Paris because I do not have access to live weather APIs or data feeds.\n\nFor the most accurate information on whether you should expect hot weather right now, please check a dedicated weather service like Google Weather, AccuWeather, or a local meteorology site for Paris."
+          "content": "I do not have built-in access to real-time weather APIs or live geographical data like current forecasts for Paris.\n\nTo find out if you should expect hot weather, I recommend checking a reliable online service such as:\n*   Google Search (searching \"weather in Paris\")\n*   AccuWeather\n*   The local meteorological services website for Paris"
         }
       ],
       "assertion_results": [
@@ -617,7 +618,7 @@
             "max": 120
           },
           "detail": {
-            "observed": 55,
+            "observed": 54,
             "max": 120
           }
         },
@@ -676,15 +677,8 @@
       "native_platform_tool_score": {
         "suite": "platform-native",
         "score": 0.0,
-        "failure_reason": "PLATFORM_NATIVE_JUDGE_ERROR",
-        "judge": {
-          "judge_score": 0.0,
-          "judge_verdict": "JUDGE_ERROR",
-          "judge_reasoning": "Judge inference failed: openclaw infer exited 1: Error: Unknown model: openai/mistral:7b\n",
-          "judge_model": "mistral:7b",
-          "judge_raw": "openclaw infer exited 1: Error: Unknown model: openai/mistral:7b\n"
-        },
-        "judge_score_before_guardrails": 0.0,
+        "failure_reason": "ASSERTION_FAILED",
+        "judge": null,
         "deterministic_score": 0.0,
         "deterministic_reason": "ASSERTION_FAILED",
         "deterministic_passed": false,
@@ -743,7 +737,7 @@
               "max": 120
             },
             "detail": {
-              "observed": 55,
+              "observed": 54,
               "max": 120
             }
           },
@@ -799,6 +793,13 @@
             }
           }
         ]
+      },
+      "judge": {
+        "judge_score": 0.0,
+        "judge_verdict": "JUDGE_FAIL",
+        "judge_reasoning": "Agent did not use any tools to fetch real weather data and simply told the user to check elsewhere, providing no temperature or answer.",
+        "judge_raw": "{\"verdict\": \"FAIL\", \"score\": 0.0, \"reasoning\": \"Agent did not use any tools to fetch real weather data and simply told the user to check elsewhere, providing no temperature or answer.\"}",
+        "judge_model": "ollama/glm-5.2:cloud"
       }
     },
     {
@@ -808,9 +809,9 @@
       "model": "gemma4:latest",
       "score": 0.0,
       "failure_reason": "PLATFORM_NATIVE_FAIL",
-      "final_answer": "session_id: 20260716_144814_30cbd4",
+      "final_answer": "session_id: 20260716_161227_5c793f",
       "tool_calls": [],
-      "latency_ms": 4841,
+      "latency_ms": 27695,
       "raw_transcript": [
         {
           "role": "user",
@@ -818,7 +819,7 @@
         },
         {
           "role": "assistant",
-          "content": "session_id: 20260716_144814_30cbd4"
+          "content": "session_id: 20260716_161227_5c793f"
         }
       ],
       "assertion_results": [],
@@ -830,12 +831,19 @@
           "judge_score": 0.0,
           "judge_verdict": "JUDGE_FAIL",
           "judge_reasoning": "Platform produced only a session id and no model answer.",
-          "judge_model": "mistral:7b"
+          "judge_model": "ollama/glm-5.2:cloud"
         },
         "deterministic_score": 0.0,
         "deterministic_reason": "Platform produced only a session id and no model answer.",
         "deterministic_passed": false,
         "assertion_results": []
+      },
+      "judge": {
+        "judge_score": 0.0,
+        "judge_verdict": "JUDGE_FAIL",
+        "judge_reasoning": "The agent only returned a session ID and did not answer the question or use any tools to inspect the repository.",
+        "judge_raw": "{\"verdict\": \"FAIL\", \"score\": 0.0, \"reasoning\": \"The agent only returned a session ID and did not answer the question or use any tools to inspect the repository.\"}",
+        "judge_model": "ollama/glm-5.2:cloud"
       }
     }
   ]

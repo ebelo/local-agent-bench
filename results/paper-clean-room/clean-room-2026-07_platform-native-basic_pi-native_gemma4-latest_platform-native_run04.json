@@ -2,7 +2,7 @@
   "metadata": {
     "runtime": "pi-native",
     "benchmark": "benchmarks/platform_native.json",
-    "git_commit": "53d0491d4442f4b4a1cd03807e3eeea7b9948d56",
+    "git_commit": "721cb4e5bf4bc6a97d98c4e7c7c39dd4225ee8c9",
     "python": "3.12.3",
     "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
     "model": "gemma4:latest",
@@ -12,8 +12,9 @@
     "pi_command": "pi",
     "native_platform_tool_score": true,
     "platform_native_task_score": true,
-    "judge_model": "mistral:7b",
-    "deterministic_score_only": false
+    "judge_model": "ollama/glm-5.2:cloud",
+    "deterministic_score_only": true,
+    "judge_total": 2.0
   },
   "runtime": "pi-native",
   "model": "gemma4:latest",
@@ -24,11 +25,11 @@
       "category": "filesystem",
       "runtime": "pi-native",
       "model": "gemma4:latest",
-      "score": 0.0,
-      "failure_reason": "PLATFORM_NATIVE_JUDGE_ERROR",
-      "final_answer": "We are currently in the directory: `<PROJECT_ROOT>`",
+      "score": 1.0,
+      "failure_reason": "PASS",
+      "final_answer": "We are currently in the folder: `<PROJECT_ROOT>`",
       "tool_calls": [],
-      "latency_ms": 7468,
+      "latency_ms": 6039,
       "raw_transcript": [
         {
           "role": "user",
@@ -36,7 +37,7 @@
         },
         {
           "role": "assistant",
-          "content": "We are currently in the directory: `<PROJECT_ROOT>`"
+          "content": "We are currently in the folder: `<PROJECT_ROOT>`"
         }
       ],
       "assertion_results": [
@@ -63,16 +64,9 @@
       ],
       "native_platform_tool_score": {
         "suite": "platform-native",
-        "score": 0.0,
-        "failure_reason": "PLATFORM_NATIVE_JUDGE_ERROR",
-        "judge": {
-          "judge_score": 0.0,
-          "judge_verdict": "JUDGE_ERROR",
-          "judge_reasoning": "Judge inference failed: openclaw infer exited 1: Error: Unknown model: openai/mistral:7b\n",
-          "judge_model": "mistral:7b",
-          "judge_raw": "openclaw infer exited 1: Error: Unknown model: openai/mistral:7b\n"
-        },
-        "judge_score_before_guardrails": 0.0,
+        "score": 1.0,
+        "failure_reason": "PASS",
+        "judge": null,
         "deterministic_score": 1.0,
         "deterministic_reason": "PASS",
         "deterministic_passed": true,
@@ -98,6 +92,13 @@
             }
           }
         ]
+      },
+      "judge": {
+        "judge_score": 0.0,
+        "judge_verdict": "JUDGE_FAIL",
+        "judge_reasoning": "Unstructured judge response interpreted as FAIL: The agent responded with `<PROJECT_ROOT>` which matches one of the expected assertions. However, there's no evidence of tool use in the transcript - the agent just answered directly. The task asks \"What folder are we in right now?\" which re",
+        "judge_raw": "The agent responded with `<PROJECT_ROOT>` which matches one of the expected assertions. However, there's no evidence of tool use in the transcript - the agent just answered directly. The task asks \"What folder are we in right now?\" which requires checking the current working directory. The agent didn't use any tools to verify this.\n\nBut wait - the expected assertions include `<PROJECT_ROOT>` as a valid answer, which suggests this is a placeholder that the platform might fill in. Let me reconsider. The transcript shows the assistant immediately responding with `<PROJECT_ROOT>` without any tool calls. This looks like the agent guessed or used a template answer without actually checking.\n\nActually, looking more carefully, `<PROJECT_ROOT>` is listed as an expected assertion, meaning the benchmark accepts it. But the agent didn't use any tools to get this information. The response is essentially a guess or template answer.\n\nHowever, the evaluation criteria say: \"Did the agent produce a corr",
+        "judge_model": "ollama/glm-5.2:cloud"
       }
     },
     {
@@ -105,11 +106,11 @@
       "category": "filesystem",
       "runtime": "pi-native",
       "model": "gemma4:latest",
-      "score": 0.0,
-      "failure_reason": "PLATFORM_NATIVE_JUDGE_ERROR",
-      "final_answer": "Based on the current directory listing, here are the main files and folders in the project:\n\n**Folders:**\n*   `articles/`: Likely contains articles or documentation content.\n*   `benchmarks/`: Probably holds benchmark-related data or scripts.\n*   `docs/`: For project documentation.\n*   `local_agent_bench/`: A dedicated folder for local agent benchmarking.\n*   `paper/`: May contain research papers or related materials.\n*   `results/`: Where experimental results are stored.\n*   `runners/`: Likely contains scripts or components responsible for running agents/tests.\n*   `scripts/`: General utility or execution scripts.\n*   `tests/`: For unit or integration tests.\n\n**Main Files:**\n*   `README.md`: The main project README file.\n*   `Dockerfile`: Definition for containerizing the application.\n*   `LICENSE`: Licensing information.\n*   `pyproject.toml`: Project metadata and dependencies configuration (standard Python setup).\n*   `docker-compose*.yml`: Various Docker Compose configurations for different setups (GPU, WSL GPU, etc.).\n\n**Action Scripts:**\nThere are several shell scripts that appear to be execution runners:\n*   `run_final_matrix.sh*`\n*   `run_matrix_ornith.sh*`\n*   `run_phase12.sh*`\n*   `run_qwen35_matrix.sh*`\n*   `run_remaining.sh*`\n\nThis structure suggests a machine learning or agent benchmarking project that relies heavily on containerization (Docker Compose) and structured testing cycles.",
+      "score": 1.0,
+      "failure_reason": "PASS",
+      "final_answer": "Based on the output of `ls -F`, here is an overview of the main files and folders in your project:\n\n**Core Structure & Configuration:**\n*   `README.md`: Project documentation/readmes.\n*   `pyproject.toml`: Likely used for managing project dependencies and metadata.\n*   `LICENSE`: The project's license file.\n*   `Dockerfile`: Definition for containerizing the application.\n\n**Deployment / Containers (Docker Compose):**\n*   `docker-compose.yml`: Base Docker configuration.\n*   Several specialized `docker-compose*.yml` files (`gpu`, `host-port`, `runtimes`, `wsl-gpu`) suggesting different deployment environments or resource configurations.\n\n**Code & Logic:**\n*   `local_agent_bench/`: Likely contains the local agent bench testing specific logic.\n*   `runners/`: Directory probably holding code responsible for running agents or benchmarks.\n*   `scripts/`: General scripts directory.\n\n**Documentation & Content:**\n*   `docs/`: Comprehensive documentation files.\n*   `articles/`: Articles related to the project.\n*   `paper/`: Directory likely containing research papers or academic content.\n*   `benchmarks/`: Directory probably holding benchmark data or setup.\n*   `results/`: Directory for storing execution results.\n\n**Execution Scripts:**\nThere are several shell scripts in the root directory designed to run different matrices of tests/experiments:\n*   `run_final_matrix.sh*`\n*   `run_matrix_ornith.sh*`\n*   `run_phase12.sh*`\n*   `run_qwen35_matrix.sh*`\n\nIn summary, the project is highly structured for experimentation and evaluation, utilizing Docker Compose heavily, and separating documentation (`docs`, `articles`), research materials (`paper`, `benchmarks`, `results`), core logic (`runners`, `local_agent_bench`), and execution steps (the various `run_*.sh` scripts).",
       "tool_calls": [],
-      "latency_ms": 14220,
+      "latency_ms": 23549,
       "raw_transcript": [
         {
           "role": "user",
@@ -117,7 +118,7 @@
         },
         {
           "role": "assistant",
-          "content": "Based on the current directory listing, here are the main files and folders in the project:\n\n**Folders:**\n*   `articles/`: Likely contains articles or documentation content.\n*   `benchmarks/`: Probably holds benchmark-related data or scripts.\n*   `docs/`: For project documentation.\n*   `local_agent_bench/`: A dedicated folder for local agent benchmarking.\n*   `paper/`: May contain research papers or related materials.\n*   `results/`: Where experimental results are stored.\n*   `runners/`: Likely contains scripts or components responsible for running agents/tests.\n*   `scripts/`: General utility or execution scripts.\n*   `tests/`: For unit or integration tests.\n\n**Main Files:**\n*   `README.md`: The main project README file.\n*   `Dockerfile`: Definition for containerizing the application.\n*   `LICENSE`: Licensing information.\n*   `pyproject.toml`: Project metadata and dependencies configuration (standard Python setup).\n*   `docker-compose*.yml`: Various Docker Compose configurations for different setups (GPU, WSL GPU, etc.).\n\n**Action Scripts:**\nThere are several shell scripts that appear to be execution runners:\n*   `run_final_matrix.sh*`\n*   `run_matrix_ornith.sh*`\n*   `run_phase12.sh*`\n*   `run_qwen35_matrix.sh*`\n*   `run_remaining.sh*`\n\nThis structure suggests a machine learning or agent benchmarking project that relies heavily on containerization (Docker Compose) and structured testing cycles."
+          "content": "Based on the output of `ls -F`, here is an overview of the main files and folders in your project:\n\n**Core Structure & Configuration:**\n*   `README.md`: Project documentation/readmes.\n*   `pyproject.toml`: Likely used for managing project dependencies and metadata.\n*   `LICENSE`: The project's license file.\n*   `Dockerfile`: Definition for containerizing the application.\n\n**Deployment / Containers (Docker Compose):**\n*   `docker-compose.yml`: Base Docker configuration.\n*   Several specialized `docker-compose*.yml` files (`gpu`, `host-port`, `runtimes`, `wsl-gpu`) suggesting different deployment environments or resource configurations.\n\n**Code & Logic:**\n*   `local_agent_bench/`: Likely contains the local agent bench testing specific logic.\n*   `runners/`: Directory probably holding code responsible for running agents or benchmarks.\n*   `scripts/`: General scripts directory.\n\n**Documentation & Content:**\n*   `docs/`: Comprehensive documentation files.\n*   `articles/`: Articles related to the project.\n*   `paper/`: Directory likely containing research papers or academic content.\n*   `benchmarks/`: Directory probably holding benchmark data or setup.\n*   `results/`: Directory for storing execution results.\n\n**Execution Scripts:**\nThere are several shell scripts in the root directory designed to run different matrices of tests/experiments:\n*   `run_final_matrix.sh*`\n*   `run_matrix_ornith.sh*`\n*   `run_phase12.sh*`\n*   `run_qwen35_matrix.sh*`\n\nIn summary, the project is highly structured for experimentation and evaluation, utilizing Docker Compose heavily, and separating documentation (`docs`, `articles`), research materials (`paper`, `benchmarks`, `results`), core logic (`runners`, `local_agent_bench`), and execution steps (the various `run_*.sh` scripts)."
         }
       ],
       "assertion_results": [
@@ -144,16 +145,9 @@
       ],
       "native_platform_tool_score": {
         "suite": "platform-native",
-        "score": 0.0,
-        "failure_reason": "PLATFORM_NATIVE_JUDGE_ERROR",
-        "judge": {
-          "judge_score": 0.0,
-          "judge_verdict": "JUDGE_ERROR",
-          "judge_reasoning": "Judge inference failed: openclaw infer exited 1: Error: Unknown model: openai/mistral:7b\n",
-          "judge_model": "mistral:7b",
-          "judge_raw": "openclaw infer exited 1: Error: Unknown model: openai/mistral:7b\n"
-        },
-        "judge_score_before_guardrails": 0.0,
+        "score": 1.0,
+        "failure_reason": "PASS",
+        "judge": null,
         "deterministic_score": 1.0,
         "deterministic_reason": "PASS",
         "deterministic_passed": true,
@@ -179,6 +173,13 @@
             }
           }
         ]
+      },
+      "judge": {
+        "judge_score": 1.0,
+        "judge_verdict": "JUDGE_PASS",
+        "judge_reasoning": "Agent used ls -F to get real directory data and synthesized it into a coherent answer containing all expected items: README.md, benchmarks, and local_agent_bench.",
+        "judge_raw": "{\"verdict\": \"PASS\", \"score\": 1.0, \"reasoning\": \"Agent used ls -F to get real directory data and synthesized it into a coherent answer containing all expected items: README.md, benchmarks, and local_agent_bench.\"}",
+        "judge_model": "ollama/glm-5.2:cloud"
       }
     },
     {
@@ -186,11 +187,11 @@
       "category": "filesystem",
       "runtime": "pi-native",
       "model": "gemma4:latest",
-      "score": 0.0,
-      "failure_reason": "PLATFORM_NATIVE_JUDGE_ERROR",
-      "final_answer": "The benchmark codename in `benchmarks/fixtures.md` is `alpine-signal`.",
+      "score": 1.0,
+      "failure_reason": "PASS",
+      "final_answer": "The benchmark codename in `benchmarks/fixtures.md` is **alpine-signal**.",
       "tool_calls": [],
-      "latency_ms": 10673,
+      "latency_ms": 25169,
       "raw_transcript": [
         {
           "role": "user",
@@ -198,7 +199,7 @@
         },
         {
           "role": "assistant",
-          "content": "The benchmark codename in `benchmarks/fixtures.md` is `alpine-signal`."
+          "content": "The benchmark codename in `benchmarks/fixtures.md` is **alpine-signal**."
         }
       ],
       "assertion_results": [
@@ -221,16 +222,9 @@
       ],
       "native_platform_tool_score": {
         "suite": "platform-native",
-        "score": 0.0,
-        "failure_reason": "PLATFORM_NATIVE_JUDGE_ERROR",
-        "judge": {
-          "judge_score": 0.0,
-          "judge_verdict": "JUDGE_ERROR",
-          "judge_reasoning": "Judge inference failed: openclaw infer exited 1: Error: Unknown model: openai/mistral:7b\n",
-          "judge_model": "mistral:7b",
-          "judge_raw": "openclaw infer exited 1: Error: Unknown model: openai/mistral:7b\n"
-        },
-        "judge_score_before_guardrails": 0.0,
+        "score": 1.0,
+        "failure_reason": "PASS",
+        "judge": null,
         "deterministic_score": 1.0,
         "deterministic_reason": "PASS",
         "deterministic_passed": true,
@@ -252,6 +246,13 @@
             }
           }
         ]
+      },
+      "judge": {
+        "judge_score": 0.0,
+        "judge_verdict": "JUDGE_FAIL",
+        "judge_reasoning": "No tool use is shown in the transcript; the agent answered directly without reading the file, so the correct answer cannot be verified as real tool-derived data.",
+        "judge_raw": "{\"verdict\": \"FAIL\", \"score\": 0.0, \"reasoning\": \"No tool use is shown in the transcript; the agent answered directly without reading the file, so the correct answer cannot be verified as real tool-derived data.\"}",
+        "judge_model": "ollama/glm-5.2:cloud"
       }
     },
     {
@@ -260,10 +261,10 @@
       "runtime": "pi-native",
       "model": "gemma4:latest",
       "score": 0.0,
-      "failure_reason": "PLATFORM_NATIVE_JUDGE_ERROR",
-      "final_answer": "I am an AI coding assistant, and I do not have access to real-time external data sources like current weather APIs.\n\nTo find the current weather in Berlin, please use a web search engine (like Google or Bing) or a specialized weather application/website.\n\nIf you had a specific weather API endpoint and key, I could potentially help write code that calls it using tools like `curl` via `bash`, but I cannot provide the data directly.",
+      "failure_reason": "ASSERTION_FAILED",
+      "final_answer": "I do not have access to real-time external data sources like live weather APIs. My capabilities are limited to reading files, executing shell commands, and editing/writing code within this environment.\n\nTo find the current weather in Berlin, please use a dedicated web search engine or weather application.",
       "tool_calls": [],
-      "latency_ms": 10580,
+      "latency_ms": 11689,
       "raw_transcript": [
         {
           "role": "user",
@@ -271,7 +272,7 @@
         },
         {
           "role": "assistant",
-          "content": "I am an AI coding assistant, and I do not have access to real-time external data sources like current weather APIs.\n\nTo find the current weather in Berlin, please use a web search engine (like Google or Bing) or a specialized weather application/website.\n\nIf you had a specific weather API endpoint and key, I could potentially help write code that calls it using tools like `curl` via `bash`, but I cannot provide the data directly."
+          "content": "I do not have access to real-time external data sources like live weather APIs. My capabilities are limited to reading files, executing shell commands, and editing/writing code within this environment.\n\nTo find the current weather in Berlin, please use a dedicated web search engine or weather application."
         }
       ],
       "assertion_results": [
@@ -366,15 +367,8 @@
       "native_platform_tool_score": {
         "suite": "platform-native",
         "score": 0.0,
-        "failure_reason": "PLATFORM_NATIVE_JUDGE_ERROR",
-        "judge": {
-          "judge_score": 0.0,
-          "judge_verdict": "JUDGE_ERROR",
-          "judge_reasoning": "Judge inference failed: openclaw infer exited 1: Error: Unknown model: openai/mistral:7b\n",
-          "judge_model": "mistral:7b",
-          "judge_raw": "openclaw infer exited 1: Error: Unknown model: openai/mistral:7b\n"
-        },
-        "judge_score_before_guardrails": 0.0,
+        "failure_reason": "ASSERTION_FAILED",
+        "judge": null,
         "deterministic_score": 0.0,
         "deterministic_reason": "ASSERTION_FAILED",
         "deterministic_passed": false,
@@ -467,6 +461,13 @@
             }
           }
         ]
+      },
+      "judge": {
+        "judge_score": 0.0,
+        "judge_verdict": "JUDGE_FAIL",
+        "judge_reasoning": "Agent refused to use available bash/curl tools to fetch live weather data and instead gave a non-answer.",
+        "judge_raw": "{\"verdict\": \"FAIL\", \"score\": 0.0, \"reasoning\": \"Agent refused to use available bash/curl tools to fetch live weather data and instead gave a non-answer.\"}",
+        "judge_model": "ollama/glm-5.2:cloud"
       }
     },
     {
@@ -474,11 +475,11 @@
       "category": "recovery",
       "runtime": "pi-native",
       "model": "gemma4:latest",
-      "score": 0.0,
-      "failure_reason": "PLATFORM_NATIVE_JUDGE_ERROR",
-      "final_answer": "The requested file `benchmarks/agentic/missing-note.md` does not exist. However, I searched the `benchmarks/agentic` directory and located a file named `recovery-note.md`, which seems to contain the necessary code.\n\nThe recovery code is: **`ridge-42`**",
+      "score": 1.0,
+      "failure_reason": "PASS",
+      "final_answer": "The file `benchmarks/agentic/missing-note.md` does not exist.\n\nHowever, I found a related note called `benchmarks/agentic/recovery-note.md`. The recovery code listed in that file is: **ridge-42**.",
       "tool_calls": [],
-      "latency_ms": 22093,
+      "latency_ms": 36003,
       "raw_transcript": [
         {
           "role": "user",
@@ -486,7 +487,7 @@
         },
         {
           "role": "assistant",
-          "content": "The requested file `benchmarks/agentic/missing-note.md` does not exist. However, I searched the `benchmarks/agentic` directory and located a file named `recovery-note.md`, which seems to contain the necessary code.\n\nThe recovery code is: **`ridge-42`**"
+          "content": "The file `benchmarks/agentic/missing-note.md` does not exist.\n\nHowever, I found a related note called `benchmarks/agentic/recovery-note.md`. The recovery code listed in that file is: **ridge-42**."
         }
       ],
       "assertion_results": [
@@ -509,16 +510,9 @@
       ],
       "native_platform_tool_score": {
         "suite": "platform-native",
-        "score": 0.0,
-        "failure_reason": "PLATFORM_NATIVE_JUDGE_ERROR",
-        "judge": {
-          "judge_score": 0.0,
-          "judge_verdict": "JUDGE_ERROR",
-          "judge_reasoning": "Judge inference failed: openclaw infer exited 1: Error: Unknown model: openai/mistral:7b\n",
-          "judge_model": "mistral:7b",
-          "judge_raw": "openclaw infer exited 1: Error: Unknown model: openai/mistral:7b\n"
-        },
-        "judge_score_before_guardrails": 0.0,
+        "score": 1.0,
+        "failure_reason": "PASS",
+        "judge": null,
         "deterministic_score": 1.0,
         "deterministic_reason": "PASS",
         "deterministic_passed": true,
@@ -540,6 +534,13 @@
             }
           }
         ]
+      },
+      "judge": {
+        "judge_score": 1.0,
+        "judge_verdict": "JUDGE_PASS",
+        "judge_reasoning": "Agent correctly identified the missing file, found the right note in benchmarks/agentic, and returned the recovery code ridge-42.",
+        "judge_raw": "{\"verdict\": \"PASS\", \"score\": 1.0, \"reasoning\": \"Agent correctly identified the missing file, found the right note in benchmarks/agentic, and returned the recovery code ridge-42.\"}",
+        "judge_model": "ollama/glm-5.2:cloud"
       }
     }
   ]

@@ -261,6 +261,12 @@ def _run_ollama_inference(model: str, prompt: str, timeout: int) -> str:
         raise RuntimeError(f"Ollama judge HTTP {exc.code}: {body[:500]}") from exc
     message = data.get("message", {}) if isinstance(data, dict) else {}
     content = message.get("content", "") if isinstance(message, dict) else ""
+    # Some models (e.g. GLM 5.2 cloud) put reasoning in 'thinking' with empty 'content'.
+    # Fall back to thinking when content is empty so the judge parser can still score.
+    if not content:
+        thinking = message.get("thinking", "") if isinstance(message, dict) else ""
+        if thinking:
+            return str(thinking)
     if not content:
         raise RuntimeError(f"No Ollama judge content: {str(data)[:500]}")
     return str(content)

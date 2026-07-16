@@ -2,7 +2,7 @@
   "metadata": {
     "runtime": "pi-native",
     "benchmark": "benchmarks/platform_native_reality.json",
-    "git_commit": "53d0491d4442f4b4a1cd03807e3eeea7b9948d56",
+    "git_commit": "721cb4e5bf4bc6a97d98c4e7c7c39dd4225ee8c9",
     "python": "3.12.3",
     "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
     "model": "gemma4:latest",
@@ -12,8 +12,9 @@
     "pi_command": "pi",
     "native_platform_tool_score": true,
     "platform_native_task_score": true,
-    "judge_model": "mistral:7b",
-    "deterministic_score_only": false
+    "judge_model": "ollama/glm-5.2:cloud",
+    "deterministic_score_only": true,
+    "judge_total": 0.0
   },
   "runtime": "pi-native",
   "model": "gemma4:latest",
@@ -25,10 +26,10 @@
       "runtime": "pi-native",
       "model": "gemma4:latest",
       "score": 0.0,
-      "failure_reason": "PLATFORM_NATIVE_JUDGE_ERROR",
-      "final_answer": "I apologize, but as a sophisticated coding agent running in this environment, I do not have built-in access to real-time internet APIs or dedicated weather services. Therefore, I cannot provide you with the current weather in Paris.\n\nYou would need to use a web browser or a search engine for that information!",
+      "failure_reason": "ASSERTION_FAILED",
+      "final_answer": "I am sorry, but as a coding assistant operating within a controlled environment, I do not have real-time internet access to check the current weather in Paris or any other location.\n\nYou will need to use a web search engine (like Google, Bing, etc.) or a dedicated weather app/website for that information.",
       "tool_calls": [],
-      "latency_ms": 9398,
+      "latency_ms": 4653,
       "raw_transcript": [
         {
           "role": "user",
@@ -36,7 +37,7 @@
         },
         {
           "role": "assistant",
-          "content": "I apologize, but as a sophisticated coding agent running in this environment, I do not have built-in access to real-time internet APIs or dedicated weather services. Therefore, I cannot provide you with the current weather in Paris.\n\nYou would need to use a web browser or a search engine for that information!"
+          "content": "I am sorry, but as a coding assistant operating within a controlled environment, I do not have real-time internet access to check the current weather in Paris or any other location.\n\nYou will need to use a web search engine (like Google, Bing, etc.) or a dedicated weather app/website for that information."
         }
       ],
       "assertion_results": [
@@ -161,15 +162,8 @@
       "native_platform_tool_score": {
         "suite": "platform-native",
         "score": 0.0,
-        "failure_reason": "PLATFORM_NATIVE_JUDGE_ERROR",
-        "judge": {
-          "judge_score": 0.0,
-          "judge_verdict": "JUDGE_ERROR",
-          "judge_reasoning": "Judge inference failed: openclaw infer exited 1: Error: Unknown model: openai/mistral:7b\n",
-          "judge_model": "mistral:7b",
-          "judge_raw": "openclaw infer exited 1: Error: Unknown model: openai/mistral:7b\n"
-        },
-        "judge_score_before_guardrails": 0.0,
+        "failure_reason": "ASSERTION_FAILED",
+        "judge": null,
         "deterministic_score": 0.0,
         "deterministic_reason": "ASSERTION_FAILED",
         "deterministic_passed": false,
@@ -292,6 +286,13 @@
             }
           }
         ]
+      },
+      "judge": {
+        "judge_score": 0.0,
+        "judge_verdict": "JUDGE_FAIL",
+        "judge_reasoning": "Agent refused to use tools and did not provide any weather data for Paris.",
+        "judge_raw": "{\"verdict\": \"FAIL\", \"score\": 0.0, \"reasoning\": \"Agent refused to use tools and did not provide any weather data for Paris.\"}",
+        "judge_model": "ollama/glm-5.2:cloud"
       }
     },
     {
@@ -300,10 +301,10 @@
       "runtime": "pi-native",
       "model": "gemma4:latest",
       "score": 0.0,
-      "failure_reason": "PLATFORM_NATIVE_JUDGE_ERROR",
-      "final_answer": "As an expert coding assistant running in this environment, I do not have real-time access to external APIs or the internet to provide current weather conditions in Paris. You would need to use a dedicated weather website or app for that information.",
+      "failure_reason": "ASSERTION_FAILED",
+      "final_answer": "I am sorry, but as an AI coded assistant, I do not have access to real-time external information like current weather data for specific locations. To get the weather in Paris with details on wind or rain, please check a reliable weather website or use a dedicated weather app.",
       "tool_calls": [],
-      "latency_ms": 7294,
+      "latency_ms": 19332,
       "raw_transcript": [
         {
           "role": "user",
@@ -311,7 +312,7 @@
         },
         {
           "role": "assistant",
-          "content": "As an expert coding assistant running in this environment, I do not have real-time access to external APIs or the internet to provide current weather conditions in Paris. You would need to use a dedicated weather website or app for that information."
+          "content": "I am sorry, but as an AI coded assistant, I do not have access to real-time external information like current weather data for specific locations. To get the weather in Paris with details on wind or rain, please check a reliable weather website or use a dedicated weather app."
         }
       ],
       "assertion_results": [
@@ -369,7 +370,7 @@
             "max": 180
           },
           "detail": {
-            "observed": 42,
+            "observed": 49,
             "max": 180
           }
         },
@@ -422,15 +423,8 @@
       "native_platform_tool_score": {
         "suite": "platform-native",
         "score": 0.0,
-        "failure_reason": "PLATFORM_NATIVE_JUDGE_ERROR",
-        "judge": {
-          "judge_score": 0.0,
-          "judge_verdict": "JUDGE_ERROR",
-          "judge_reasoning": "Judge inference failed: openclaw infer exited 1: Error: Unknown model: openai/mistral:7b\n",
-          "judge_model": "mistral:7b",
-          "judge_raw": "openclaw infer exited 1: Error: Unknown model: openai/mistral:7b\n"
-        },
-        "judge_score_before_guardrails": 0.0,
+        "failure_reason": "ASSERTION_FAILED",
+        "judge": null,
         "deterministic_score": 0.0,
         "deterministic_reason": "ASSERTION_FAILED",
         "deterministic_passed": false,
@@ -489,7 +483,7 @@
               "max": 180
             },
             "detail": {
-              "observed": 42,
+              "observed": 49,
               "max": 180
             }
           },
@@ -539,6 +533,13 @@
             }
           }
         ]
+      },
+      "judge": {
+        "judge_score": 0.0,
+        "judge_verdict": "JUDGE_FAIL",
+        "judge_reasoning": "Agent did not use tools to fetch weather data and simply refused to answer, failing the task entirely.",
+        "judge_raw": "{\"verdict\": \"FAIL\", \"score\": 0.0, \"reasoning\": \"Agent did not use tools to fetch weather data and simply refused to answer, failing the task entirely.\"}",
+        "judge_model": "ollama/glm-5.2:cloud"
       }
     },
     {
@@ -547,10 +548,10 @@
       "runtime": "pi-native",
       "model": "gemma4:latest",
       "score": 0.0,
-      "failure_reason": "PLATFORM_NATIVE_JUDGE_ERROR",
-      "final_answer": "I am an AI coding assistant operating in a development environment, and I do not have real-time access to current weather data for specific locations like Paris.\n\nTo check the expected weather, I recommend using one of the following:\n1.  A dedicated weather website (e.g., AccuWeather, Weather.com).\n2.  A search engine query (\"weather in Paris\").",
+      "failure_reason": "ASSERTION_FAILED",
+      "final_answer": "I am an AI coding assistant and I do not have access to real-time weather data or internet search capabilities for current conditions in Paris.\n\nTo check the expected weather, I recommend using a dedicated weather website or app (like AccuWeather, The Weather Channel, etc.).",
       "tool_calls": [],
-      "latency_ms": 7815,
+      "latency_ms": 5402,
       "raw_transcript": [
         {
           "role": "user",
@@ -558,7 +559,7 @@
         },
         {
           "role": "assistant",
-          "content": "I am an AI coding assistant operating in a development environment, and I do not have real-time access to current weather data for specific locations like Paris.\n\nTo check the expected weather, I recommend using one of the following:\n1.  A dedicated weather website (e.g., AccuWeather, Weather.com).\n2.  A search engine query (\"weather in Paris\")."
+          "content": "I am an AI coding assistant and I do not have access to real-time weather data or internet search capabilities for current conditions in Paris.\n\nTo check the expected weather, I recommend using a dedicated weather website or app (like AccuWeather, The Weather Channel, etc.)."
         }
       ],
       "assertion_results": [
@@ -616,12 +617,12 @@
             "max": 120
           },
           "detail": {
-            "observed": 55,
+            "observed": 45,
             "max": 120
           }
         },
         {
-          "ok": false,
+          "ok": true,
           "type": "answer_not_contains_any",
           "assertion": {
             "type": "answer_not_contains_any",
@@ -648,10 +649,7 @@
             "critical": true
           },
           "detail": {
-            "matched": [
-              "1.",
-              "2."
-            ],
+            "matched": [],
             "forbidden": [
               "Mots-clés",
               "Keywords",
@@ -678,15 +676,8 @@
       "native_platform_tool_score": {
         "suite": "platform-native",
         "score": 0.0,
-        "failure_reason": "PLATFORM_NATIVE_JUDGE_ERROR",
-        "judge": {
-          "judge_score": 0.0,
-          "judge_verdict": "JUDGE_ERROR",
-          "judge_reasoning": "Judge inference failed: openclaw infer exited 1: Error: Unknown model: openai/mistral:7b\n",
-          "judge_model": "mistral:7b",
-          "judge_raw": "openclaw infer exited 1: Error: Unknown model: openai/mistral:7b\n"
-        },
-        "judge_score_before_guardrails": 0.0,
+        "failure_reason": "ASSERTION_FAILED",
+        "judge": null,
         "deterministic_score": 0.0,
         "deterministic_reason": "ASSERTION_FAILED",
         "deterministic_passed": false,
@@ -745,12 +736,12 @@
               "max": 120
             },
             "detail": {
-              "observed": 55,
+              "observed": 45,
               "max": 120
             }
           },
           {
-            "ok": false,
+            "ok": true,
             "type": "answer_not_contains_any",
             "assertion": {
               "type": "answer_not_contains_any",
@@ -777,10 +768,7 @@
               "critical": true
             },
             "detail": {
-              "matched": [
-                "1.",
-                "2."
-              ],
+              "matched": [],
               "forbidden": [
                 "Mots-clés",
                 "Keywords",
@@ -804,6 +792,13 @@
             }
           }
         ]
+      },
+      "judge": {
+        "judge_score": 0.0,
+        "judge_verdict": "JUDGE_FAIL",
+        "judge_reasoning": "Agent did not use tools to fetch weather data and instead claimed it lacked access, providing no temperature or answer.",
+        "judge_raw": "{\"verdict\": \"FAIL\", \"score\": 0.0, \"reasoning\": \"Agent did not use tools to fetch weather data and instead claimed it lacked access, providing no temperature or answer.\"}",
+        "judge_model": "ollama/glm-5.2:cloud"
       }
     },
     {
@@ -811,11 +806,11 @@
       "category": "filesystem",
       "runtime": "pi-native",
       "model": "gemma4:latest",
-      "score": 0.0,
-      "failure_reason": "PLATFORM_NATIVE_JUDGE_ERROR",
-      "final_answer": "I am ready to assist you. Please provide your instructions or the task you would like me to accomplish.",
+      "score": 0.5,
+      "failure_reason": "ASSERTION_FAILED",
+      "final_answer": "I am ready to assist you! Please tell me what you would like to do. You can ask me to read files, run commands, write new code, or make edits.",
       "tool_calls": [],
-      "latency_ms": 17556,
+      "latency_ms": 16114,
       "raw_transcript": [
         {
           "role": "user",
@@ -823,7 +818,7 @@
         },
         {
           "role": "assistant",
-          "content": "I am ready to assist you. Please provide your instructions or the task you would like me to accomplish."
+          "content": "I am ready to assist you! Please tell me what you would like to do. You can ask me to read files, run commands, write new code, or make edits."
         }
       ],
       "assertion_results": [
@@ -877,23 +872,16 @@
             "max": 80
           },
           "detail": {
-            "observed": 19,
+            "observed": 30,
             "max": 80
           }
         }
       ],
       "native_platform_tool_score": {
         "suite": "platform-native",
-        "score": 0.0,
-        "failure_reason": "PLATFORM_NATIVE_JUDGE_ERROR",
-        "judge": {
-          "judge_score": 0.0,
-          "judge_verdict": "JUDGE_ERROR",
-          "judge_reasoning": "Judge inference failed: openclaw infer exited 1: Error: Unknown model: openai/mistral:7b\n",
-          "judge_model": "mistral:7b",
-          "judge_raw": "openclaw infer exited 1: Error: Unknown model: openai/mistral:7b\n"
-        },
-        "judge_score_before_guardrails": 0.0,
+        "score": 0.5,
+        "failure_reason": "ASSERTION_FAILED",
+        "judge": null,
         "deterministic_score": 0.5,
         "deterministic_reason": "ASSERTION_FAILED",
         "deterministic_passed": false,
@@ -948,11 +936,18 @@
               "max": 80
             },
             "detail": {
-              "observed": 19,
+              "observed": 30,
               "max": 80
             }
           }
         ]
+      },
+      "judge": {
+        "judge_score": 0.0,
+        "judge_verdict": "JUDGE_FAIL",
+        "judge_reasoning": "Agent did not use tools or answer the question; it only offered to help without taking any action.",
+        "judge_raw": "{\"verdict\": \"FAIL\", \"score\": 0.0, \"reasoning\": \"Agent did not use tools or answer the question; it only offered to help without taking any action.\"}",
+        "judge_model": "ollama/glm-5.2:cloud"
       }
     }
   ]
